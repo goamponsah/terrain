@@ -1,0 +1,19 @@
+{
+  "name": "terrain",
+  "version": "2.0.0",
+  "description": "Terrain — Experience Revenue Intelligence for luxury lodges",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "pg": "^8.11.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

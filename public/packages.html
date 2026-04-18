@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terrain — Experience Packages</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="logo"><div class="logo-name">TERRAIN</div><div class="logo-tagline">Experience Revenue Intelligence</div></div>
+      <div class="property-selector"><div class="prop-label">Active Property</div><div class="prop-name">Ridgeline Safari Lodge</div><div class="prop-type">Luxury Safari · 24 Suites · Laikipia, Kenya</div></div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section-label">Revenue</div>
+      <a href="/dashboard" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview</a>
+      <a href="/packages" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Experience Packages</a>
+      <a href="/forecast" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>Demand & Weather</a>
+      <a href="/channels" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>Channel Mix</a>
+      <div class="nav-section-label">Intelligence</div>
+      <a href="#" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>Competitor Radar</a>
+      <a href="#" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Guest Segments</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="weather-widget"><div><div class="weather-temp">24°C</div><div class="weather-loc">Laikipia Plateau</div></div><div class="weather-info">☀️ Dry season<br/>High demand signal</div></div>
+      <div class="user-row"><div class="avatar">SK</div><div><div class="user-name">Sipho Kamau</div><div class="user-role">Revenue Director</div></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-eyebrow">Pricing Engine</div>
+        <div class="page-title">Experience Packages</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-secondary">Import Packages</button>
+        <button class="btn-primary">Save & Publish</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Season Bands -->
+      <div class="card">
+        <div class="card-eyebrow">Seasonal Pricing</div>
+        <div class="card-title">Rate Bands by Season</div>
+        <div class="season-bands">
+          <div class="sb-row" style="background:rgba(196,97,58,0.05);border-color:rgba(196,97,58,0.2);">
+            <div class="sb-season">🔥 Peak Season</div>
+            <div class="sb-bar-wrap"><div class="sb-bar" style="width:100%;background:#c4613a;"></div></div>
+            <div class="sb-rate">$4,200–$9,800</div>
+            <div class="sb-badge" style="background:rgba(196,97,58,0.15);color:#c4613a;">Jul–Oct</div>
+          </div>
+          <div class="sb-row" style="background:rgba(184,146,42,0.05);border-color:rgba(184,146,42,0.2);">
+            <div class="sb-season">☀️ High Season</div>
+            <div class="sb-bar-wrap"><div class="sb-bar" style="width:80%;background:#b8922a;"></div></div>
+            <div class="sb-rate">$3,600–$8,400</div>
+            <div class="sb-badge" style="background:rgba(184,146,42,0.15);color:#b8922a;">Apr–Jun</div>
+          </div>
+          <div class="sb-row">
+            <div class="sb-season">🌿 Shoulder</div>
+            <div class="sb-bar-wrap"><div class="sb-bar" style="width:60%;background:#3a5c42;"></div></div>
+            <div class="sb-rate">$2,800–$6,200</div>
+            <div class="sb-badge" style="background:rgba(58,92,66,0.12);color:#3a5c42;">Nov–Dec</div>
+          </div>
+          <div class="sb-row">
+            <div class="sb-season">🌧️ Green Season</div>
+            <div class="sb-bar-wrap"><div class="sb-bar" style="width:38%;background:#7ab0d4;"></div></div>
+            <div class="sb-rate">$1,900–$4,200</div>
+            <div class="sb-badge" style="background:rgba(122,176,212,0.15);color:#3a5878;">Jan–Mar</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bundle Builder + Package Table -->
+      <div class="two-col">
+
+        <!-- Bundle Builder -->
+        <div class="bundle-builder">
+          <div class="bb-title">Bundle Builder</div>
+          <p style="font-size:12px;color:#8a7d72;margin-bottom:16px;">Adjust component weights to model optimal bundle pricing. Terrain calculates guest perceived value vs. your marginal cost.</p>
+          <div class="bb-components" id="bundleComponents">
+            <div class="bb-comp">
+              <div class="bb-comp-icon">🛏️</div>
+              <div class="bb-comp-name">Suite Accommodation (per night)</div>
+              <input type="range" min="300" max="800" value="520" oninput="updateBundle()" id="s_accom"/>
+              <div class="bb-comp-price" id="v_accom">$520</div>
+            </div>
+            <div class="bb-comp">
+              <div class="bb-comp-icon">🦁</div>
+              <div class="bb-comp-name">Game Drive (per day)</div>
+              <input type="range" min="80" max="300" value="150" oninput="updateBundle()" id="s_drive"/>
+              <div class="bb-comp-price" id="v_drive">$150</div>
+            </div>
+            <div class="bb-comp">
+              <div class="bb-comp-icon">🍽️</div>
+              <div class="bb-comp-name">Full Board (per day)</div>
+              <input type="range" min="60" max="200" value="120" oninput="updateBundle()" id="s_board"/>
+              <div class="bb-comp-price" id="v_board">$120</div>
+            </div>
+            <div class="bb-comp">
+              <div class="bb-comp-icon">🧖</div>
+              <div class="bb-comp-name">Spa Credit (optional)</div>
+              <input type="range" min="0" max="400" value="200" oninput="updateBundle()" id="s_spa"/>
+              <div class="bb-comp-price" id="v_spa">$200</div>
+            </div>
+            <div class="bb-comp">
+              <div class="bb-comp-icon">✈️</div>
+              <div class="bb-comp-name">Transfer (optional)</div>
+              <input type="range" min="0" max="600" value="0" oninput="updateBundle()" id="s_transfer"/>
+              <div class="bb-comp-price" id="v_transfer">$0</div>
+            </div>
+          </div>
+          <div class="bb-total">
+            <div>
+              <div class="bb-total-label">3-night bundle total</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;" id="bb_margin">Margin: est. 68%</div>
+            </div>
+            <div class="bb-total-price" id="bb_total">$3,360</div>
+          </div>
+          <div style="margin-top:14px;padding:12px;background:rgba(58,92,66,0.08);border:1px solid rgba(58,92,66,0.2);border-radius:6px;">
+            <div style="font-size:10px;color:#3a5c42;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Terrain Recommendation</div>
+            <div id="bb_rec" style="font-size:12px;color:#3d3530;">Add spa credit to increase perceived value and justify a 12% rate premium.</div>
+          </div>
+        </div>
+
+        <!-- Package Performance -->
+        <div class="card">
+          <div class="card-eyebrow">Performance</div>
+          <div class="card-title">Package Revenue by Type</div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Package</th><th>Bookings</th><th>Avg Rate</th><th>Revenue</th><th>vs Optimal</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="td-name">🦁 Classic Safari</td>
+                <td>87</td>
+                <td>$4,200</td>
+                <td>$365,400</td>
+                <td class="negative">−$52,200</td>
+              </tr>
+              <tr>
+                <td class="td-name">✈️ Fly-In Week</td>
+                <td>34</td>
+                <td>$9,800</td>
+                <td>$333,200</td>
+                <td class="positive">On target</td>
+              </tr>
+              <tr>
+                <td class="td-name">🌙 Honeymoon</td>
+                <td>29</td>
+                <td>$5,600</td>
+                <td>$162,400</td>
+                <td class="negative">−$17,400</td>
+              </tr>
+              <tr>
+                <td class="td-name">📷 Photography</td>
+                <td>18</td>
+                <td>$3,400</td>
+                <td>$61,200</td>
+                <td class="negative">−$3,600</td>
+              </tr>
+              <tr>
+                <td class="td-name">🧘 Wellness Retreat</td>
+                <td>12</td>
+                <td>$4,800</td>
+                <td>$57,600</td>
+                <td class="positive">+$2,400</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="margin-top:20px;">
+            <div class="card-eyebrow" style="margin-bottom:12px;">Ancillary Attach Rate by Package</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:center;gap:10px;font-size:12px;">
+                <span style="width:120px;color:#3d3530;">Fly-In Week</span>
+                <div style="flex:1;height:8px;background:#ede6d6;border-radius:4px;overflow:hidden;"><div style="width:84%;height:100%;background:#c4613a;border-radius:4px;"></div></div>
+                <span style="font-family:'DM Mono',monospace;font-size:11px;">84%</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;font-size:12px;">
+                <span style="width:120px;color:#3d3530;">Honeymoon</span>
+                <div style="flex:1;height:8px;background:#ede6d6;border-radius:4px;overflow:hidden;"><div style="width:76%;height:100%;background:#b8922a;border-radius:4px;"></div></div>
+                <span style="font-family:'DM Mono',monospace;font-size:11px;">76%</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;font-size:12px;">
+                <span style="width:120px;color:#3d3530;">Classic Safari</span>
+                <div style="flex:1;height:8px;background:#ede6d6;border-radius:4px;overflow:hidden;"><div style="width:61%;height:100%;background:#3a5c42;border-radius:4px;"></div></div>
+                <span style="font-family:'DM Mono',monospace;font-size:11px;">61%</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;font-size:12px;">
+                <span style="width:120px;color:#3d3530;">Photography</span>
+                <div style="flex:1;height:8px;background:#ede6d6;border-radius:4px;overflow:hidden;"><div style="width:44%;height:100%;background:#7ab0d4;border-radius:4px;"></div></div>
+                <span style="font-family:'DM Mono',monospace;font-size:11px;">44%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

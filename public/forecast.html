@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terrain — Demand & Weather</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="logo"><div class="logo-name">TERRAIN</div><div class="logo-tagline">Experience Revenue Intelligence</div></div>
+      <div class="property-selector"><div class="prop-label">Active Property</div><div class="prop-name">Ridgeline Safari Lodge</div><div class="prop-type">Luxury Safari · 24 Suites · Laikipia, Kenya</div></div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section-label">Revenue</div>
+      <a href="/dashboard" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview</a>
+      <a href="/packages" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Experience Packages</a>
+      <a href="/forecast" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>Demand & Weather</a>
+      <a href="/channels" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>Channel Mix</a>
+      <div class="nav-section-label">Intelligence</div>
+      <a href="#" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>Competitor Radar</a>
+      <a href="#" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Guest Segments</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="weather-widget"><div><div class="weather-temp">24°C</div><div class="weather-loc">Laikipia Plateau</div></div><div class="weather-info">☀️ Dry season<br/>High demand signal</div></div>
+      <div class="user-row"><div class="avatar">SK</div><div><div class="user-name">Sipho Kamau</div><div class="user-role">Revenue Director</div></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-eyebrow">Forecasting</div>
+        <div class="page-title">Demand & Weather Intelligence</div>
+      </div>
+      <div class="topbar-right">
+        <select class="field-select"><option>Next 30 days</option><option>Next 60 days</option><option>Next 90 days</option></select>
+        <button class="btn-primary">Refresh Forecast</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- KPIs -->
+      <div class="kpi-strip">
+        <div class="kpi-card accent">
+          <div class="kpi-label">Forecast Accuracy</div>
+          <div class="kpi-value">96.1%</div>
+          <div class="kpi-delta up">↑ Best 90 days ever</div>
+          <div class="kpi-ornament">%</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Peak Demand Date</div>
+          <div class="kpi-value">Apr 25</div>
+          <div class="kpi-delta up">100% projected occupancy</div>
+          <div class="kpi-ornament">↑</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Weather Risk Days</div>
+          <div class="kpi-value">3 days</div>
+          <div class="kpi-delta down">Light rain May 2–4</div>
+          <div class="kpi-ornament">☁</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Demand vs Last Year</div>
+          <div class="kpi-value">+22%</div>
+          <div class="kpi-delta up">Post-pandemic recovery peak</div>
+          <div class="kpi-ornament">Y</div>
+        </div>
+      </div>
+
+      <!-- Demand Heatmap -->
+      <div class="card">
+        <div class="card-eyebrow">30-Day Demand Map</div>
+        <div class="card-title">Projected Suite Occupancy by Date</div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px;">
+          <div class="dhm-header">Sun</div><div class="dhm-header">Mon</div><div class="dhm-header">Tue</div>
+          <div class="dhm-header">Wed</div><div class="dhm-header">Thu</div><div class="dhm-header">Fri</div><div class="dhm-header">Sat</div>
+        </div>
+        <div class="demand-heatmap" id="demandHeatmap"></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;font-size:10px;color:#8a7d72;">
+          <span>Low</span>
+          <div style="flex:1;height:6px;border-radius:3px;background:linear-gradient(90deg,#d4e8d4,#f5c842,#c4613a);"></div>
+          <span>100%</span>
+        </div>
+      </div>
+
+      <!-- Weather Impact + Events -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-eyebrow">Weather Model</div>
+          <div class="card-title">14-Day Forecast & Revenue Impact</div>
+          <div class="weather-impacts">
+            <div class="wi-card"><div class="wi-icon">☀️</div><div class="wi-date">Apr 17–19</div><div class="wi-condition">Clear, 28°C</div><div class="wi-impact pos">+8% demand</div></div>
+            <div class="wi-card"><div class="wi-icon">🌤️</div><div class="wi-date">Apr 20–22</div><div class="wi-condition">Partly cloudy</div><div class="wi-impact neu">Neutral</div></div>
+            <div class="wi-card"><div class="wi-icon">🔥</div><div class="wi-date">Apr 23–25</div><div class="wi-condition">Perfect dry, 26°C</div><div class="wi-impact pos">+14% demand</div></div>
+            <div class="wi-card"><div class="wi-icon">☀️</div><div class="wi-date">Apr 26–28</div><div class="wi-condition">Clear, game active</div><div class="wi-impact pos">+11% demand</div></div>
+            <div class="wi-card"><div class="wi-icon">🌦️</div><div class="wi-date">Apr 29–30</div><div class="wi-condition">Light showers</div><div class="wi-impact neg">−4% demand</div></div>
+            <div class="wi-card"><div class="wi-icon">🌧️</div><div class="wi-date">May 1–3</div><div class="wi-condition">Rain, 19°C</div><div class="wi-impact neg">−12% demand</div></div>
+            <div class="wi-card"><div class="wi-icon">🌤️</div><div class="wi-date">May 4–6</div><div class="wi-condition">Clearing, green</div><div class="wi-impact pos">+3% demand</div></div>
+            <div class="wi-card"><div class="wi-icon">☀️</div><div class="wi-date">May 7–9</div><div class="wi-condition">Warm, clear</div><div class="wi-impact pos">+9% demand</div></div>
+            <div class="wi-card"><div class="wi-icon">☀️</div><div class="wi-date">May 10–14</div><div class="wi-condition">Peak dry season</div><div class="wi-impact pos">+16% demand</div></div>
+          </div>
+          <div style="margin-top:16px;padding:12px;background:rgba(196,97,58,0.06);border:1px solid rgba(196,97,58,0.15);border-radius:6px;font-size:12px;color:#3d3530;">
+            <strong style="color:#c4613a;">Weather Alert:</strong> May 1–3 rain event projected. Terrain recommends pre-emptively offering May 2–3 bookings a bush dining upgrade ($0 marginal cost) to maintain satisfaction and avoid cancellations.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-eyebrow">Local Intelligence</div>
+          <div class="card-title">Demand Events</div>
+          <div class="event-list">
+            <div class="ev-item">
+              <div class="ev-date">Apr 25</div>
+              <div class="ev-body">
+                <div class="ev-name">Wildebeest migration corridor active</div>
+                <div class="ev-impact up">↑ +22% demand spike expected</div>
+              </div>
+            </div>
+            <div class="ev-item">
+              <div class="ev-date">Apr 27</div>
+              <div class="ev-body">
+                <div class="ev-name">Nairobi Fashion Week (source market)</div>
+                <div class="ev-impact up">↑ +8% fly-in bookings from Nairobi</div>
+              </div>
+            </div>
+            <div class="ev-item">
+              <div class="ev-date">May 1</div>
+              <div class="ev-body">
+                <div class="ev-name">Public holiday — Kenya Labour Day</div>
+                <div class="ev-impact up">↑ Domestic market surge +15%</div>
+              </div>
+            </div>
+            <div class="ev-item">
+              <div class="ev-date">May 5</div>
+              <div class="ev-body">
+                <div class="ev-name">London luxury travel fair — agent bookings</div>
+                <div class="ev-impact up">↑ UK market bookings +11%</div>
+              </div>
+            </div>
+            <div class="ev-item">
+              <div class="ev-date">May 12</div>
+              <div class="ev-body">
+                <div class="ev-name">Competitor lodge renovation closure</div>
+                <div class="ev-impact up">↑ Spillover demand +18%</div>
+              </div>
+            </div>
+            <div class="ev-item">
+              <div class="ev-date">May 15</div>
+              <div class="ev-body">
+                <div class="ev-name">Short rains forecast beginning</div>
+                <div class="ev-impact down">↓ European bookings soften −9%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

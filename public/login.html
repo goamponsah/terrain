@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terrain — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1c1814; --ink-soft: #3d3530; --ink-muted: #8a7d72;
+      --cream: #f5f0e8; --parchment: #ede6d6; --warm: #faf7f2;
+      --border: #ddd4c4; --border2: #ccc0ae;
+      --terra: #c4613a; --terra-lt: #e8896a;
+      --forest: #3a5c42;
+    }
+    html, body { min-height: 100vh; background: var(--ink); font-family: 'Syne', sans-serif; color: var(--cream); display: flex; align-items: center; justify-content: center; }
+    body::before {
+      content: 'TERRAIN'; position: fixed; bottom: -40px; left: -20px;
+      font-family: 'Cormorant Garamond', serif; font-size: 200px; font-weight: 700;
+      color: rgba(255,255,255,0.025); pointer-events: none; line-height: 1; letter-spacing: -6px;
+    }
+    .container { width: 100%; max-width: 420px; padding: 40px 20px; position: relative; z-index: 1; }
+    .logo { text-align: center; margin-bottom: 40px; }
+    .logo-name { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; letter-spacing: 0.1em; }
+    .logo-sub { font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 4px; }
+    .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 36px 32px; }
+    .card-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 500; margin-bottom: 4px; }
+    .card-sub { font-size: 12px; color: rgba(255,255,255,0.35); margin-bottom: 28px; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.4); margin-bottom: 7px; }
+    .field input {
+      width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 7px; padding: 13px 14px; font-size: 14px; color: var(--cream);
+      font-family: 'Syne', sans-serif; outline: none; transition: border-color 0.15s;
+    }
+    .field input:focus { border-color: var(--terra); }
+    .field input::placeholder { color: rgba(255,255,255,0.2); }
+    .btn-submit {
+      width: 100%; background: var(--terra); color: #fff;
+      border: none; border-radius: 7px; padding: 14px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      font-family: 'Syne', sans-serif; letter-spacing: 0.04em;
+      margin-top: 8px; transition: background 0.15s;
+    }
+    .btn-submit:hover { background: var(--terra-lt); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .error { background: rgba(196,97,58,0.15); border: 1px solid rgba(196,97,58,0.3); border-radius: 6px; padding: 10px 12px; font-size: 12px; color: var(--terra-lt); margin-bottom: 16px; display: none; }
+    .switch { text-align: center; margin-top: 20px; font-size: 12px; color: rgba(255,255,255,0.3); }
+    .switch a { color: var(--terra-lt); text-decoration: none; }
+    .switch a:hover { text-decoration: underline; }
+    .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+    .divider span { font-size: 11px; color: rgba(255,255,255,0.2); white-space: nowrap; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">
+    <div class="logo-name">TERRAIN</div>
+    <div class="logo-sub">Experience Revenue Intelligence</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Welcome back</div>
+    <div class="card-sub">Sign in to your property dashboard</div>
+    <div class="error" id="errorMsg"></div>
+    <div class="field">
+      <label>Email Address</label>
+      <input type="email" id="email" placeholder="you@yourlodge.com" autocomplete="email"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <button class="btn-submit" id="loginBtn" onclick="doLogin()">Sign In</button>
+    <div class="switch">
+      Don't have an account? <a href="/register">Create one free</a>
+    </div>
+  </div>
+</div>
+<script>
+  // If already logged in, redirect
+  fetch('/api/auth/me').then(r => r.json()).then(d => {
+    if (d.user) window.location.href = d.hasLodge ? '/dashboard' : '/onboarding';
+  }).catch(() => {});
+
+  document.getElementById('password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  async function doLogin() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('loginBtn');
+    const err = document.getElementById('errorMsg');
+
+    if (!email || !password) { showError('Please enter your email and password'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Signing in…';
+    err.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Check if they have a lodge
+        const me = await fetch('/api/auth/me').then(r => r.json());
+        window.location.href = me.hasLodge ? '/dashboard' : '/onboarding';
+      } else {
+        showError(data.error || 'Login failed');
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    } catch {
+      showError('Connection error — please try again');
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    }
+  }
+
+  function showError(msg) {
+    const err = document.getElementById('errorMsg');
+    err.textContent = msg;
+    err.style.display = 'block';
+  }
+</script>
+</body>
+</html>

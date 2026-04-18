@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terrain — Pricing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1c1814; --ink-soft: #3d3530; --ink-muted: #8a7d72;
+      --cream: #f5f0e8; --parchment: #ede6d6; --warm: #faf7f2;
+      --border: #ddd4c4; --terra: #c4613a; --terra-lt: #e8896a;
+      --forest: #3a5c42; --gold: #b8922a;
+    }
+    html, body { min-height: 100vh; background: var(--warm); font-family: 'Syne', sans-serif; color: var(--ink); }
+
+    /* Nav */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 60px; background: var(--ink);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: var(--cream); letter-spacing: 0.08em; text-decoration: none; }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px; transition: color 0.15s; }
+    .nav-links a:hover { color: var(--cream); }
+    .btn-nav { background: var(--terra); color: #fff; border: none; border-radius: 6px; padding: 9px 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Syne', sans-serif; text-decoration: none; }
+
+    /* Hero */
+    .hero { text-align: center; padding: 80px 20px 60px; }
+    .hero-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-muted); margin-bottom: 16px; }
+    .hero-title { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 500; line-height: 1.1; margin-bottom: 16px; }
+    .hero-title em { color: var(--terra); font-style: italic; }
+    .hero-sub { font-size: 15px; color: var(--ink-muted); max-width: 480px; margin: 0 auto 12px; line-height: 1.7; }
+    .founding-badge {
+      display: inline-block;
+      background: rgba(58,92,66,0.1); border: 1px solid rgba(58,92,66,0.25);
+      color: var(--forest); border-radius: 20px; padding: 7px 18px;
+      font-size: 12px; font-weight: 600; margin-top: 8px;
+    }
+
+    /* Pricing cards */
+    .pricing-section { max-width: 1000px; margin: 0 auto; padding: 20px 20px 80px; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .card {
+      background: var(--cream); border: 1px solid var(--border);
+      border-radius: 12px; padding: 32px 28px;
+      position: relative; transition: box-shadow 0.2s;
+    }
+    .card:hover { box-shadow: 0 8px 32px rgba(28,24,20,0.1); }
+    .card.featured {
+      background: var(--ink); border-color: var(--ink);
+    }
+    .card.featured .card-name { color: rgba(255,255,255,0.5); }
+    .card.featured .card-price { color: var(--cream); }
+    .card.featured .card-period { color: rgba(255,255,255,0.35); }
+    .card.featured .card-desc { color: rgba(255,255,255,0.4); }
+    .card.featured .feat-item { color: rgba(255,255,255,0.7); border-bottom-color: rgba(255,255,255,0.08); }
+    .card.featured .feat-item::before { color: var(--terra-lt); }
+    .popular-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--terra); color: #fff;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 10px; white-space: nowrap;
+    }
+    .card-name { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-muted); margin-bottom: 16px; }
+    .card-price { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 600; line-height: 1; }
+    .card-period { font-size: 13px; color: var(--ink-muted); margin-bottom: 8px; }
+    .card-suites { font-size: 11px; color: var(--terra); font-weight: 600; margin-bottom: 16px; font-family: 'DM Mono', monospace; }
+    .card.featured .card-suites { color: var(--terra-lt); }
+    .card-desc { font-size: 12px; color: var(--ink-muted); line-height: 1.6; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .card.featured .card-desc { border-bottom-color: rgba(255,255,255,0.08); }
+    .feat-list { list-style: none; margin-bottom: 28px; }
+    .feat-item { font-size: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); color: var(--ink-soft); display: flex; gap: 8px; }
+    .feat-item::before { content: '✓'; color: var(--forest); font-weight: 700; flex-shrink: 0; }
+    .card-btn {
+      display: block; width: 100%; text-align: center;
+      padding: 13px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: 'Syne', sans-serif; text-decoration: none;
+      transition: all 0.15s; border: none;
+    }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--ink-soft); }
+    .btn-outline:hover { border-color: var(--terra); color: var(--terra); }
+    .btn-primary-card { background: var(--terra); color: #fff; }
+    .btn-primary-card:hover { background: var(--terra-lt); }
+    .btn-ghost-card { background: rgba(255,255,255,0.08); color: var(--cream); }
+    .btn-ghost-card:hover { background: var(--terra); }
+
+    /* Trial note */
+    .trial-note { text-align: center; margin-top: 32px; font-size: 13px; color: var(--ink-muted); }
+    .trial-note strong { color: var(--ink-soft); }
+
+    /* FAQ */
+    .faq-section { max-width: 680px; margin: 0 auto; padding: 0 20px 80px; }
+    .faq-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; text-align: center; margin-bottom: 40px; }
+    .faq-item { border-bottom: 1px solid var(--border); padding: 20px 0; }
+    .faq-q { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+    .faq-a { font-size: 13px; color: var(--ink-muted); line-height: 1.7; }
+
+    /* Footer */
+    footer { background: var(--ink); padding: 32px 60px; display: flex; justify-content: space-between; align-items: center; }
+    .footer-brand { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--cream); letter-spacing: 0.08em; }
+    .footer-company { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 3px; }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: 11px; color: rgba(255,255,255,0.3); text-decoration: none; transition: color 0.15s; }
+    .footer-links a:hover { color: rgba(255,255,255,0.6); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">TERRAIN</a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/login">Login</a>
+    <a href="/register" class="btn-nav">Start Free Trial</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Simple, transparent pricing</div>
+  <div class="hero-title">Revenue intelligence<br/><em>priced for lodges</em></div>
+  <div class="hero-sub">No setup fees. No contracts. Cancel anytime. Priced by suite count so you always pay what's fair.</div>
+  <div class="founding-badge">🌿 Founding lodge rate — locked for your first year</div>
+</div>
+
+<div class="pricing-section">
+  <div class="cards">
+
+    <!-- Starter -->
+    <div class="card">
+      <div class="card-name">Starter</div>
+      <div class="card-price">$299</div>
+      <div class="card-period">/month · billed monthly</div>
+      <div class="card-suites">Up to 15 suites</div>
+      <div class="card-desc">Perfect for independent boutique lodges and tented camps ready to move beyond spreadsheet pricing.</div>
+      <ul class="feat-list">
+        <li class="feat-item">Dynamic package pricing engine</li>
+        <li class="feat-item">Scarcity & occupancy signals</li>
+        <li class="feat-item">30-day demand forecasting</li>
+        <li class="feat-item">Channel mix analysis</li>
+        <li class="feat-item">AI revenue recommendations</li>
+        <li class="feat-item">Email support</li>
+      </ul>
+      <a href="/register" class="card-btn btn-outline">Start 90-day free trial</a>
+    </div>
+
+    <!-- Growth (featured) -->
+    <div class="card featured">
+      <div class="popular-badge">Most Popular</div>
+      <div class="card-name">Growth</div>
+      <div class="card-price">$599</div>
+      <div class="card-period">/month · billed monthly</div>
+      <div class="card-suites">Up to 35 suites</div>
+      <div class="card-desc">For established lodges like Governors' Camp tier operators who want full revenue intelligence across all packages and channels.</div>
+      <ul class="feat-list">
+        <li class="feat-item">Everything in Starter</li>
+        <li class="feat-item">Weather-adjusted demand model</li>
+        <li class="feat-item">Competitor rate benchmarking</li>
+        <li class="feat-item">Bundle pricing optimizer</li>
+        <li class="feat-item">Ancillary revenue tracking</li>
+        <li class="feat-item">Priority support</li>
+      </ul>
+      <a href="/register" class="card-btn btn-primary-card">Start 90-day free trial</a>
+    </div>
+
+    <!-- Portfolio -->
+    <div class="card">
+      <div class="card-name">Portfolio</div>
+      <div class="card-price">$999</div>
+      <div class="card-period">/month · billed monthly</div>
+      <div class="card-suites">36+ suites or multiple properties</div>
+      <div class="card-desc">For lodge groups and multi-property operators who need portfolio-level revenue intelligence and consolidated reporting.</div>
+      <ul class="feat-list">
+        <li class="feat-item">Everything in Growth</li>
+        <li class="feat-item">Up to 5 properties</li>
+        <li class="feat-item">Portfolio revenue dashboard</li>
+        <li class="feat-item">Cross-property benchmarking</li>
+        <li class="feat-item">Custom season configuration</li>
+        <li class="feat-item">Dedicated account manager</li>
+      </ul>
+      <a href="/register" class="card-btn btn-outline">Start 90-day free trial</a>
+    </div>
+
+  </div>
+
+  <div class="trial-note">
+    All plans include a <strong>90-day free trial</strong> — no credit card required to start.<br/>
+    Founding lodges who subscribe within the first year lock in their rate for 12 months.<br/>
+    Terrain is a product of <strong>TechSoftNexa LTD</strong>, registered in Ghana.
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-section">
+  <div class="faq-title">Frequently asked questions</div>
+
+  <div class="faq-item">
+    <div class="faq-q">Do I need a credit card to start the free trial?</div>
+    <div class="faq-a">No. You can start your 90-day free trial with just an email address. No payment details required until you choose to subscribe.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">What happens after the 90-day trial?</div>
+    <div class="faq-a">Your data stays safe and your account remains accessible. You'll receive an email before the trial ends with your founding lodge pricing. There's no obligation to subscribe.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Can I change plans later?</div>
+    <div class="faq-a">Yes. You can upgrade or downgrade at any time. Changes take effect at the start of your next billing period.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">What currencies do you accept?</div>
+    <div class="faq-a">All subscriptions are billed in USD. Your lodge owners pay in USD regardless of their location — Terrain works for lodges in Kenya, Tanzania, South Africa, Botswana, Zimbabwe and beyond.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Is my lodge data private and secure?</div>
+    <div class="faq-a">Yes. Each lodge account is completely private. Your pricing data, packages, and revenue figures are never shared with other operators or third parties. Data is stored securely and encrypted.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Who is behind Terrain?</div>
+    <div class="faq-a">Terrain is built and operated by TechSoftNexa LTD, a technology company registered in Ghana. We build revenue intelligence tools for hospitality and experience operators globally.</div>
+  </div>
+</div>
+
+<footer>
+  <div>
+    <div class="footer-brand">TERRAIN</div>
+    <div class="footer-company">A product of TechSoftNexa LTD · Ghana</div>
+  </div>
+  <div class="footer-links">
+    <a href="/pricing">Pricing</a>
+    <a href="/terms">Terms of Service</a>
+    <a href="/privacy">Privacy Policy</a>
+    <a href="mailto:info@techsoftnexa.com">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>

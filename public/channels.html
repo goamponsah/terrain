@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terrain — Channel Mix</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="logo"><div class="logo-name">TERRAIN</div><div class="logo-tagline">Experience Revenue Intelligence</div></div>
+      <div class="property-selector"><div class="prop-label">Active Property</div><div class="prop-name">Ridgeline Safari Lodge</div><div class="prop-type">Luxury Safari · 24 Suites · Laikipia, Kenya</div></div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section-label">Revenue</div>
+      <a href="/dashboard" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview</a>
+      <a href="/packages" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Experience Packages</a>
+      <a href="/forecast" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>Demand & Weather</a>
+      <a href="/channels" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>Channel Mix</a>
+      <div class="nav-section-label">Intelligence</div>
+      <a href="#" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>Competitor Radar</a>
+      <a href="#" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Guest Segments</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="weather-widget"><div><div class="weather-temp">24°C</div><div class="weather-loc">Laikipia Plateau</div></div><div class="weather-info">☀️ Dry season<br/>High demand signal</div></div>
+      <div class="user-row"><div class="avatar">SK</div><div><div class="user-name">Sipho Kamau</div><div class="user-role">Revenue Director</div></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-eyebrow">Distribution</div>
+        <div class="page-title">Channel Mix Optimization</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-secondary">Add Channel</button>
+        <button class="btn-primary">Rebalance Mix</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Channel KPIs -->
+      <div class="kpi-strip">
+        <div class="kpi-card accent">
+          <div class="kpi-label">Direct Booking Rate</div>
+          <div class="kpi-value">44%</div>
+          <div class="kpi-delta up">↑ Target: 55%</div>
+          <div class="kpi-ornament">D</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg Commission Cost</div>
+          <div class="kpi-value">14.2%</div>
+          <div class="kpi-delta down">↓ Reduce by shifting to direct</div>
+          <div class="kpi-ornament">%</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Net Revenue Per Booking</div>
+          <div class="kpi-value">$4,810</div>
+          <div class="kpi-delta up">↑ $320 vs last quarter</div>
+          <div class="kpi-ornament">N</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Commission Leak (30d)</div>
+          <div class="kpi-value">$71,300</div>
+          <div class="kpi-delta down">Paid to OTAs & agents</div>
+          <div class="kpi-ornament">!</div>
+        </div>
+      </div>
+
+      <!-- Channel visual bar -->
+      <div class="card">
+        <div class="card-eyebrow">Revenue Distribution</div>
+        <div class="card-title">Channel Mix — Current vs Target</div>
+        <div style="margin-bottom:16px;">
+          <div style="font-size:11px;color:#8a7d72;margin-bottom:6px;">Current mix</div>
+          <div class="channel-bar-visual" style="height:16px;">
+            <div class="chb" style="width:44%;background:#3a5c42;"></div>
+            <div class="chb" style="width:22%;background:#b8922a;"></div>
+            <div class="chb" style="width:18%;background:#c4613a;"></div>
+            <div class="chb" style="width:10%;background:#7ab0d4;"></div>
+            <div class="chb" style="width:6%;background:#8a7d72;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#8a7d72;margin-bottom:6px;">Target mix (Terrain recommendation)</div>
+          <div class="channel-bar-visual" style="height:16px;">
+            <div class="chb" style="width:55%;background:rgba(58,92,66,0.5);"></div>
+            <div class="chb" style="width:20%;background:rgba(184,146,42,0.5);"></div>
+            <div class="chb" style="width:12%;background:rgba(196,97,58,0.5);"></div>
+            <div class="chb" style="width:9%;background:rgba(122,176,212,0.5);"></div>
+            <div class="chb" style="width:4%;background:rgba(138,125,114,0.5);"></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:20px;margin-top:14px;flex-wrap:wrap;">
+          <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#8a7d72;"><span style="width:10px;height:10px;border-radius:2px;background:#3a5c42;display:inline-block;"></span>Direct</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#8a7d72;"><span style="width:10px;height:10px;border-radius:2px;background:#b8922a;display:inline-block;"></span>Travel Agents</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#8a7d72;"><span style="width:10px;height:10px;border-radius:2px;background:#c4613a;display:inline-block;"></span>OTAs</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#8a7d72;"><span style="width:10px;height:10px;border-radius:2px;background:#7ab0d4;display:inline-block;"></span>Wholesale</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#8a7d72;"><span style="width:10px;height:10px;border-radius:2px;background:#8a7d72;display:inline-block;"></span>GDS</span>
+        </div>
+      </div>
+
+      <!-- Channel Cards -->
+      <div class="channel-grid">
+
+        <div class="channel-card">
+          <div class="ch-card-header">
+            <div class="ch-card-name">Direct Website</div>
+            <div class="ch-card-status status-active">Active</div>
+          </div>
+          <div class="ch-metrics">
+            <div class="ch-metric"><div class="ch-metric-label">Share</div><div class="ch-metric-val">44%</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Commission</div><div class="ch-metric-val">0%</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Avg booking</div><div class="ch-metric-val">$5,840</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Lead time</div><div class="ch-metric-val">42 days</div></div>
+          </div>
+          <div class="ch-rec">Terrain recommends <strong>increasing direct share to 55%</strong> by offering a "book direct" rate that includes complimentary bush breakfast. Estimated commission saving: +$28,400/month.</div>
+        </div>
+
+        <div class="channel-card">
+          <div class="ch-card-header">
+            <div class="ch-card-name">Luxury Travel Agents</div>
+            <div class="ch-card-status status-active">Active</div>
+          </div>
+          <div class="ch-metrics">
+            <div class="ch-metric"><div class="ch-metric-label">Share</div><div class="ch-metric-val">22%</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Commission</div><div class="ch-metric-val">12%</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Avg booking</div><div class="ch-metric-val">$6,200</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Lead time</div><div class="ch-metric-val">68 days</div></div>
+          </div>
+          <div class="ch-rec">High-value channel. Agents bring <strong>longer stays and higher ancillary spend</strong>. Maintain current commission structure. Consider preferred agent program for top 5 producers.</div>
+        </div>
+
+        <div class="channel-card">
+          <div class="ch-card-header">
+            <div class="ch-card-name">OTAs (Booking.com)</div>
+            <div class="ch-card-status status-review">Review</div>
+          </div>
+          <div class="ch-metrics">
+            <div class="ch-metric"><div class="ch-metric-label">Share</div><div class="ch-metric-val">18%</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Commission</div><div class="ch-metric-val">22%</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Avg booking</div><div class="ch-metric-val">$3,800</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Lead time</div><div class="ch-metric-val">18 days</div></div>
+          </div>
+          <div class="ch-rec"><strong>Highest commission, lowest value guests.</strong> Terrain recommends restricting OTA inventory to shoulder season and closing during peak weeks where direct/agent demand fills capacity.</div>
+        </div>
+
+        <div class="channel-card">
+          <div class="ch-card-header">
+            <div class="ch-card-name">Wholesale / Tour Ops</div>
+            <div class="ch-card-status status-active">Active</div>
+          </div>
+          <div class="ch-metrics">
+            <div class="ch-metric"><div class="ch-metric-label">Share</div><div class="ch-metric-val">10%</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Commission</div><div class="ch-metric-val">18%</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Avg booking</div><div class="ch-metric-val">$4,100</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Lead time</div><div class="ch-metric-val">90 days</div></div>
+          </div>
+          <div class="ch-rec">Long lead time provides <strong>revenue certainty for shoulder periods</strong>. Maintain allotment agreements but add rate floors tied to seasonal demand model.</div>
+        </div>
+
+        <div class="channel-card">
+          <div class="ch-card-header">
+            <div class="ch-card-name">GDS / Corporate</div>
+            <div class="ch-card-status status-paused">Paused</div>
+          </div>
+          <div class="ch-metrics">
+            <div class="ch-metric"><div class="ch-metric-label">Share</div><div class="ch-metric-val">6%</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Commission</div><div class="ch-metric-val">16%</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Avg booking</div><div class="ch-metric-val">$3,200</div></div>
+            <div class="ch-metric"><div class="ch-metric-label">Lead time</div><div class="ch-metric-val">7 days</div></div>
+          </div>
+          <div class="ch-rec">Low value, short lead time. <strong>Consider removing GDS entirely</strong> and redirecting that capacity to direct channel with last-minute flash offer to email list.</div>
+        </div>
+
+        <div class="channel-card" style="border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;cursor:pointer;background:var(--warm-bg);" onclick="alert('Channel integration wizard would open here')">
+          <div style="font-size:32px;margin-bottom:10px;opacity:0.3;">+</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:#8a7d72;">Add New Channel</div>
+          <div style="font-size:11px;color:#c4b9ad;margin-top:4px;">Connect API or manual tracking</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
