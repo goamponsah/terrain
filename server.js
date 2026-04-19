@@ -488,6 +488,7 @@ app.get('/', (req, res) => {
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
 app.get('/onboarding', (req, res) => res.sendFile(path.join(__dirname, 'public', 'onboarding.html')));
+app.get('/calendar', (req, res) => res.sendFile(path.join(__dirname, 'public', 'calendar.html')));
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 app.get('/packages', (req, res) => res.sendFile(path.join(__dirname, 'public', 'packages.html')));
 app.get('/forecast', (req, res) => res.sendFile(path.join(__dirname, 'public', 'forecast.html')));
