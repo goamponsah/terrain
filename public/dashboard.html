@@ -183,6 +183,90 @@
     .kpi-card:nth-child(4) { animation-delay: 0.2s; }
 
     .toast { position: fixed; bottom: 28px; right: 28px; background: var(--ink); border: 1px solid rgba(255,255,255,0.1); border-radius: 9px; padding: 16px 20px; z-index: 1000; max-width: 300px; box-shadow: 0 10px 36px rgba(0,0,0,0.25); animation: fadeUp 0.2s ease; font-family: 'Syne', sans-serif; }
+
+    /* ============ MOBILE ============ */
+    @media (max-width: 768px) {
+      .app { flex-direction: column; height: auto; overflow: visible; }
+
+      .sidebar {
+        width: 100%; height: auto;
+        flex-direction: row; flex-wrap: wrap;
+        overflow: visible;
+      }
+      .sidebar::after { display: none; }
+      .sidebar-top { width: 100%; padding: 16px 20px; }
+      .logo-name { font-size: 20px; }
+      .logo-sub { font-size: 8px; }
+      .prop-pill { margin-top: 10px; padding: 8px 10px; }
+      .prop-pill-name { font-size: 13px; }
+
+      /* Nav becomes horizontal scrollable bar */
+      .nav {
+        display: flex; flex-direction: row;
+        overflow-x: auto; padding: 8px 12px;
+        width: 100%; gap: 4px;
+        border-top: 1px solid rgba(255,255,255,0.07);
+      }
+      .nav::-webkit-scrollbar { display: none; }
+      .nav-label { display: none; }
+      .nav-item {
+        flex-direction: column; gap: 3px;
+        padding: 8px 10px; font-size: 10px;
+        white-space: nowrap; flex-shrink: 0;
+        border-radius: 8px; text-align: center;
+      }
+      .nav-item svg { width: 18px; height: 18px; }
+
+      .sidebar-footer { display: none; }
+
+      .main { overflow-y: visible; }
+      .topbar {
+        flex-direction: column; gap: 10px;
+        padding: 16px 20px; position: relative;
+        align-items: flex-start;
+      }
+      .topbar-right { flex-wrap: wrap; gap: 8px; width: 100%; }
+      .btn-ghost, .btn-primary { font-size: 11px; padding: 7px 12px; }
+      .date-chip { font-size: 10px; }
+      .page-title { font-size: 20px; }
+
+      .content { padding: 16px 16px 60px; gap: 14px; }
+
+      /* KPI strip — 2 columns on mobile */
+      .kpi-strip { grid-template-columns: 1fr 1fr !important; gap: 10px; }
+      .kpi-value { font-size: 22px; }
+      .kpi-orn { display: none; }
+
+      /* Two col becomes single col */
+      .two-col { grid-template-columns: 1fr !important; gap: 14px; }
+
+      /* Chart */
+      .chart-wrap { height: 140px; }
+
+      /* Package rows */
+      .pkg-row { flex-wrap: wrap; }
+      .pkg-icon { width: 28px; height: 28px; font-size: 12px; }
+
+      /* Scarcity */
+      .sc-ft { font-size: 9px; }
+
+      /* Recs */
+      .rec-item { flex-direction: column; gap: 8px; }
+      .rec-btn { align-self: flex-start; }
+
+      /* Channel bars */
+      .ch-bar-name { width: 90px; font-size: 10px; }
+
+      /* Save banner */
+      div[style*="position: fixed; bottom: 0"] {
+        flex-direction: column !important;
+        gap: 10px !important;
+        padding: 14px 16px !important;
+      }
+
+      .toast { right: 12px; left: 12px; max-width: none; }
+    }
+    /* ================================ */
   </style>
 </head>
 <body>
@@ -271,11 +355,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           currency: lodgeData.lodge.currency || 'USD',
           country: lodgeData.lodge.country,
           type: lodgeData.lodge.property_type,
-          packages: lodgeData.packages.map(p => p.name),
-          channels: lodgeData.channels.map(c => c.name)
+          packages: (lodgeData.packages || []).map(p => p.name || p),
+          channels: (lodgeData.channels || []).map(c => c.name || c)
         };
         buildDashboard(cfg);
-        // Show trial banner for logged-in trial users
         if (me.trial && me.trial.daysRemaining <= 30) showTrialBanner(me.trial.daysRemaining);
         return;
       }
@@ -351,6 +434,13 @@ function showSaveBanner(propertyName) {
 function buildDashboard(cfg) {
   const sym = cfg.currency === 'ZAR' ? 'R' : cfg.currency === 'BWP' ? 'P' : cfg.currency === 'EUR' ? '€' : cfg.currency === 'GBP' ? '£' : '$';
   const suites = parseInt(cfg.suites) || 24;
+
+  // Defensive defaults
+  cfg.packages = cfg.packages || [];
+  cfg.channels = cfg.channels || [];
+  cfg.name = cfg.name || 'Your Lodge';
+  cfg.country = cfg.country || 'Kenya';
+  cfg.type = cfg.type || 'Safari Lodge';
 
   // Sidebar
   document.getElementById('sidePropName').textContent = cfg.name;
