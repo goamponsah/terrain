@@ -501,7 +501,9 @@ function buildDashboard(cfg) {
     { lvl: '',     pct: 33, booked: Math.round(suites*0.33), badge: '16 left', note: 'Reduce rate' },
   ];
 
-  const pkgNames = cfg.packages.length ? cfg.packages : ['Classic Safari','Fly-In Week','Honeymoon','Photography'];
+  const pkgNames = (cfg.packages && cfg.packages.length)
+    ? cfg.packages.map(p => String(p.name || p))
+    : ['Classic Safari','Fly-In Week','Honeymoon','Photography'];
 
   // Build recs dynamically
   const rec1Rate = pkgRate(0);
