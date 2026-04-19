@@ -92,7 +92,7 @@
 <script>
   // If already logged in, redirect
   fetch('/api/auth/me').then(r => r.json()).then(d => {
-    if (d.user) window.location.href = '/dashboard';
+    if (d.user) window.location.href = d.hasLodge ? '/dashboard' : '/onboarding';
   }).catch(() => {});
 
   document.getElementById('password').addEventListener('keydown', e => {
