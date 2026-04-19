@@ -477,7 +477,7 @@ function buildDashboard(cfg) {
   // Package icons
   const iconMap = { 'safari': '🦁', 'fly': '✈️', 'honey': '🌙', 'photo': '📷', 'walk': '🚶', 'horse': '🐴', 'wellness': '🧘', 'yoga': '🧘', 'ski': '⛷️', 'dive': '🤿', 'fish': '🎣' };
   function pkgIcon(name) {
-    const n = name.toLowerCase();
+    const n = String(name || '').toLowerCase();
     for (const [k, v] of Object.entries(iconMap)) { if (n.includes(k)) return v; }
     return '🏕️';
   }
