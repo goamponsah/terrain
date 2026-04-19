@@ -473,7 +473,18 @@ app.get('/google842e27f0c6839870.html', (req, res) => {
   res.send('google-site-verification: google842e27f0c6839870.html');
 });
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'onboarding.html')));
+app.get('/', (req, res) => {
+  const token = req.cookies.terrain_token;
+  if (token) {
+    try {
+      jwt.verify(token, JWT_SECRET);
+      return res.redirect('/dashboard');
+    } catch {
+      // Invalid token — show onboarding
+    }
+  }
+  res.sendFile(path.join(__dirname, 'public', 'onboarding.html'));
+});
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
 app.get('/onboarding', (req, res) => res.sendFile(path.join(__dirname, 'public', 'onboarding.html')));
