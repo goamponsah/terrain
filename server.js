@@ -135,6 +135,8 @@ app.post('/api/auth/register', async (req, res) => {
 
     // Send welcome email (non-blocking)
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    console.log('Registration - RESEND_API_KEY present:', !!RESEND_API_KEY);
+    console.log('Registration - sending welcome email to:', email);
     if (RESEND_API_KEY) {
       fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -174,7 +176,12 @@ app.post('/api/auth/register', async (req, res) => {
             </div>
           `
         })
+      }).then(async r => {
+        const data = await r.json();
+        console.log('Welcome email Resend response:', JSON.stringify(data));
       }).catch(err => console.error('Welcome email error:', err));
+    } else {
+      console.error('RESEND_API_KEY not found — welcome email not sent');
     }
 
   } catch (err) {
