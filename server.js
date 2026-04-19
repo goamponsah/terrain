@@ -170,10 +170,25 @@ app.post('/api/auth/forgot-password', async (req, res) => {
   if (!email) return res.status(400).json({ error: 'Email required' });
 
   try {
+    // Ensure token table exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        token VARCHAR(255) UNIQUE NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        used BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
     const user = await pool.query('SELECT id, email FROM users WHERE email = $1', [email.toLowerCase()]);
 
     // Always return success for security — don't reveal if email exists
-    if (user.rows.length === 0) return res.json({ success: true });
+    if (user.rows.length === 0) {
+      console.log('Forgot password: email not found:', email);
+      return res.json({ success: true });
+    }
 
     const userId = user.rows[0].id;
     const token = require('crypto').randomBytes(32).toString('hex');
@@ -189,47 +204,54 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     );
 
     const resetUrl = `${process.env.APP_URL || 'https://getonterrain.com'}/reset-password?token=${token}`;
+    console.log('Reset URL generated:', resetUrl);
 
     // Send email via Resend
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
-    if (RESEND_API_KEY) {
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${RESEND_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: 'Terrain <noreply@getonterrain.com>',
-          to: email,
-          subject: 'Reset your Terrain password',
-          html: `
-            <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px;">
-              <div style="font-size: 24px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 24px;">TERRAIN</div>
-              <h2 style="font-size: 20px; margin-bottom: 12px;">Reset your password</h2>
-              <p style="color: #6b7280; margin-bottom: 24px; line-height: 1.6;">
-                We received a request to reset your Terrain password. Click the button below to set a new password.
-                This link expires in <strong>1 hour</strong>.
-              </p>
-              <a href="${resetUrl}" style="display:inline-block;background:#c4613a;color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Reset Password →</a>
-              <p style="color: #9ca3af; font-size: 12px; margin-top: 24px; line-height: 1.6;">
-                If you didn't request this, ignore this email — your password won't change.<br/>
-                The link will expire automatically after 1 hour.
-              </p>
-              <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;"/>
-              <p style="color: #9ca3af; font-size: 11px;">
-                Terrain by TechSoftNexa LTD · <a href="https://getonterrain.com" style="color:#c4613a;">getonterrain.com</a>
-              </p>
-            </div>
-          `
-        })
-      });
+    if (!RESEND_API_KEY) {
+      console.error('RESEND_API_KEY not set!');
+      return res.json({ success: true });
     }
+
+    const emailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'Terrain <noreply@getonterrain.com>',
+        to: email,
+        subject: 'Reset your Terrain password',
+        html: `
+          <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px;">
+            <div style="font-size: 24px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 24px;">TERRAIN</div>
+            <h2 style="font-size: 20px; margin-bottom: 12px;">Reset your password</h2>
+            <p style="color: #6b7280; margin-bottom: 24px; line-height: 1.6;">
+              We received a request to reset your Terrain password. Click the button below to set a new password.
+              This link expires in <strong>1 hour</strong>.
+            </p>
+            <a href="${resetUrl}" style="display:inline-block;background:#c4613a;color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Reset Password →</a>
+            <p style="color: #9ca3af; font-size: 12px; margin-top: 24px; line-height: 1.6;">
+              If you didn't request this, ignore this email — your password won't change.<br/>
+              The link will expire automatically after 1 hour.
+            </p>
+            <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;"/>
+            <p style="color: #9ca3af; font-size: 11px;">
+              Terrain by TechSoftNexa LTD · <a href="https://getonterrain.com" style="color:#c4613a;">getonterrain.com</a>
+            </p>
+          </div>
+        `
+      })
+    });
+
+    const emailData = await emailRes.json();
+    console.log('Resend response:', JSON.stringify(emailData));
 
     res.json({ success: true });
   } catch (err) {
     console.error('Forgot password error:', err);
-    res.json({ success: true }); // Always return success
+    res.json({ success: true });
   }
 });
 
