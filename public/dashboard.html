@@ -495,32 +495,106 @@ function buildDashboard(cfg) {
   document.getElementById('sidePropMeta').textContent = `${cfg.type} · ${cfg.suites} suites · ${cfg.country}`;
   document.getElementById('topbarTitle').textContent = `Welcome back — ${cfg.name}`;
 
-  // Weather by country
+  // ---- Smart occupancy based on country + current month ----
+  const now = new Date();
+  const month = now.getMonth() + 1; // 1-12
+  const dateLabel = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const endDate = new Date(now); endDate.setDate(endDate.getDate() + 30);
+  const endLabel = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  document.getElementById('topbarDate').textContent = `${dateLabel} – ${endLabel}`;
+
+  // Season occupancy by country and month
+  function getSeasonOccupancy(country, month) {
+    const seasons = {
+      'Kenya': {
+        peak: [1,2,7,8,9,10], // Jan-Feb (dry), Jul-Oct (migration)
+        high: [12,3],
+        shoulder: [4,11],
+        low: [5,6]
+      },
+      'Tanzania': {
+        peak: [1,2,7,8,9],
+        high: [10,12],
+        shoulder: [3,11],
+        low: [4,5,6]
+      },
+      'South Africa': {
+        peak: [6,7,8,9],
+        high: [5,10,11],
+        shoulder: [4,12],
+        low: [1,2,3]
+      },
+      'Botswana': {
+        peak: [7,8,9,10],
+        high: [6,11],
+        shoulder: [5,12],
+        low: [1,2,3,4]
+      },
+      'Zimbabwe': {
+        peak: [7,8,9,10],
+        high: [6,11],
+        shoulder: [5,12],
+        low: [1,2,3,4]
+      }
+    };
+
+    const occupancyRates = { peak: 0.92, high: 0.82, shoulder: 0.67, low: 0.45 };
+    const seasonLabels = { peak: 'Peak season', high: 'High season', shoulder: 'Shoulder season', low: 'Low season' };
+
+    const s = seasons[country] || seasons['Kenya'];
+    let seasonKey = 'shoulder';
+    for (const [key, months] of Object.entries(s)) {
+      if (months.includes(month)) { seasonKey = key; break; }
+    }
+    return {
+      rate: occupancyRates[seasonKey],
+      label: seasonLabels[seasonKey],
+      pct: Math.round(occupancyRates[seasonKey] * 100)
+    };
+  }
+
+  const season = getSeasonOccupancy(cfg.country, month);
+
+  // Use actual occupancy if lodge provided it, otherwise use seasonal estimate
+  const actualOcc = cfg.actualOccupancyPct;
+  const occupancy = actualOcc ? actualOcc / 100 : season.rate;
+  const occupancyLabel = actualOcc
+    ? `${actualOcc}% · actual this month`
+    : `${season.pct}% · ${season.label} est.`;
+  const occupancyDisplay = actualOcc ? `${actualOcc}%` : `${season.pct}%`;
+
+  // Use actual nightly rate if provided, otherwise use property type default
+  function getBaseRate(packages) {
+    if (cfg.currentNightlyRate && cfg.currentNightlyRate > 0) return cfg.currentNightlyRate;
+    if (!packages || packages.length === 0) return 450;
+    const typeRates = {
+      'Safari Lodge': 480, 'Tented Camp': 420, 'Private Ranch': 650,
+      'Ski Resort': 550, 'Wellness Retreat': 380, 'Yacht Charter': 1200, 'default': 450
+    };
+    return typeRates[cfg.type] || typeRates['default'];
+  }
+  const baseRate = getBaseRate(cfg.packages);
+  const totalRev = Math.round(suites * baseRate * 30 * occupancy);
+  const revpas = Math.round(baseRate * occupancy);
+  const uplift = Math.round(totalRev * 0.08);
+
+  // Update weather info with season context
   const weatherMap = {
-    'Kenya': ['24°C', '☀️ Dry season · High demand'],
-    'Tanzania': ['26°C', '☀️ Clear · Migration season'],
-    'South Africa': ['18°C', '🌤️ Mild · Shoulder season'],
-    'Botswana': ['29°C', '☀️ Dry · Peak wildlife'],
-    'Zimbabwe': ['25°C', '☀️ Clear · High season'],
-    'default': ['22°C', '🌤️ Favorable conditions']
+    'Kenya': ['24°C', `☀️ ${season.label} · ${season.pct}% est. occupancy`],
+    'Tanzania': ['26°C', `☀️ ${season.label} · ${season.pct}% est. occupancy`],
+    'South Africa': ['18°C', `🌤️ ${season.label} · ${season.pct}% est. occupancy`],
+    'Botswana': ['29°C', `☀️ ${season.label} · ${season.pct}% est. occupancy`],
+    'Zimbabwe': ['25°C', `☀️ ${season.label} · ${season.pct}% est. occupancy`],
+    'default': ['22°C', `🌤️ ${season.label} · ${season.pct}% est. occupancy`]
   };
   const w = weatherMap[cfg.country] || weatherMap['default'];
   document.getElementById('weatherTemp').textContent = w[0];
   document.getElementById('weatherInfo').textContent = w[1];
 
-  // Date
-  document.getElementById('topbarDate').textContent = 'Apr 17 – May 17, 2026';
-
   // User avatar from property name
   const initials = cfg.name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
   document.getElementById('userAvatar').textContent = initials.slice(0,2);
   document.getElementById('userName').textContent = 'Revenue Manager';
-
-  // Revenue calcs
-  const baseRate = 2500;
-  const totalRev = (suites * baseRate * 30 * 0.79).toFixed(0);
-  const revpas = Math.round(baseRate * 0.79);
-  const uplift = Math.round(totalRev * 0.07);
 
   // Package icons
   const iconMap = { 'safari': '🦁', 'fly': '✈️', 'honey': '🌙', 'photo': '📷', 'walk': '🚶', 'horse': '🐴', 'wellness': '🧘', 'yoga': '🧘', 'ski': '⛷️', 'dive': '🤿', 'fish': '🎣' };
@@ -579,27 +653,27 @@ function buildDashboard(cfg) {
     <!-- KPIs -->
     <div class="kpi-strip">
       <div class="kpi-card accent">
-        <div class="kpi-label">Revenue (30d)</div>
+        <div class="kpi-label">Est. Revenue (30d)</div>
         <div class="kpi-value">${sym}${parseInt(totalRev).toLocaleString()}</div>
-        <div class="kpi-delta up">↑ 18.3% vs prior period</div>
+        <div class="kpi-delta up">Based on ${suites} suites · ${sym}${baseRate}/night avg</div>
         <div class="kpi-orn">${sym}</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-label">RevPAS — Per Suite</div>
         <div class="kpi-value">${sym}${revpas.toLocaleString()}</div>
-        <div class="kpi-delta up">↑ ${sym}340 vs benchmark</div>
+        <div class="kpi-delta up">${sym}${baseRate} ${cfg.currentNightlyRate ? 'actual' : 'est.'} rate · ${occupancyDisplay} occ.</div>
         <div class="kpi-orn">R</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Avg Occupancy</div>
-        <div class="kpi-value">79%</div>
-        <div class="kpi-delta up">↑ 4.2 pts vs last month</div>
+        <div class="kpi-label">Est. Occupancy</div>
+        <div class="kpi-value">${occupancyDisplay}</div>
+        <div class="kpi-delta up">${occupancyLabel}</div>
         <div class="kpi-orn">%</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-label">Optimization Uplift</div>
         <div class="kpi-value">${sym}${uplift.toLocaleString()}</div>
-        <div class="kpi-delta up">vs static pricing</div>
+        <div class="kpi-delta up">8% above static pricing est.</div>
         <div class="kpi-orn">↑</div>
       </div>
     </div>
