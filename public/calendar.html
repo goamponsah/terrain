@@ -270,21 +270,66 @@ document.addEventListener('DOMContentLoaded',async()=>{
 
 function sym(){return SYM_MAP[lodgeConfig.currency]||'$';}
 function dateKey(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
-function getRec(base,pct){
-  if(pct>=100) return Math.round(base*1.45);
-  if(pct>=90)  return Math.round(base*1.35);
-  if(pct>=80)  return Math.round(base*1.20);
-  if(pct>=70)  return Math.round(base*1.10);
-  if(pct>=55)  return Math.round(base*1.00);
-  if(pct>=40)  return Math.round(base*0.90);
-  return Math.round(base*0.80);
+// Returns a multiplier based on day-of-week + month (season), independent of occupancy
+function getBaseMultiplier(dateKeyStr){
+  const dt=new Date(dateKeyStr+'T12:00:00');
+  const dow=dt.getDay(); // 0=Sun,6=Sat
+  const mon=dt.getMonth(); // 0=Jan
+
+  // Seasonal multiplier
+  const seasonMult={
+    0:0.88, // Jan — low
+    1:0.88, // Feb
+    2:0.92, // Mar
+    3:0.85, // Apr — low (long rains Kenya)
+    4:0.85, // May
+    5:1.10, // Jun — dry season starts
+    6:1.30, // Jul — peak (wildebeest migration)
+    7:1.30, // Aug — peak
+    8:1.15, // Sep
+    9:1.20, // Oct — short rains, still busy
+    10:0.90,// Nov
+    11:0.95 // Dec — festive
+  }[mon]||1.0;
+
+  // Day-of-week multiplier
+  const dowMult=[1.15,0.90,0.88,0.88,0.95,1.20,1.20][dow]||1.0;
+  // Sun=1.15(checkout day premium), Mon-Wed=low, Thu=slight rise, Fri/Sat=weekend peak
+
+  return seasonMult * dowMult;
 }
-function getSignal(pct){
+
+// Smart default rate — uses day/season even with no occupancy data
+function getDefaultRate(base, dateKeyStr){
+  return Math.round(base * getBaseMultiplier(dateKeyStr));
+}
+
+function getRec(base, pct, dateKeyStr){
+  const defMult = dateKeyStr ? getBaseMultiplier(dateKeyStr) : 1.0;
+  const defRate = Math.round(base * defMult);
+  if(pct>=100) return Math.round(defRate*1.45);
+  if(pct>=90)  return Math.round(defRate*1.35);
+  if(pct>=80)  return Math.round(defRate*1.20);
+  if(pct>=70)  return Math.round(defRate*1.10);
+  if(pct>=55)  return Math.round(defRate*1.00);
+  if(pct>=40)  return Math.round(defRate*0.90);
+  if(pct>=0)   return Math.round(defRate*0.80);
+  return defRate; // no occupancy data — return smart default
+}
+
+function getSignal(pct, dateKeyStr){
   if(pct>=100) return{label:'SOLD',cls:'b-soldout',sig:'sig-soldout'};
   if(pct>=85)  return{label:'SURGE ↑',cls:'b-surge',sig:'sig-surge'};
   if(pct>=60)  return{label:'HOLD',cls:'b-hold',sig:'sig-hold'};
   if(pct>=30)  return{label:'PROMO?',cls:'b-promo',sig:'sig-slow'};
-  return        {label:'OPEN',cls:'b-open',sig:''};
+  if(pct>=0)   return{label:'OPEN',cls:'b-open',sig:''};
+  // No data — signal based on day/season
+  if(!dateKeyStr) return{label:'',cls:'',sig:''};
+  const m=getBaseMultiplier(dateKeyStr);
+  if(m>=1.25) return{label:'PEAK',cls:'b-surge',sig:'sig-surge'};
+  if(m>=1.08) return{label:'HIGH',cls:'b-hold',sig:'sig-hold'};
+  if(m<=0.89) return{label:'LOW',cls:'b-promo',sig:'sig-slow'};
+  return{label:'MID',cls:'b-open',sig:''};
 }
 function spkg(){return Math.max(1,Math.floor((lodgeConfig.suites||20)/packages.length));}
 
@@ -334,19 +379,21 @@ function renderGrid(){
     dates.forEach(({key,isToday,isPast})=>{
       const booked=(occData[key]||{})[pi];
       const hasData=booked!==undefined&&booked!==null;
-      const pct=hasData?Math.min(100,Math.round((booked/spp)*100)):null;
-      const rec=getRec(pkg.base_rate,pct!==null?pct:0);
+      const pct=hasData?Math.min(100,Math.round((booked/spp)*100)):-1;
+      const rec=getRec(pkg.base_rate,pct,key);
       const rec2=Math.round(rec*2);
-      const sig=pct!==null?getSignal(pct):null;
-      const colCls=['rate-cell',isToday?'today-col':'',isPast?'past-col':'',sig?sig.sig:''].filter(Boolean).join(' ');
-      html+=`<td class="${colCls}" onclick="openInsight('${key}',${pi},${pct!==null?pct:-1},${rec},${spp},${hasData?booked:0})">`;
+      const sig=getSignal(pct,key);
+      const colCls=['rate-cell',isToday?'today-col':'',isPast?'past-col':'',sig.sig].filter(Boolean).join(' ');
+      html+=`<td class="${colCls}" onclick="openInsight('${key}',${pi},${pct},${rec},${spp},${hasData?booked:0})">`;
       html+=`<div class="rc-inner">`;
       if(pct===100){
         html+=`<div class="rc-single">${s}${rec.toLocaleString()}</div><div class="rc-sold">SOLD</div>`;
-      } else if(pct!==null){
-        html+=`<div class="rc-single">${s}${rec.toLocaleString()}</div><div class="rc-double">${s}${rec2.toLocaleString()}</div><span class="rc-badge ${sig.cls}">${sig.label}</span>`;
       } else {
-        html+=`<div class="rc-single" style="opacity:0.3;">${s}${Math.round(pkg.base_rate).toLocaleString()}</div><div class="rc-double" style="opacity:0.2;">${s}${Math.round(pkg.base_rate*2).toLocaleString()}</div>`;
+        // Always show smart rate — dim slightly if no real data
+        const op=hasData?'':'opacity:0.72;';
+        html+=`<div class="rc-single" style="${op}">${s}${rec.toLocaleString()}</div>`;
+        html+=`<div class="rc-double" style="${op}">${s}${rec2.toLocaleString()}</div>`;
+        if(sig.label) html+=`<span class="rc-badge ${sig.cls}">${sig.label}</span>`;
       }
       html+=`</div></td>`;
     });
@@ -370,7 +417,7 @@ function updateSummary(dates,spp,s){
     packages.forEach((pkg,pi)=>{
       const b=(occData[key]||{})[pi]||0;
       const p=Math.min(100,Math.round((b/spp)*100));
-      rev+=b*getRec(pkg.base_rate,p);
+      rev+=b*getRec(pkg.base_rate,p>=0?p:-1,key);
     });
   });
   document.getElementById('sumRevenue').textContent=occDays>0?s+rev.toLocaleString():'—';
@@ -422,7 +469,8 @@ function openInsight(key,pi,pct,rec,spp,booked){
   document.getElementById('ipTitle').textContent=`${pkg.icon} ${pkg.name}`;
 
   const rec2=Math.round(rec*2);
-  const uplift=rec-pkg.base_rate;
+  const smartDefault=getDefaultRate(pkg.base_rate,key);
+  const uplift=rec-smartDefault;
   const advice=pct>=100?`Fully sold. Push rate to ${s}${rec.toLocaleString()} for any upgrades or late additions — guests at this stage are not price sensitive.`
     :pct>=85?`At ${pct}% you have real pricing power. Raising to ${s}${rec.toLocaleString()} captures late demand without risk.`
     :pct>=60?`Healthy. Hold at ${s}${rec.toLocaleString()} and reassess if occupancy crosses 80% in the next 48 hours.`
@@ -432,10 +480,10 @@ function openInsight(key,pi,pct,rec,spp,booked){
 
   const allPkgRows=packages.map((p,i)=>{
     const b=(occData[key]||{})[i]||0;
-    const p2=Math.min(100,Math.round((b/spp)*100));
-    const r=getRec(p.base_rate,p2);
-    const sig=getSignal(p2);
-    return`<tr><td>${p.icon} ${p.name}</td><td style="text-align:center;">${b}/${spp} (${p2}%)</td><td>${s}${r.toLocaleString()}</td></tr>`;
+    const p2=b>0?Math.min(100,Math.round((b/spp)*100)):-1;
+    const r=getRec(p.base_rate,p2,key);
+    const sig=getSignal(p2,key);
+    return`<tr><td>${p.icon} ${p.name}</td><td style="text-align:center;">${b>0?b+'/'+spp+' ('+p2+'%)':'—'}</td><td>${s}${r.toLocaleString()}</td></tr>`;
   }).join('');
 
   document.getElementById('ipBody').innerHTML=`
