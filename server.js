@@ -135,6 +135,8 @@ app.post('/api/auth/register', async (req, res) => {
 
     // Send welcome email (non-blocking)
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    console.log('Registration - RESEND_API_KEY present:', !!RESEND_API_KEY);
+    console.log('Registration - sending welcome email to:', email);
     if (RESEND_API_KEY) {
       fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -174,7 +176,12 @@ app.post('/api/auth/register', async (req, res) => {
             </div>
           `
         })
+      }).then(async r => {
+        const data = await r.json();
+        console.log('Welcome email Resend response:', JSON.stringify(data));
       }).catch(err => console.error('Welcome email error:', err));
+    } else {
+      console.error('RESEND_API_KEY not found — welcome email not sent');
     }
 
   } catch (err) {
@@ -457,7 +464,27 @@ app.get('/api/lodge', async (req, res) => {
 // ============================================================
 // PAGE ROUTES
 // ============================================================
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'onboarding.html')));
+app.get('/sitemap.xml', (req, res) => {
+  res.setHeader('Content-Type', 'application/xml');
+  res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
+});
+
+app.get('/google842e27f0c6839870.html', (req, res) => {
+  res.send('google-site-verification: google842e27f0c6839870.html');
+});
+
+app.get('/', (req, res) => {
+  const token = req.cookies.terrain_token;
+  if (token) {
+    try {
+      jwt.verify(token, JWT_SECRET);
+      return res.redirect('/dashboard');
+    } catch {
+      // Invalid token — show onboarding
+    }
+  }
+  res.sendFile(path.join(__dirname, 'public', 'onboarding.html'));
+});
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
 app.get('/onboarding', (req, res) => res.sendFile(path.join(__dirname, 'public', 'onboarding.html')));
