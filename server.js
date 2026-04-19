@@ -457,6 +457,10 @@ app.get('/api/lodge', async (req, res) => {
 // ============================================================
 // PAGE ROUTES
 // ============================================================
+app.get('/google842e27f0c6839870.html', (req, res) => {
+  res.send('google-site-verification: google842e27f0c6839870.html');
+});
+
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'onboarding.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
