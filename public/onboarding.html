@@ -72,7 +72,7 @@
       position: sticky;
       top: 0;
       height: 100vh;
-      overflow: hidden;
+      overflow-y: auto;
     }
 
     .left-panel::after {
@@ -134,7 +134,8 @@
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 10px;
       padding: 20px;
-      margin-top: auto;
+      margin-top: 32px;
+      flex-shrink: 0;
     }
     .preview-label { font-size: 9px; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 10px; }
     .preview-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--cream); margin-bottom: 4px; }
