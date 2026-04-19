@@ -313,10 +313,11 @@
       </div>
       <div class="user-mini">
         <div class="avatar" id="userAvatar">?</div>
-        <div>
+        <div style="flex:1;">
           <div class="user-name" id="userName">—</div>
           <div class="user-role-label">Revenue Manager</div>
         </div>
+        <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);border-radius:5px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:'Syne',sans-serif;flex-shrink:0;transition:all 0.15s;" onmouseover="this.style.borderColor='rgba(196,97,58,0.5)';this.style.color='#e8896a'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.4)'">Log out</button>
       </div>
     </div>
   </aside>
@@ -380,6 +381,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     showSaveBanner('');
   }
 });
+
+async function doLogout() {
+  try {
+    await fetch('/api/auth/logout', { method: 'POST' });
+  } catch(e) {}
+  localStorage.removeItem('terrainConfig');
+  window.location.href = '/login';
+}
 
 function showTrialBanner(daysRemaining) {
   const banner = document.createElement('div');
