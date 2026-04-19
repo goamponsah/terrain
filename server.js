@@ -132,6 +132,51 @@ app.post('/api/auth/register', async (req, res) => {
     const token = jwt.sign({ id: result.rows[0].id, email: result.rows[0].email }, JWT_SECRET, { expiresIn: '30d' });
     res.cookie('terrain_token', token, { httpOnly: true, secure: true, maxAge: 30 * 24 * 60 * 60 * 1000, sameSite: 'lax' });
     res.json({ success: true, user: { id: result.rows[0].id, email: result.rows[0].email } });
+
+    // Send welcome email (non-blocking)
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    if (RESEND_API_KEY) {
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'Terrain <noreply@getonterrain.com>',
+          to: email,
+          subject: 'Welcome to Terrain — your 90-day trial has started',
+          html: `
+            <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;background:#faf7f2;">
+              <div style="font-size:28px;font-weight:700;letter-spacing:0.1em;margin-bottom:8px;color:#1c1814;">TERRAIN</div>
+              <div style="font-size:11px;color:#8a7d72;letter-spacing:0.16em;text-transform:uppercase;margin-bottom:32px;">Experience Revenue Intelligence</div>
+              <h2 style="font-size:22px;color:#1c1814;margin-bottom:12px;font-weight:500;">Your 90-day free trial has started</h2>
+              <p style="color:#3d3530;line-height:1.7;margin-bottom:20px;font-size:14px;">
+                Welcome to Terrain. You now have full access to the revenue intelligence platform built specifically for luxury safari lodges and experience operators.
+              </p>
+              <div style="background:#1c1814;border-radius:10px;padding:24px;margin-bottom:24px;">
+                <div style="color:rgba(255,255,255,0.5);font-size:10px;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px;">Your trial includes</div>
+                <div style="color:#f5f0e8;font-size:13px;line-height:2;">
+                  ✓ Dynamic package pricing engine<br/>
+                  ✓ 30-day demand forecasting<br/>
+                  ✓ Scarcity & occupancy signals<br/>
+                  ✓ Channel mix optimization<br/>
+                  ✓ AI revenue recommendations
+                </div>
+              </div>
+              <p style="color:#3d3530;line-height:1.7;margin-bottom:24px;font-size:13px;">
+                Start by completing your property setup — it takes about 3 minutes and Terrain will configure itself entirely around your operation.
+              </p>
+              <a href="${process.env.APP_URL || 'https://getonterrain.com'}/onboarding" style="display:inline-block;background:#c4613a;color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;margin-bottom:24px;">Set Up Your Property →</a>
+              <p style="color:#8a7d72;font-size:12px;line-height:1.7;margin-bottom:0;">
+                As a founding lodge, if you subscribe within your trial period you lock in your rate for the first year.<br/><br/>
+                Questions? Reply to this email — we read every one.<br/><br/>
+                <strong>Terrain by TechSoftNexa LTD</strong><br/>
+                <a href="https://getonterrain.com" style="color:#c4613a;">getonterrain.com</a>
+              </p>
+            </div>
+          `
+        })
+      }).catch(err => console.error('Welcome email error:', err));
+    }
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Registration failed' });

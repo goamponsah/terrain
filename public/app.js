@@ -235,7 +235,40 @@ function applyRec(btn, label) {
   setTimeout(() => { if (toast.parentNode) toast.remove(); }, 4000);
 }
 
-// ---- Entrance Animation ----
+// ---- Coming Soon Toast ----
+function showComingSoon(feature, detail) {
+  var existing = document.querySelector('.coming-soon-toast');
+  if (existing) existing.remove();
+  var t = document.createElement('div');
+  t.className = 'coming-soon-toast';
+  t.style.cssText = 'position:fixed;bottom:28px;right:28px;background:#1c1814;border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:20px 24px;z-index:1000;max-width:300px;font-family:Syne,sans-serif;box-shadow:0 10px 36px rgba(0,0,0,0.25);';
+  t.innerHTML = '<div style="font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Coming Soon</div>'
+    + '<div style="font-size:15px;color:#f5f0e8;font-weight:600;margin-bottom:6px;">' + feature + '</div>'
+    + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:14px;line-height:1.6;">' + detail + '</div>'
+    + '<div style="font-size:11px;color:#b8922a;margin-bottom:14px;">🗓 Expected: Q3 2026</div>'
+    + '<button onclick="this.parentNode.remove()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:7px 16px;font-size:11px;cursor:pointer;color:rgba(255,255,255,0.5);font-family:Syne,sans-serif;">Got it</button>';
+  document.body.appendChild(t);
+  setTimeout(function() { if (t.parentNode) t.remove(); }, 6000);
+}
+
+// Fix dead nav links across all pages
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('a.nav-item[href="#"]').forEach(function(link) {
+    var text = link.textContent.trim();
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (text.includes('Competitor')) {
+        showComingSoon('Competitor Radar', 'Live rate benchmarking against comparable lodges in your conservancy. Pulling data from OTA platforms and travel agent feeds.');
+      } else if (text.includes('Guest')) {
+        showComingSoon('Guest Segments', 'Nationality breakdown, repeat guest tracking, and spend-per-stay analysis. Requires PMS integration — coming in the next major update.');
+      } else {
+        showComingSoon(text, 'This feature is currently in development and will be available soon.');
+      }
+    });
+  });
+});
+
+
 function animateEntrance() {
   const cards = document.querySelectorAll('.card, .kpi-card');
   cards.forEach((card, i) => {
