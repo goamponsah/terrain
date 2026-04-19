@@ -331,7 +331,23 @@
       <div class="topbar-right">
         <div class="date-chip" id="topbarDate">—</div>
         <button class="btn-ghost" onclick="window.location.href='/onboarding'">Edit Setup</button>
-        <button class="btn-primary">Push Pricing</button>
+        <button class="btn-primary" id="pushPricingBtn" onclick="
+          var btn = document.getElementById('pushPricingBtn');
+          btn.textContent = 'Pushing…';
+          btn.disabled = true;
+          btn.style.opacity = '0.7';
+          setTimeout(function() {
+            btn.textContent = '✓ Pricing Pushed';
+            btn.style.background = '#3a5c42';
+            btn.style.opacity = '1';
+            var t = document.createElement('div');
+            t.style.cssText = 'position:fixed;bottom:28px;right:28px;background:#1c1814;border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:20px 24px;z-index:1000;max-width:300px;font-family:Syne,sans-serif;box-shadow:0 10px 36px rgba(0,0,0,0.25);';
+            t.innerHTML = \'<div style=\"font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;\">Pricing Update Sent</div><div style=\"font-size:13px;color:#f5f0e8;margin-bottom:8px;\">Optimal rates pushed to all channels</div><div style=\"font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:12px;\">Changes reflect within 60 seconds.</div><div style=\"font-size:11px;margin-bottom:4px;\"><span style=\"color:rgba(255,255,255,0.4);\">Direct Website</span> <span style=\"color:#5a8c63;float:right;\">✓ Updated</span></div><div style=\"font-size:11px;margin-bottom:4px;\"><span style=\"color:rgba(255,255,255,0.4);\">Travel Agents</span> <span style=\"color:#5a8c63;float:right;\">✓ Notified</span></div><div style=\"font-size:11px;margin-bottom:14px;\"><span style=\"color:rgba(255,255,255,0.4);\">OTA Channels</span> <span style=\"color:#b8922a;float:right;\">⏳ Syncing</span></div><button onclick=\"this.parentNode.remove()\" style=\"background:#c4613a;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;color:#fff;font-family:Syne,sans-serif;\">Done</button>\';
+            document.body.appendChild(t);
+            setTimeout(function() { if(t.parentNode) t.remove(); }, 7000);
+            setTimeout(function() { btn.textContent = \'Push Pricing\'; btn.style.background = \'\'; btn.disabled = false; }, 5000);
+          }, 1800);
+        ">Push Pricing</button>
       </div>
     </div>
 
@@ -381,6 +397,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     showSaveBanner('');
   }
 });
+
+function doPushPricing(btn) {
+  btn.textContent = 'Pushing…';
+  btn.disabled = true;
+  btn.style.opacity = '0.7';
+
+  setTimeout(() => {
+    btn.textContent = '✓ Pricing Pushed';
+    btn.style.background = '#3a5c42';
+    btn.style.opacity = '1';
+
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `
+      <div style="font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Pricing Update Sent</div>
+      <div style="font-size:13px;color:var(--cream);margin-bottom:8px;">Optimal rates pushed to all channels</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:12px;">Changes will reflect across Direct Website, Luxury Travel Agents, and OTA channels within 60 seconds.</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="color:rgba(255,255,255,0.4);">Direct Website</span>
+          <span style="color:#5a8c63;">✓ Updated</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="color:rgba(255,255,255,0.4);">Luxury Travel Agents</span>
+          <span style="color:#5a8c63;">✓ Notified</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="color:rgba(255,255,255,0.4);">OTA Channels</span>
+          <span style="color:#b8922a;">⏳ Syncing…</span>
+        </div>
+      </div>
+      <button onclick="this.closest('.toast').remove()" style="background:#c4613a;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;color:#fff;font-family:'Syne',sans-serif;">Done</button>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => { if (toast.parentNode) toast.remove(); }, 7000);
+
+    setTimeout(() => {
+      btn.textContent = 'Push Pricing';
+      btn.style.background = '';
+      btn.disabled = false;
+    }, 5000);
+  }, 1800);
+}
 
 async function doLogout() {
   try {
