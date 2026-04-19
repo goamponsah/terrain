@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Terrain — Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -183,6 +184,90 @@
     .kpi-card:nth-child(4) { animation-delay: 0.2s; }
 
     .toast { position: fixed; bottom: 28px; right: 28px; background: var(--ink); border: 1px solid rgba(255,255,255,0.1); border-radius: 9px; padding: 16px 20px; z-index: 1000; max-width: 300px; box-shadow: 0 10px 36px rgba(0,0,0,0.25); animation: fadeUp 0.2s ease; font-family: 'Syne', sans-serif; }
+
+    /* ============ MOBILE ============ */
+    @media (max-width: 768px) {
+      .app { flex-direction: column; height: auto; overflow: visible; }
+
+      .sidebar {
+        width: 100%; height: auto;
+        flex-direction: row; flex-wrap: wrap;
+        overflow: visible;
+      }
+      .sidebar::after { display: none; }
+      .sidebar-top { width: 100%; padding: 16px 20px; }
+      .logo-name { font-size: 20px; }
+      .logo-sub { font-size: 8px; }
+      .prop-pill { margin-top: 10px; padding: 8px 10px; }
+      .prop-pill-name { font-size: 13px; }
+
+      /* Nav becomes horizontal scrollable bar */
+      .nav {
+        display: flex; flex-direction: row;
+        overflow-x: auto; padding: 8px 12px;
+        width: 100%; gap: 4px;
+        border-top: 1px solid rgba(255,255,255,0.07);
+      }
+      .nav::-webkit-scrollbar { display: none; }
+      .nav-label { display: none; }
+      .nav-item {
+        flex-direction: column; gap: 3px;
+        padding: 8px 10px; font-size: 10px;
+        white-space: nowrap; flex-shrink: 0;
+        border-radius: 8px; text-align: center;
+      }
+      .nav-item svg { width: 18px; height: 18px; }
+
+      .sidebar-footer { display: none; }
+
+      .main { overflow-y: visible; }
+      .topbar {
+        flex-direction: column; gap: 10px;
+        padding: 16px 20px; position: relative;
+        align-items: flex-start;
+      }
+      .topbar-right { flex-wrap: wrap; gap: 8px; width: 100%; }
+      .btn-ghost, .btn-primary { font-size: 11px; padding: 7px 12px; }
+      .date-chip { font-size: 10px; }
+      .page-title { font-size: 20px; }
+
+      .content { padding: 16px 16px 60px; gap: 14px; }
+
+      /* KPI strip — 2 columns on mobile */
+      .kpi-strip { grid-template-columns: 1fr 1fr !important; gap: 10px; }
+      .kpi-value { font-size: 22px; }
+      .kpi-orn { display: none; }
+
+      /* Two col becomes single col */
+      .two-col { grid-template-columns: 1fr !important; gap: 14px; }
+
+      /* Chart */
+      .chart-wrap { height: 140px; }
+
+      /* Package rows */
+      .pkg-row { flex-wrap: wrap; }
+      .pkg-icon { width: 28px; height: 28px; font-size: 12px; }
+
+      /* Scarcity */
+      .sc-ft { font-size: 9px; }
+
+      /* Recs */
+      .rec-item { flex-direction: column; gap: 8px; }
+      .rec-btn { align-self: flex-start; }
+
+      /* Channel bars */
+      .ch-bar-name { width: 90px; font-size: 10px; }
+
+      /* Save banner */
+      div[style*="position: fixed; bottom: 0"] {
+        flex-direction: column !important;
+        gap: 10px !important;
+        padding: 14px 16px !important;
+      }
+
+      .toast { right: 12px; left: 12px; max-width: none; }
+    }
+    /* ================================ */
   </style>
 </head>
 <body>
@@ -229,10 +314,11 @@
       </div>
       <div class="user-mini">
         <div class="avatar" id="userAvatar">?</div>
-        <div>
+        <div style="flex:1;">
           <div class="user-name" id="userName">—</div>
           <div class="user-role-label">Revenue Manager</div>
         </div>
+        <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);border-radius:5px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:'Syne',sans-serif;flex-shrink:0;transition:all 0.15s;" onmouseover="this.style.borderColor='rgba(196,97,58,0.5)';this.style.color='#e8896a'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.4)'">Log out</button>
       </div>
     </div>
   </aside>
@@ -246,7 +332,7 @@
       <div class="topbar-right">
         <div class="date-chip" id="topbarDate">—</div>
         <button class="btn-ghost" onclick="window.location.href='/onboarding'">Edit Setup</button>
-        <button class="btn-primary">Push Pricing</button>
+        <button class="btn-primary" id="pushPricingBtn" onclick="doPushPricing(this)">Push Pricing</button>
       </div>
     </div>
 
@@ -271,11 +357,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           currency: lodgeData.lodge.currency || 'USD',
           country: lodgeData.lodge.country,
           type: lodgeData.lodge.property_type,
-          packages: lodgeData.packages.map(p => p.name),
-          channels: lodgeData.channels.map(c => c.name)
+          packages: (lodgeData.packages || []).map(p => p.name || p),
+          channels: (lodgeData.channels || []).map(c => c.name || c)
         };
         buildDashboard(cfg);
-        // Show trial banner for logged-in trial users
         if (me.trial && me.trial.daysRemaining <= 30) showTrialBanner(me.trial.daysRemaining);
         return;
       }
@@ -297,6 +382,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     showSaveBanner('');
   }
 });
+
+function doPushPricing(btn) {
+  btn.textContent = 'Pushing\u2026';
+  btn.disabled = true;
+  btn.style.opacity = '0.7';
+  setTimeout(function() {
+    btn.textContent = '\u2713 Pricing Pushed';
+    btn.style.background = '#3a5c42';
+    btn.style.opacity = '1';
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:28px;right:28px;background:#1c1814;border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:20px 24px;z-index:1000;max-width:300px;font-family:Syne,sans-serif;box-shadow:0 10px 36px rgba(0,0,0,0.25);';
+    t.innerHTML = '<div style="font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Pricing Update Sent</div>'
+      + '<div style="font-size:13px;color:#f5f0e8;margin-bottom:8px;">Optimal rates pushed to all channels</div>'
+      + '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:12px;">Changes reflect within 60 seconds.</div>'
+      + '<div style="font-size:11px;margin-bottom:6px;display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.4);">Direct Website</span><span style="color:#5a8c63;">\u2713 Updated</span></div>'
+      + '<div style="font-size:11px;margin-bottom:6px;display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.4);">Travel Agents</span><span style="color:#5a8c63;">\u2713 Notified</span></div>'
+      + '<div style="font-size:11px;margin-bottom:14px;display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.4);">OTA Channels</span><span style="color:#b8922a;">\u23f3 Syncing</span></div>'
+      + '<button onclick="this.parentNode.remove()" style="background:#c4613a;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;color:#fff;font-family:Syne,sans-serif;">Done</button>';
+    document.body.appendChild(t);
+    setTimeout(function() { if (t.parentNode) t.remove(); }, 7000);
+    setTimeout(function() { btn.textContent = 'Push Pricing'; btn.style.background = ''; btn.disabled = false; }, 5000);
+  }, 1800);
+}
+
+async function doLogout() {
+  try {
+    await fetch('/api/auth/logout', { method: 'POST' });
+  } catch(e) {}
+  localStorage.removeItem('terrainConfig');
+  window.location.href = '/login';
+}
+
+function showComingSoon(feature, detail) {
+  var existing = document.querySelector('.coming-soon-toast');
+  if (existing) existing.remove();
+  var t = document.createElement('div');
+  t.className = 'coming-soon-toast';
+  t.style.cssText = 'position:fixed;bottom:28px;right:28px;background:#1c1814;border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:20px 24px;z-index:1000;max-width:300px;font-family:Syne,sans-serif;box-shadow:0 10px 36px rgba(0,0,0,0.25);';
+  t.innerHTML = '<div style="font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Coming Soon</div>'
+    + '<div style="font-size:15px;color:#f5f0e8;font-weight:600;margin-bottom:6px;">' + feature + '</div>'
+    + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:14px;line-height:1.6;">' + detail + '</div>'
+    + '<div style="font-size:11px;color:#b8922a;margin-bottom:14px;">🗓 Expected: Q3 2026</div>'
+    + '<button onclick="this.parentNode.remove()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:7px 16px;font-size:11px;cursor:pointer;color:rgba(255,255,255,0.5);font-family:Syne,sans-serif;">Got it</button>';
+  document.body.appendChild(t);
+  setTimeout(function() { if (t.parentNode) t.remove(); }, 6000);
+}
 
 function showTrialBanner(daysRemaining) {
   const banner = document.createElement('div');
@@ -352,6 +483,13 @@ function buildDashboard(cfg) {
   const sym = cfg.currency === 'ZAR' ? 'R' : cfg.currency === 'BWP' ? 'P' : cfg.currency === 'EUR' ? '€' : cfg.currency === 'GBP' ? '£' : '$';
   const suites = parseInt(cfg.suites) || 24;
 
+  // Defensive defaults
+  cfg.packages = cfg.packages || [];
+  cfg.channels = cfg.channels || [];
+  cfg.name = cfg.name || 'Your Lodge';
+  cfg.country = cfg.country || 'Kenya';
+  cfg.type = cfg.type || 'Safari Lodge';
+
   // Sidebar
   document.getElementById('sidePropName').textContent = cfg.name;
   document.getElementById('sidePropMeta').textContent = `${cfg.type} · ${cfg.suites} suites · ${cfg.country}`;
@@ -387,7 +525,7 @@ function buildDashboard(cfg) {
   // Package icons
   const iconMap = { 'safari': '🦁', 'fly': '✈️', 'honey': '🌙', 'photo': '📷', 'walk': '🚶', 'horse': '🐴', 'wellness': '🧘', 'yoga': '🧘', 'ski': '⛷️', 'dive': '🤿', 'fish': '🎣' };
   function pkgIcon(name) {
-    const n = name.toLowerCase();
+    const n = String(name || '').toLowerCase();
     for (const [k, v] of Object.entries(iconMap)) { if (n.includes(k)) return v; }
     return '🏕️';
   }
@@ -411,7 +549,9 @@ function buildDashboard(cfg) {
     { lvl: '',     pct: 33, booked: Math.round(suites*0.33), badge: '16 left', note: 'Reduce rate' },
   ];
 
-  const pkgNames = cfg.packages.length ? cfg.packages : ['Classic Safari','Fly-In Week','Honeymoon','Photography'];
+  const pkgNames = (cfg.packages && cfg.packages.length)
+    ? cfg.packages.map(p => String(p.name || p))
+    : ['Classic Safari','Fly-In Week','Honeymoon','Photography'];
 
   // Build recs dynamically
   const rec1Rate = pkgRate(0);

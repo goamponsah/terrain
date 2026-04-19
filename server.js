@@ -37,6 +37,15 @@ async function initDB() {
         created_at TIMESTAMP DEFAULT NOW()
       );
 
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        token VARCHAR(255) UNIQUE NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        used BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
       CREATE TABLE IF NOT EXISTS lodges (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -123,6 +132,51 @@ app.post('/api/auth/register', async (req, res) => {
     const token = jwt.sign({ id: result.rows[0].id, email: result.rows[0].email }, JWT_SECRET, { expiresIn: '30d' });
     res.cookie('terrain_token', token, { httpOnly: true, secure: true, maxAge: 30 * 24 * 60 * 60 * 1000, sameSite: 'lax' });
     res.json({ success: true, user: { id: result.rows[0].id, email: result.rows[0].email } });
+
+    // Send welcome email (non-blocking)
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    if (RESEND_API_KEY) {
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'Terrain <noreply@getonterrain.com>',
+          to: email,
+          subject: 'Welcome to Terrain — your 90-day trial has started',
+          html: `
+            <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;background:#faf7f2;">
+              <div style="font-size:28px;font-weight:700;letter-spacing:0.1em;margin-bottom:8px;color:#1c1814;">TERRAIN</div>
+              <div style="font-size:11px;color:#8a7d72;letter-spacing:0.16em;text-transform:uppercase;margin-bottom:32px;">Experience Revenue Intelligence</div>
+              <h2 style="font-size:22px;color:#1c1814;margin-bottom:12px;font-weight:500;">Your 90-day free trial has started</h2>
+              <p style="color:#3d3530;line-height:1.7;margin-bottom:20px;font-size:14px;">
+                Welcome to Terrain. You now have full access to the revenue intelligence platform built specifically for luxury safari lodges and experience operators.
+              </p>
+              <div style="background:#1c1814;border-radius:10px;padding:24px;margin-bottom:24px;">
+                <div style="color:rgba(255,255,255,0.5);font-size:10px;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px;">Your trial includes</div>
+                <div style="color:#f5f0e8;font-size:13px;line-height:2;">
+                  ✓ Dynamic package pricing engine<br/>
+                  ✓ 30-day demand forecasting<br/>
+                  ✓ Scarcity & occupancy signals<br/>
+                  ✓ Channel mix optimization<br/>
+                  ✓ AI revenue recommendations
+                </div>
+              </div>
+              <p style="color:#3d3530;line-height:1.7;margin-bottom:24px;font-size:13px;">
+                Start by completing your property setup — it takes about 3 minutes and Terrain will configure itself entirely around your operation.
+              </p>
+              <a href="${process.env.APP_URL || 'https://getonterrain.com'}/onboarding" style="display:inline-block;background:#c4613a;color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;margin-bottom:24px;">Set Up Your Property →</a>
+              <p style="color:#8a7d72;font-size:12px;line-height:1.7;margin-bottom:0;">
+                As a founding lodge, if you subscribe within your trial period you lock in your rate for the first year.<br/><br/>
+                Questions? Reply to this email — we read every one.<br/><br/>
+                <strong>Terrain by TechSoftNexa LTD</strong><br/>
+                <a href="https://getonterrain.com" style="color:#c4613a;">getonterrain.com</a>
+              </p>
+            </div>
+          `
+        })
+      }).catch(err => console.error('Welcome email error:', err));
+    }
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Registration failed' });
@@ -153,6 +207,143 @@ app.post('/api/auth/login', async (req, res) => {
 app.post('/api/auth/logout', (req, res) => {
   res.clearCookie('terrain_token');
   res.json({ success: true });
+});
+
+// Forgot password — send reset email
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+
+  try {
+    // Ensure token table exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        token VARCHAR(255) UNIQUE NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        used BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    const user = await pool.query('SELECT id, email FROM users WHERE email = $1', [email.toLowerCase()]);
+
+    // Always return success for security — don't reveal if email exists
+    if (user.rows.length === 0) {
+      console.log('Forgot password: email not found:', email);
+      return res.json({ success: true });
+    }
+
+    const userId = user.rows[0].id;
+    const token = require('crypto').randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    // Delete any existing tokens for this user
+    await pool.query('DELETE FROM password_reset_tokens WHERE user_id = $1', [userId]);
+
+    // Create new token
+    await pool.query(
+      'INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)',
+      [userId, token, expiresAt]
+    );
+
+    const resetUrl = `${process.env.APP_URL || 'https://getonterrain.com'}/reset-password?token=${token}`;
+    console.log('Reset URL generated:', resetUrl);
+
+    // Send email via Resend
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    if (!RESEND_API_KEY) {
+      console.error('RESEND_API_KEY not set!');
+      return res.json({ success: true });
+    }
+
+    const emailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'Terrain <noreply@getonterrain.com>',
+        to: email,
+        subject: 'Reset your Terrain password',
+        html: `
+          <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px;">
+            <div style="font-size: 24px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 24px;">TERRAIN</div>
+            <h2 style="font-size: 20px; margin-bottom: 12px;">Reset your password</h2>
+            <p style="color: #6b7280; margin-bottom: 24px; line-height: 1.6;">
+              We received a request to reset your Terrain password. Click the button below to set a new password.
+              This link expires in <strong>1 hour</strong>.
+            </p>
+            <a href="${resetUrl}" style="display:inline-block;background:#c4613a;color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Reset Password →</a>
+            <p style="color: #9ca3af; font-size: 12px; margin-top: 24px; line-height: 1.6;">
+              If you didn't request this, ignore this email — your password won't change.<br/>
+              The link will expire automatically after 1 hour.
+            </p>
+            <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;"/>
+            <p style="color: #9ca3af; font-size: 11px;">
+              Terrain by TechSoftNexa LTD · <a href="https://getonterrain.com" style="color:#c4613a;">getonterrain.com</a>
+            </p>
+          </div>
+        `
+      })
+    });
+
+    const emailData = await emailRes.json();
+    console.log('Resend response:', JSON.stringify(emailData));
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.json({ success: true });
+  }
+});
+
+// Verify reset token
+app.get('/api/auth/verify-reset-token', async (req, res) => {
+  const { token } = req.query;
+  if (!token) return res.json({ valid: false });
+
+  try {
+    const result = await pool.query(
+      'SELECT id FROM password_reset_tokens WHERE token = $1 AND expires_at > NOW() AND used = FALSE',
+      [token]
+    );
+    res.json({ valid: result.rows.length > 0 });
+  } catch {
+    res.json({ valid: false });
+  }
+});
+
+// Reset password
+app.post('/api/auth/reset-password', async (req, res) => {
+  const { token, password } = req.body;
+  if (!token || !password) return res.status(400).json({ error: 'Token and password required' });
+  if (password.length < 6) return res.status(400).json({ error: 'Password too short' });
+
+  try {
+    const tokenResult = await pool.query(
+      'SELECT user_id FROM password_reset_tokens WHERE token = $1 AND expires_at > NOW() AND used = FALSE',
+      [token]
+    );
+
+    if (tokenResult.rows.length === 0) return res.status(400).json({ error: 'Invalid or expired token' });
+
+    const userId = tokenResult.rows[0].user_id;
+    const hash = await bcrypt.hash(password, 10);
+
+    // Update password
+    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, userId]);
+
+    // Mark token as used
+    await pool.query('UPDATE password_reset_tokens SET used = TRUE WHERE token = $1', [token]);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ error: 'Reset failed' });
+  }
 });
 
 // Check auth status
@@ -274,6 +465,8 @@ app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 
 app.get('/packages', (req, res) => res.sendFile(path.join(__dirname, 'public', 'packages.html')));
 app.get('/forecast', (req, res) => res.sendFile(path.join(__dirname, 'public', 'forecast.html')));
 app.get('/channels', (req, res) => res.sendFile(path.join(__dirname, 'public', 'channels.html')));
+app.get('/forgot-password', (req, res) => res.sendFile(path.join(__dirname, 'public', 'forgot-password.html')));
+app.get('/reset-password', (req, res) => res.sendFile(path.join(__dirname, 'public', 'reset-password.html')));
 app.get('/pricing', (req, res) => res.sendFile(path.join(__dirname, 'public', 'pricing.html')));
 app.get('/terms', (req, res) => res.sendFile(path.join(__dirname, 'public', 'terms.html')));
 app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'public', 'privacy.html')));
