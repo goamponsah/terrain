@@ -457,6 +457,11 @@ app.get('/api/lodge', async (req, res) => {
 // ============================================================
 // PAGE ROUTES
 // ============================================================
+app.get('/sitemap.xml', (req, res) => {
+  res.setHeader('Content-Type', 'application/xml');
+  res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
+});
+
 app.get('/google842e27f0c6839870.html', (req, res) => {
   res.send('google-site-verification: google842e27f0c6839870.html');
 });
