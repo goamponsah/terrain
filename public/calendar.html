@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terrain — Rate Calendar</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    /* ---- Calendar Specific ---- */
+    .cal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 32px; background: var(--warm);
+      border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;
+    }
+    .cal-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; }
+    .cal-nav { display: flex; gap: 8px; align-items: center; }
+    .cal-nav button {
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      padding: 6px 14px; font-size: 12px; cursor: pointer; font-family: 'Syne', sans-serif;
+      color: var(--ink-soft); transition: all 0.15s;
+    }
+    .cal-nav button:hover { border-color: var(--terra); color: var(--terra); }
+    .cal-month-label {
+      font-family: 'DM Mono', monospace; font-size: 13px;
+      color: var(--ink-muted); min-width: 140px; text-align: center;
+    }
+
+    /* Summary strip */
+    .cal-summary {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .cs-item {
+      background: var(--warm); padding: 16px 24px;
+    }
+    .cs-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-muted); margin-bottom: 4px; }
+    .cs-value { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 500; color: var(--ink); }
+    .cs-sub { font-size: 11px; color: var(--ink-muted); margin-top: 2px; }
+
+    /* Calendar grid */
+    .cal-grid-wrap { padding: 24px 32px 80px; }
+    .cal-day-headers {
+      display: grid; grid-template-columns: 140px 1fr 100px 120px 130px 100px 80px;
+      gap: 0; padding: 8px 16px;
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--ink-muted); border-bottom: 1px solid var(--border);
+      margin-bottom: 4px;
+    }
+    .cal-row {
+      display: grid;
+      grid-template-columns: 140px 1fr 100px 120px 130px 100px 80px;
+      gap: 0; align-items: center;
+      padding: 10px 16px; border-radius: 8px;
+      margin-bottom: 3px; transition: background 0.1s;
+      border: 1px solid transparent;
+    }
+    .cal-row:hover { background: var(--parchment); border-color: var(--border); }
+    .cal-row.sold-out { background: rgba(196,97,58,0.06); border-color: rgba(196,97,58,0.2); }
+    .cal-row.surge { background: rgba(184,146,42,0.06); border-color: rgba(184,146,42,0.15); }
+    .cal-row.slow { background: rgba(58,90,120,0.05); border-color: rgba(58,90,120,0.12); }
+    .cal-row.today { border-color: var(--terra); background: rgba(196,97,58,0.04); }
+
+    .cr-date { }
+    .cr-date-day { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--ink); }
+    .cr-date-dow { font-size: 10px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .cr-bar-wrap { display: flex; align-items: center; gap: 10px; }
+    .cr-bar { height: 6px; border-radius: 3px; transition: width 0.3s; min-width: 2px; }
+    .cr-bar-bg { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .cr-pct { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-muted); width: 36px; text-align: right; }
+
+    .cr-input-wrap { display: flex; align-items: center; gap: 4px; }
+    .cr-input {
+      width: 52px; background: var(--cream); border: 1px solid var(--border);
+      border-radius: 5px; padding: 4px 8px; font-size: 12px;
+      font-family: 'DM Mono', monospace; color: var(--ink); text-align: center;
+      transition: border-color 0.15s;
+    }
+    .cr-input:focus { outline: none; border-color: var(--terra); }
+    .cr-input-label { font-size: 10px; color: var(--ink-muted); }
+
+    .cr-rec-rate { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; }
+    .cr-rec-rate.surge-rate { color: var(--terra); }
+    .cr-rec-rate.normal-rate { color: var(--forest); }
+    .cr-rec-rate.slow-rate { color: var(--sky); }
+
+    .cr-rev { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--ink-soft); }
+
+    .cr-badge {
+      display: inline-block; font-size: 9px; font-weight: 700;
+      padding: 2px 7px; border-radius: 3px; text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .badge-soldout { background: rgba(196,97,58,0.15); color: var(--terra); }
+    .badge-surge { background: rgba(184,146,42,0.15); color: var(--gold); }
+    .badge-hold { background: rgba(58,92,66,0.12); color: var(--forest); }
+    .badge-promo { background: rgba(58,90,120,0.12); color: var(--sky); }
+    .badge-open { background: var(--parchment); color: var(--ink-muted); }
+
+    .cr-action button {
+      background: none; border: none; font-size: 11px; cursor: pointer;
+      color: var(--terra); font-family: 'Syne', sans-serif;
+      padding: 3px 8px; border-radius: 4px; transition: background 0.1s;
+    }
+    .cr-action button:hover { background: rgba(196,97,58,0.08); }
+
+    /* Insight panel */
+    .insight-panel {
+      position: fixed; right: 0; top: 0; bottom: 0; width: 320px;
+      background: var(--ink); transform: translateX(100%);
+      transition: transform 0.3s ease; z-index: 100;
+      display: flex; flex-direction: column;
+      box-shadow: -8px 0 32px rgba(0,0,0,0.2);
+    }
+    .insight-panel.open { transform: translateX(0); }
+    .ip-header { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .ip-close { float: right; background: none; border: none; color: rgba(255,255,255,0.4); font-size: 18px; cursor: pointer; }
+    .ip-date { font-size: 11px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+    .ip-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--cream); }
+    .ip-body { padding: 24px; flex: 1; overflow-y: auto; }
+    .ip-stat { margin-bottom: 20px; }
+    .ip-stat-label { font-size: 10px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+    .ip-stat-value { font-family: 'DM Mono', monospace; font-size: 24px; color: var(--cream); }
+    .ip-stat-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    .ip-rec { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+    .ip-rec-title { font-size: 12px; font-weight: 600; color: var(--cream); margin-bottom: 6px; }
+    .ip-rec-body { font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.6; }
+    .ip-apply { width: 100%; background: var(--terra); border: none; border-radius: 7px; padding: 12px; font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; font-family: 'Syne', sans-serif; margin-top: 16px; }
+
+    /* Legend */
+    .cal-legend { display: flex; gap: 20px; padding: 12px 32px; border-bottom: 1px solid var(--border); font-size: 11px; color: var(--ink-muted); }
+    .leg-item { display: flex; align-items: center; gap: 6px; }
+    .leg-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+    @media (max-width: 900px) {
+      .cal-day-headers { display: none; }
+      .cal-row { grid-template-columns: 100px 1fr 80px 90px; gap: 8px; }
+      .cr-rev, .cr-action { display: none; }
+      .cal-summary { grid-template-columns: repeat(2,1fr); }
+      .cal-grid-wrap { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="logo-name">TERRAIN</div>
+      <div class="logo-sub">Experience Revenue Intelligence</div>
+      <div class="prop-pill" onclick="window.location.href='/onboarding'">
+        <div class="prop-pill-label">Active Property</div>
+        <div class="prop-pill-name" id="sidePropName">Loading…</div>
+        <div class="prop-pill-meta" id="sidePropMeta">—</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">Revenue</div>
+      <a class="nav-item" href="/dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </a>
+      <a class="nav-item active" href="/calendar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Rate Calendar
+      </a>
+      <a class="nav-item" href="/packages">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        Experience Packages
+      </a>
+      <a class="nav-item" href="/forecast">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+        Demand & Weather
+      </a>
+      <a class="nav-item" href="/channels">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
+        Channel Mix
+      </a>
+      <div class="nav-label">Settings</div>
+      <div class="nav-item" onclick="window.location.href='/onboarding'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Property Settings
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="weather-mini">
+        <div class="wm-temp" id="weatherTemp">—</div>
+        <div class="wm-info" id="weatherInfo">—</div>
+      </div>
+      <div class="user-mini">
+        <div class="avatar" id="userAvatar">?</div>
+        <div style="flex:1;">
+          <div class="user-name" id="userName">—</div>
+          <div class="user-role-label">Revenue Manager</div>
+        </div>
+        <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);border-radius:5px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:'Syne',sans-serif;">Log out</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Calendar Header -->
+    <div class="cal-header">
+      <div>
+        <div class="page-eyebrow">Pricing Engine</div>
+        <div class="cal-title" id="calTitle">Rate Calendar</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="cal-nav">
+          <button onclick="changeMonth(-1)">← Prev</button>
+          <div class="cal-month-label" id="monthLabel">—</div>
+          <button onclick="changeMonth(1)">Next →</button>
+        </div>
+        <button class="btn-primary" onclick="saveCalendar()">Save Rates</button>
+      </div>
+    </div>
+
+    <!-- Summary Strip -->
+    <div class="cal-summary">
+      <div class="cs-item">
+        <div class="cs-label">Projected Revenue</div>
+        <div class="cs-value" id="sumRevenue">$0</div>
+        <div class="cs-sub" id="sumRevSub">This month</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-label">Avg Occupancy</div>
+        <div class="cs-value" id="sumOccupancy">—</div>
+        <div class="cs-sub" id="sumOccSub">Based on entered bookings</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-label">Sold Out Days</div>
+        <div class="cs-value" id="sumSoldOut">0</div>
+        <div class="cs-sub">Days at 100% occupancy</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-label">Surge Opportunities</div>
+        <div class="cs-value" id="sumSurge">0</div>
+        <div class="cs-sub">Days where rates can increase</div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="cal-legend">
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(196,97,58,0.4);"></div> Sold out</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(184,146,42,0.4);"></div> Surge opportunity (85%+)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(58,92,66,0.3);"></div> Healthy demand</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(58,90,120,0.3);"></div> Slow — consider promo</div>
+    </div>
+
+    <!-- Column headers -->
+    <div class="cal-day-headers">
+      <div>Date</div>
+      <div>Occupancy</div>
+      <div>Booked</div>
+      <div>Rec. Rate</div>
+      <div>Proj. Revenue</div>
+      <div>Signal</div>
+      <div>Action</div>
+    </div>
+
+    <!-- Calendar rows -->
+    <div class="cal-grid-wrap" id="calGrid"></div>
+
+  </main>
+</div>
+
+<!-- Insight Panel -->
+<div class="insight-panel" id="insightPanel">
+  <div class="ip-header">
+    <button class="ip-close" onclick="closeInsight()">✕</button>
+    <div class="ip-date" id="ipDate">—</div>
+    <div class="ip-title" id="ipTitle">Day Analysis</div>
+  </div>
+  <div class="ip-body" id="ipBody"></div>
+</div>
+
+<script src="app.js"></script>
+<script>
+// ============================================================
+// RATE CALENDAR — TERRAIN
+// ============================================================
+
+let currentDate = new Date();
+let currentMonth = currentDate.getMonth();
+let currentYear = currentDate.getFullYear();
+let calendarData = {}; // Stores booked suites per date key "YYYY-MM-DD"
+let lodgeConfig = {};
+
+const STORAGE_KEY = 'terrainCalendar';
+
+// Load config from localStorage or DB
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load lodge config
+  try {
+    const me = await fetch('/api/auth/me').then(r => r.json());
+    if (me.user) {
+      const lodgeData = await fetch('/api/lodge').then(r => r.json());
+      if (lodgeData.lodge) {
+        lodgeConfig = {
+          name: lodgeData.lodge.name,
+          suites: lodgeData.lodge.suites || 20,
+          currency: lodgeData.lodge.currency || 'USD',
+          country: lodgeData.lodge.country || 'Kenya',
+          type: lodgeData.lodge.property_type || 'Safari Lodge',
+          nightlyRate: 0
+        };
+      }
+    }
+  } catch {}
+
+  // Fallback to localStorage
+  if (!lodgeConfig.name) {
+    try {
+      const raw = localStorage.getItem('terrainConfig');
+      if (raw) {
+        const cfg = JSON.parse(raw);
+        lodgeConfig = {
+          name: cfg.name,
+          suites: cfg.suites || 20,
+          currency: cfg.currency || 'USD',
+          country: cfg.country || 'Kenya',
+          type: cfg.property_type || 'Safari Lodge',
+          nightlyRate: cfg.currentNightlyRate || 0
+        };
+      }
+    } catch {}
+  }
+
+  // Defaults
+  if (!lodgeConfig.name) lodgeConfig = { name: 'Your Lodge', suites: 20, currency: 'USD', country: 'Kenya', type: 'Safari Lodge', nightlyRate: 0 };
+
+  // Load saved calendar data
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) calendarData = JSON.parse(saved);
+  } catch {}
+
+  // Update sidebar
+  document.getElementById('sidePropName').textContent = lodgeConfig.name;
+  document.getElementById('sidePropMeta').textContent = `${lodgeConfig.type} · ${lodgeConfig.suites} suites`;
+  const initials = lodgeConfig.name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+  document.getElementById('userAvatar').textContent = initials.slice(0,2);
+
+  // Weather
+  const weatherMap = {
+    'Kenya': ['24°C', '☀️ Masai Mara · Shoulder season'],
+    'Tanzania': ['26°C', '☀️ Serengeti · Dry season'],
+    'South Africa': ['18°C', '🌤️ Mild conditions'],
+    'Botswana': ['29°C', '☀️ Okavango · Dry season'],
+    'default': ['22°C', '🌤️ Favorable conditions']
+  };
+  const w = weatherMap[lodgeConfig.country] || weatherMap['default'];
+  document.getElementById('weatherTemp').textContent = w[0];
+  document.getElementById('weatherInfo').textContent = w[1];
+
+  document.getElementById('calTitle').textContent = `Rate Calendar — ${lodgeConfig.name}`;
+
+  renderCalendar();
+});
+
+function getSym() {
+  const m = { 'USD':'$', 'EUR':'€', 'GBP':'£', 'ZAR':'R', 'BWP':'P' };
+  return m[lodgeConfig.currency] || '$';
+}
+
+function getBaseRate() {
+  if (lodgeConfig.nightlyRate && lodgeConfig.nightlyRate > 0) return lodgeConfig.nightlyRate;
+  const rates = { 'Safari Lodge':480, 'Tented Camp':420, 'Private Ranch':650, 'Ski Resort':550, 'Wellness Retreat':380, 'Yacht Charter':1200 };
+  return rates[lodgeConfig.type] || 450;
+}
+
+function getRecommendedRate(bookedPct) {
+  const base = getBaseRate();
+  if (bookedPct >= 100) return Math.round(base * 1.45); // Sold out — surge
+  if (bookedPct >= 90) return Math.round(base * 1.35);
+  if (bookedPct >= 80) return Math.round(base * 1.20);
+  if (bookedPct >= 70) return Math.round(base * 1.10);
+  if (bookedPct >= 55) return Math.round(base * 1.00);
+  if (bookedPct >= 40) return Math.round(base * 0.90);
+  return Math.round(base * 0.80); // Very slow — discount
+}
+
+function getSignal(pct) {
+  if (pct >= 100) return { label: 'Sold Out', cls: 'badge-soldout', rowCls: 'sold-out' };
+  if (pct >= 85) return { label: 'Surge ↑', cls: 'badge-surge', rowCls: 'surge' };
+  if (pct >= 60) return { label: 'Hold', cls: 'badge-hold', rowCls: '' };
+  if (pct >= 40) return { label: 'Promo?', cls: 'badge-promo', rowCls: 'slow' };
+  return { label: 'Open', cls: 'badge-open', rowCls: 'slow' };
+}
+
+function getBarColor(pct) {
+  if (pct >= 90) return '#c4613a';
+  if (pct >= 70) return '#b8922a';
+  if (pct >= 50) return '#3a5c42';
+  return '#7ab0d4';
+}
+
+function dateKey(y, m, d) {
+  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+
+function renderCalendar() {
+  const sym = getSym();
+  const suites = lodgeConfig.suites || 20;
+  const year = currentYear;
+  const month = currentMonth;
+
+  // Month label
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('monthLabel').textContent = `${monthNames[month]} ${year}`;
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = new Date();
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  let totalRev = 0, totalBookedDays = 0, soldOutDays = 0, surgeDays = 0, daysWithData = 0;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = dateKey(year, month, d);
+    const booked = calendarData[key] !== undefined ? calendarData[key] : null;
+    const pct = booked !== null ? Math.min(100, Math.round((booked / suites) * 100)) : null;
+    const recRate = pct !== null ? getRecommendedRate(pct) : getBaseRate();
+    const dayRev = pct !== null ? Math.round((booked || 0) * recRate) : 0;
+    const signal = pct !== null ? getSignal(pct) : { label: 'Enter bookings', cls: 'badge-open', rowCls: '' };
+
+    const date = new Date(year, month, d);
+    const isToday = date.toDateString() === today.toDateString();
+    const isPast = date < today && !isToday;
+    const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][date.getDay()];
+
+    if (pct !== null) {
+      daysWithData++;
+      totalBookedDays += pct;
+      totalRev += dayRev;
+      if (pct >= 100) soldOutDays++;
+      if (pct >= 85 && pct < 100) surgeDays++;
+    }
+
+    const row = document.createElement('div');
+    row.className = `cal-row ${signal.rowCls} ${isToday ? 'today' : ''} ${isPast ? 'past' : ''}`;
+    row.style.opacity = isPast ? '0.6' : '1';
+
+    const barWidth = pct !== null ? pct : 0;
+    const barColor = pct !== null ? getBarColor(pct) : '#ddd4c4';
+
+    row.innerHTML = `
+      <div class="cr-date">
+        <div class="cr-date-day">${dow} ${d} ${monthNames[month].slice(0,3)}</div>
+        ${isToday ? '<div style="font-size:9px;color:var(--terra);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Today</div>' : ''}
+      </div>
+      <div class="cr-bar-wrap">
+        <div class="cr-bar-bg"><div class="cr-bar" style="width:${barWidth}%;background:${barColor};"></div></div>
+        <div class="cr-pct">${pct !== null ? pct + '%' : '—'}</div>
+      </div>
+      <div class="cr-input-wrap">
+        <input class="cr-input" type="number" min="0" max="${suites}"
+          value="${booked !== null ? booked : ''}"
+          placeholder="0"
+          onchange="updateDay('${key}', this.value, ${suites})"
+          onclick="event.stopPropagation()"
+        />
+        <span class="cr-input-label">/ ${suites}</span>
+      </div>
+      <div class="cr-rec-rate ${pct !== null ? (pct >= 85 ? 'surge-rate' : pct < 50 ? 'slow-rate' : 'normal-rate') : ''}">
+        ${sym}${recRate.toLocaleString()}
+      </div>
+      <div class="cr-rev">${pct !== null && booked > 0 ? sym + dayRev.toLocaleString() : '—'}</div>
+      <div><span class="cr-badge ${signal.cls}">${signal.label}</span></div>
+      <div class="cr-action"><button onclick="openInsight('${key}', ${d}, '${dow}', ${booked !== null ? booked : 0}, ${suites}, ${recRate}, ${dayRev}, ${pct !== null ? pct : 0}, '${monthNames[month]}')">Details</button></div>
+    `;
+
+    grid.appendChild(row);
+  }
+
+  // Update summary
+  document.getElementById('sumRevenue').textContent = sym + totalRev.toLocaleString();
+  document.getElementById('sumOccupancy').textContent = daysWithData > 0 ? Math.round(totalBookedDays / daysWithData) + '%' : '—';
+  document.getElementById('sumSoldOut').textContent = soldOutDays;
+  document.getElementById('sumSurge').textContent = surgeDays;
+  document.getElementById('sumRevSub').textContent = daysWithData + ' days entered';
+}
+
+function updateDay(key, value, suites) {
+  const booked = parseInt(value);
+  if (isNaN(booked) || value === '') {
+    delete calendarData[key];
+  } else {
+    calendarData[key] = Math.min(booked, suites);
+  }
+  renderCalendar();
+}
+
+function changeMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+  renderCalendar();
+}
+
+function saveCalendar() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(calendarData));
+  const btn = event.target;
+  btn.textContent = '✓ Saved';
+  btn.style.background = '#3a5c42';
+  setTimeout(() => { btn.textContent = 'Save Rates'; btn.style.background = ''; }, 2000);
+}
+
+function openInsight(key, day, dow, booked, suites, recRate, dayRev, pct, monthName) {
+  const sym = getSym();
+  const base = getBaseRate();
+  const uplift = recRate - base;
+  const signal = getSignal(pct);
+
+  document.getElementById('ipDate').textContent = `${dow} ${day} ${monthName} ${currentYear}`;
+  document.getElementById('ipTitle').textContent = signal.label === 'Sold Out' ? 'Sold Out 🔥' :
+    signal.label === 'Surge ↑' ? 'Surge Opportunity' :
+    pct < 50 ? 'Slow Day' : 'Healthy Demand';
+
+  const body = document.getElementById('ipBody');
+  body.innerHTML = `
+    <div class="ip-stat">
+      <div class="ip-stat-label">Suites Booked</div>
+      <div class="ip-stat-value">${booked} / ${suites}</div>
+      <div class="ip-stat-sub">${pct}% occupancy</div>
+    </div>
+    <div class="ip-stat">
+      <div class="ip-stat-label">Recommended Rate</div>
+      <div class="ip-stat-value" style="color:#e8896a;">${sym}${recRate.toLocaleString()}</div>
+      <div class="ip-stat-sub">${uplift > 0 ? '+' : ''}${sym}${uplift.toLocaleString()} vs base rate of ${sym}${base.toLocaleString()}</div>
+    </div>
+    <div class="ip-stat">
+      <div class="ip-stat-label">Projected Revenue</div>
+      <div class="ip-stat-value">${booked > 0 ? sym + dayRev.toLocaleString() : '—'}</div>
+      <div class="ip-stat-sub">Based on ${booked} booked × ${sym}${recRate.toLocaleString()}</div>
+    </div>
+    <div class="ip-rec">
+      <div class="ip-rec-title">${
+        pct >= 100 ? '🔥 Rate surge recommended' :
+        pct >= 85 ? '📈 Raise your rate now' :
+        pct >= 60 ? '✓ Hold current pricing' :
+        pct >= 40 ? '💡 Consider a light promotion' :
+        '📉 Discount to fill inventory'
+      }</div>
+      <div class="ip-rec-body">${
+        pct >= 100 ? `All ${suites} suites are booked. Guests on the waitlist or late bookers are not price sensitive. Push to ${sym}${recRate.toLocaleString()} for any last-minute additions or upgrades.` :
+        pct >= 85 ? `At ${pct}% occupancy you have strong leverage. Raising to ${sym}${recRate.toLocaleString()} captures demand from guests who will pay a premium to secure remaining inventory.` :
+        pct >= 60 ? `Demand is healthy. Maintain current pricing and monitor — if occupancy rises above 80% in the next 48 hours, trigger a rate increase.` :
+        pct >= 40 ? `Occupancy is below target. Consider a value-add bundle — include a game drive or airport transfer at the base rate rather than discounting the nightly rate itself.` :
+        `Low occupancy. A 10-15% discount or a "stay 3 nights pay 2" promotion could stimulate bookings without permanently damaging your rate integrity.`
+      }</div>
+    </div>
+    <button class="ip-apply" onclick="closeInsight()">Close</button>
+  `;
+
+  document.getElementById('insightPanel').classList.add('open');
+}
+
+function closeInsight() {
+  document.getElementById('insightPanel').classList.remove('open');
+}
+
+async function doLogout() {
+  try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
+  localStorage.removeItem('terrainConfig');
+  window.location.href = '/login';
+}
+</script>
+</body>
+</html>
