@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Terrain — Setup Your Property</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -137,6 +138,100 @@
       padding: 64px 72px;
       max-width: 680px;
     }
+
+    /* ============ MOBILE RESPONSIVE ============ */
+    @media (max-width: 768px) {
+      .wizard {
+        grid-template-columns: 1fr;
+        min-height: 100vh;
+      }
+
+      .left-panel {
+        position: relative;
+        height: auto;
+        padding: 24px 20px 20px;
+        overflow: visible;
+      }
+
+      .left-panel::after { display: none; }
+
+      .brand { margin-bottom: 16px; }
+      .brand-name { font-size: 24px; }
+      .brand-sub { font-size: 9px; }
+
+      .property-selector { margin-top: 12px; padding: 8px 10px; }
+      .prop-name { font-size: 13px; }
+
+      /* Collapse steps into horizontal scrollable strip */
+      .steps {
+        display: flex;
+        overflow-x: auto;
+        gap: 8px;
+        padding-bottom: 4px;
+        flex: none;
+        margin-top: 16px;
+      }
+      .steps::-webkit-scrollbar { display: none; }
+
+      .step-item {
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 0;
+        flex-shrink: 0;
+        min-width: 56px;
+        text-align: center;
+      }
+
+      .step-label { font-size: 9px; white-space: nowrap; }
+      .step-desc { display: none; }
+
+      /* Hide preview card on mobile */
+      .preview-card { display: none; }
+
+      /* Sidebar footer hide on mobile */
+      .sidebar-footer { display: none; }
+
+      .right-panel {
+        padding: 24px 20px 40px;
+        max-width: 100%;
+      }
+
+      .step-title { font-size: 28px; }
+
+      .type-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .type-card { padding: 12px 8px; }
+      .type-icon { font-size: 22px; }
+      .type-name { font-size: 11px; }
+      .type-sub { font-size: 9px; }
+
+      .field-row { grid-template-columns: 1fr; gap: 0; }
+
+      .pkg-row { flex-wrap: wrap; gap: 8px; }
+      .pkg-price-input { width: 80px; }
+
+      .season-row {
+        grid-template-columns: 20px 1fr 60px;
+        gap: 8px;
+      }
+      .season-months { display: none; }
+      .season-row span:last-of-type { display: none; }
+
+      .channel-grid { grid-template-columns: 1fr; }
+
+      .step-nav {
+        flex-direction: column-reverse;
+        gap: 10px;
+      }
+      .btn-back, .btn-next { width: 100%; justify-content: center; }
+
+      /* Success screen */
+      .success-screen { padding: 40px 20px; }
+      .success-title { font-size: 32px; }
+      .config-summary { padding: 16px 18px; }
+      .btn-launch { width: 100%; }
+    }
+    /* =========================================== */
 
     .step-panel { display: none; }
     .step-panel.active {

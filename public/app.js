@@ -1,11 +1,72 @@
 // TERRAIN — Experience Revenue Intelligence
 // Interactive JS
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadLodgeData();
   buildDemandHeatmap();
   initBundleBuilder();
   animateEntrance();
 });
+
+// ---- Load Real Lodge Data into inner pages ----
+async function loadLodgeData() {
+  try {
+    const me = await fetch('/api/auth/me').then(r => r.json());
+    if (me.user) {
+      const lodgeData = await fetch('/api/lodge').then(r => r.json());
+      if (lodgeData.lodge) {
+        const lodge = lodgeData.lodge;
+        const name = lodge.name || 'Your Lodge';
+        const type = lodge.property_type || 'Safari Lodge';
+        const suites = lodge.suites || '—';
+        const country = lodge.country || '';
+        const region = lodge.region || '';
+
+        // Update sidebar property name wherever it appears
+        document.querySelectorAll('.prop-name').forEach(el => el.textContent = name);
+        document.querySelectorAll('.prop-type').forEach(el => {
+          el.textContent = `${type} · ${suites} Suites · ${region ? region + ', ' : ''}${country}`;
+        });
+
+        // Update page title if it references the lodge
+        const pageTitle = document.querySelector('.page-title');
+        if (pageTitle && pageTitle.textContent.includes('Ridgeline')) {
+          pageTitle.textContent = pageTitle.textContent.replace('Ridgeline Safari Lodge', name);
+        }
+
+        // Update weather based on country
+        const weatherMap = {
+          'Kenya': ['24°C', '☀️ Dry season · High demand'],
+          'Tanzania': ['26°C', '☀️ Clear · Migration season'],
+          'South Africa': ['18°C', '🌤️ Mild · Shoulder season'],
+          'Botswana': ['29°C', '☀️ Dry · Peak wildlife'],
+          'Zimbabwe': ['25°C', '☀️ Clear · High season'],
+        };
+        const w = weatherMap[country] || ['22°C', '🌤️ Favorable conditions'];
+        document.querySelectorAll('.weather-temp').forEach(el => el.textContent = w[0]);
+        document.querySelectorAll('.weather-loc').forEach(el => el.textContent = region || country);
+        document.querySelectorAll('.weather-info').forEach(el => el.textContent = w[1]);
+
+        // Update user avatar
+        const initials = name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+        document.querySelectorAll('.avatar').forEach(el => el.textContent = initials.slice(0,2));
+        document.querySelectorAll('.user-name').forEach(el => el.textContent = 'Revenue Manager');
+      }
+    }
+  } catch (e) {
+    // Guest mode — use localStorage
+    try {
+      const raw = localStorage.getItem('terrainConfig');
+      if (raw) {
+        const cfg = JSON.parse(raw);
+        document.querySelectorAll('.prop-name').forEach(el => el.textContent = cfg.name || 'Your Lodge');
+        document.querySelectorAll('.prop-type').forEach(el => {
+          el.textContent = `${cfg.type || 'Safari Lodge'} · ${cfg.suites || '—'} Suites · ${cfg.country || ''}`;
+        });
+      }
+    } catch {}
+  }
+}
 
 // ---- Demand Heatmap ----
 function buildDemandHeatmap() {
