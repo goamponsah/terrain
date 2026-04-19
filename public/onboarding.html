@@ -877,6 +877,26 @@
       <div class="step-desc-text">Terrain calibrates its optimization engine around these goals — it won't recommend changes that conflict with your priorities.</div>
 
       <div class="field-group">
+        <label class="field-label">How many suites/units are occupied right now this month?</label>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <input type="number" class="field-input" id="currentOccupied" placeholder="e.g. 28" min="0" max="500" style="max-width:120px;"
+            oninput="updateOccupancyPreview()"/>
+          <span style="font-size:13px;color:var(--ink-muted);">out of <strong id="totalSuitesLabel">—</strong> suites</span>
+          <span id="occupancyPreview" style="font-size:13px;font-weight:600;color:var(--terra);"></span>
+        </div>
+        <div style="font-size:11px;color:var(--ink-muted);margin-top:6px;">Leave blank to use regional seasonal estimates</div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">What is your average nightly rate per suite? (USD)</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;color:var(--ink-muted);">$</span>
+          <input type="number" class="field-input" id="currentNightlyRate" placeholder="e.g. 453" min="0" style="max-width:140px;"/>
+        </div>
+        <div style="font-size:11px;color:var(--ink-muted);margin-top:6px;">Your current base rate — Terrain will suggest optimal rates from here</div>
+      </div>
+
+      <div class="field-group">
         <div class="range-label">Annual Revenue Target</div>
         <div class="range-row">
           <input type="range" min="200000" max="5000000" step="50000" value="1500000"
@@ -963,6 +983,24 @@
     // Progress bar
     document.getElementById('progressFill').style.width = (n / 5 * 100) + '%';
     window.scrollTo(0, 0);
+
+    // When entering step 5, populate the total suites label
+    if (n === 5) {
+      const suites = document.getElementById('propSuites').value || '—';
+      document.getElementById('totalSuitesLabel').textContent = suites;
+    }
+  }
+
+  function updateOccupancyPreview() {
+    const occupied = parseInt(document.getElementById('currentOccupied').value) || 0;
+    const total = parseInt(document.getElementById('propSuites').value) || 0;
+    const preview = document.getElementById('occupancyPreview');
+    if (occupied > 0 && total > 0) {
+      const pct = Math.round((occupied / total) * 100);
+      preview.textContent = `= ${pct}% occupancy`;
+    } else {
+      preview.textContent = '';
+    }
   }
 
   function selectType(el, type) {
@@ -1088,7 +1126,14 @@
     const target_direct = parseInt(document.getElementById('targetDirectVal')?.textContent) || 55;
     const pricing_philosophy = document.getElementById('pricingPhilosophy')?.value || '';
 
-    const config = { name, country, region, property_type: selectedType, suites, currency, packages, seasons, channels, target_revenue, target_occupancy, target_direct, pricing_philosophy };
+    // Actual occupancy data from lodge
+    const currentOccupied = parseInt(document.getElementById('currentOccupied')?.value) || 0;
+    const currentNightlyRate = parseFloat(document.getElementById('currentNightlyRate')?.value) || 0;
+    const actualOccupancyPct = (currentOccupied > 0 && suites > 0)
+      ? Math.round((currentOccupied / suites) * 100)
+      : null;
+
+    const config = { name, country, region, property_type: selectedType, suites, currency, packages, seasons, channels, target_revenue, target_occupancy, target_direct, pricing_philosophy, currentOccupied, currentNightlyRate, actualOccupancyPct };
 
     // Save to localStorage — works for all guests
     localStorage.setItem('terrainConfig', JSON.stringify(config));
