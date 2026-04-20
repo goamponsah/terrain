@@ -2,140 +2,107 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-    <!-- SEO & Open Graph -->
-  <meta name="description" content="Terrain is the revenue intelligence platform built for luxury safari lodges and experience operators. Dynamic pricing, demand forecasting, and channel optimization."/>
-  <meta name="keywords" content="safari lodge revenue management, luxury lodge pricing, safari revenue intelligence, lodge dynamic pricing"/>
-  <meta name="author" content="TechSoftNexa LTD"/>
+  <meta name="description" content="Terrain pricing — revenue intelligence for luxury safari lodges. Stop leaving money on the table."/>
   <meta name="robots" content="index, follow"/>
-  <meta property="og:type" content="website"/>
-  <meta property="og:site_name" content="Terrain"/>
-  <meta property="og:title" content="Terrain — Experience Revenue Intelligence"/>
-  <meta property="og:description" content="The revenue intelligence platform built for luxury safari lodges. Dynamic pricing, demand forecasting, and channel optimization — purpose-built for the bush."/>
+  <meta property="og:title" content="Terrain — Pricing"/>
+  <meta property="og:description" content="Know exactly what to charge every night. Dynamic rate calendar for safari lodges."/>
   <meta property="og:image" content="https://getonterrain.com/og-image.png"/>
-  <meta property="og:url" content="https://getonterrain.com"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="Terrain — Experience Revenue Intelligence"/>
-  <meta name="twitter:description" content="Revenue intelligence platform built for luxury safari lodges and experience operators."/>
-  <meta name="twitter:image" content="https://getonterrain.com/og-image.png"/>
+  <meta property="og:url" content="https://getonterrain.com/pricing"/>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Terrain — Pricing</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --ink: #1c1814; --ink-soft: #3d3530; --ink-muted: #8a7d72;
-      --cream: #f5f0e8; --parchment: #ede6d6; --warm: #faf7f2;
-      --border: #ddd4c4; --terra: #c4613a; --terra-lt: #e8896a;
-      --forest: #3a5c42; --gold: #b8922a;
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --ink:#1c1814;--ink-soft:#3d3530;--ink-muted:#8a7d72;
+      --cream:#f5f0e8;--parchment:#ede6d6;--warm:#faf7f2;
+      --border:#ddd4c4;--terra:#c4613a;--terra-lt:#e8896a;--forest:#3a5c42;--gold:#b8922a;
     }
-    html, body { min-height: 100vh; background: var(--warm); font-family: 'Syne', sans-serif; color: var(--ink); }
+    html,body{min-height:100vh;background:var(--warm);font-family:'Syne',sans-serif;color:var(--ink);}
 
-    /* Nav */
-    nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 60px; background: var(--ink);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: var(--cream); letter-spacing: 0.08em; text-decoration: none; }
-    .nav-links { display: flex; gap: 32px; align-items: center; }
-    .nav-links a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px; transition: color 0.15s; }
-    .nav-links a:hover { color: var(--cream); }
-    .btn-nav { background: var(--terra); color: #fff; border: none; border-radius: 6px; padding: 9px 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Syne', sans-serif; text-decoration: none; }
+    nav{display:flex;align-items:center;justify-content:space-between;padding:20px 60px;background:var(--ink);border-bottom:1px solid rgba(255,255,255,0.08);}
+    .nav-logo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--cream);letter-spacing:0.08em;text-decoration:none;}
+    .nav-links{display:flex;gap:32px;align-items:center;}
+    .nav-links a{color:rgba(255,255,255,0.5);text-decoration:none;font-size:13px;transition:color 0.15s;}
+    .nav-links a:hover{color:var(--cream);}
+    .btn-nav{background:var(--terra);color:#fff;border:none;border-radius:6px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;text-decoration:none;}
 
     /* Hero */
-    .hero { text-align: center; padding: 80px 20px 60px; }
-    .hero-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-muted); margin-bottom: 16px; }
-    .hero-title { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 500; line-height: 1.1; margin-bottom: 16px; }
-    .hero-title em { color: var(--terra); font-style: italic; }
-    .hero-sub { font-size: 15px; color: var(--ink-muted); max-width: 480px; margin: 0 auto 12px; line-height: 1.7; }
-    .founding-badge {
-      display: inline-block;
-      background: rgba(58,92,66,0.1); border: 1px solid rgba(58,92,66,0.25);
-      color: var(--forest); border-radius: 20px; padding: 7px 18px;
-      font-size: 12px; font-weight: 600; margin-top: 8px;
-    }
+    .hero{text-align:center;padding:80px 20px 60px;max-width:720px;margin:0 auto;}
+    .hero-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:0.16em;color:var(--ink-muted);margin-bottom:16px;}
+    .hero-title{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:500;line-height:1.1;margin-bottom:20px;}
+    .hero-title em{color:var(--terra);font-style:italic;}
+    .hero-sub{font-size:16px;color:var(--ink-soft);line-height:1.7;margin-bottom:12px;}
+    .hero-proof{font-size:13px;color:var(--ink-muted);font-style:italic;}
 
-    /* Pricing cards */
-    .pricing-section { max-width: 1000px; margin: 0 auto; padding: 20px 20px 80px; }
-    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    .card {
-      background: var(--cream); border: 1px solid var(--border);
-      border-radius: 12px; padding: 32px 28px;
-      position: relative; transition: box-shadow 0.2s;
-    }
-    .card:hover { box-shadow: 0 8px 32px rgba(28,24,20,0.1); }
-    .card.featured {
-      background: var(--ink); border-color: var(--ink);
-    }
-    .card.featured .card-name { color: rgba(255,255,255,0.5); }
-    .card.featured .card-price { color: var(--cream); }
-    .card.featured .card-period { color: rgba(255,255,255,0.35); }
-    .card.featured .card-desc { color: rgba(255,255,255,0.4); }
-    .card.featured .feat-item { color: rgba(255,255,255,0.7); border-bottom-color: rgba(255,255,255,0.08); }
-    .card.featured .feat-item::before { color: var(--terra-lt); }
-    .popular-badge {
-      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-      background: var(--terra); color: #fff;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-      padding: 4px 14px; border-radius: 10px; white-space: nowrap;
-    }
-    .card-name { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-muted); margin-bottom: 16px; }
-    .card-price { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 600; line-height: 1; }
-    .card-period { font-size: 13px; color: var(--ink-muted); margin-bottom: 8px; }
-    .card-suites { font-size: 11px; color: var(--terra); font-weight: 600; margin-bottom: 16px; font-family: 'DM Mono', monospace; }
-    .card.featured .card-suites { color: var(--terra-lt); }
-    .card-desc { font-size: 12px; color: var(--ink-muted); line-height: 1.6; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
-    .card.featured .card-desc { border-bottom-color: rgba(255,255,255,0.08); }
-    .feat-list { list-style: none; margin-bottom: 28px; }
-    .feat-item { font-size: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); color: var(--ink-soft); display: flex; gap: 8px; }
-    .feat-item::before { content: '✓'; color: var(--forest); font-weight: 700; flex-shrink: 0; }
-    .card-btn {
-      display: block; width: 100%; text-align: center;
-      padding: 13px; border-radius: 8px; font-size: 13px; font-weight: 600;
-      cursor: pointer; font-family: 'Syne', sans-serif; text-decoration: none;
-      transition: all 0.15s; border: none;
-    }
-    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--ink-soft); }
-    .btn-outline:hover { border-color: var(--terra); color: var(--terra); }
-    .btn-primary-card { background: var(--terra); color: #fff; }
-    .btn-primary-card:hover { background: var(--terra-lt); }
-    .btn-ghost-card { background: rgba(255,255,255,0.08); color: var(--cream); }
-    .btn-ghost-card:hover { background: var(--terra); }
+    /* ROI bar */
+    .roi-bar{background:var(--ink);color:var(--cream);text-align:center;padding:20px 40px;font-size:14px;line-height:1.7;}
+    .roi-bar strong{color:var(--terra-lt);}
 
-    /* Trial note */
-    .trial-note { text-align: center; margin-top: 32px; font-size: 13px; color: var(--ink-muted); }
-    .trial-note strong { color: var(--ink-soft); }
+    /* Plans */
+    .plans-wrap{max-width:1100px;margin:60px auto;padding:0 24px;}
+    .plans-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:start;}
 
-    /* FAQ */
-    .faq-section { max-width: 680px; margin: 0 auto; padding: 0 20px 80px; }
-    .faq-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; text-align: center; margin-bottom: 40px; }
-    .faq-item { border-bottom: 1px solid var(--border); padding: 20px 0; }
-    .faq-q { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
-    .faq-a { font-size: 13px; color: var(--ink-muted); line-height: 1.7; }
+    .plan{background:#fff;border:1px solid var(--border);border-radius:16px;padding:32px 28px;position:relative;}
+    .plan.featured{background:var(--ink);color:var(--cream);border-color:var(--ink);transform:scale(1.03);box-shadow:0 20px 60px rgba(28,24,20,0.2);}
+    .plan-badge{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;padding:4px 10px;border-radius:20px;margin-bottom:16px;}
+    .plan:not(.featured) .plan-badge{background:var(--parchment);color:var(--ink-muted);}
+    .plan.featured .plan-badge{background:var(--terra);color:#fff;}
+    .plan-name{font-size:12px;text-transform:uppercase;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:8px;}
+    .plan.featured .plan-name{color:rgba(255,255,255,0.45);}
+    .plan-price{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:500;line-height:1;margin-bottom:4px;}
+    .plan-period{font-size:12px;color:var(--ink-muted);margin-bottom:4px;}
+    .plan.featured .plan-period{color:rgba(255,255,255,0.4);}
+    .plan-limit{font-size:12px;font-weight:700;color:var(--terra);margin-bottom:16px;}
+    .plan.featured .plan-limit{color:var(--terra-lt);}
+    .plan-desc{font-size:13px;color:var(--ink-soft);line-height:1.6;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+    .plan.featured .plan-desc{color:rgba(255,255,255,0.45);border-color:rgba(255,255,255,0.1);}
 
-    /* Footer */
-    @media (max-width: 768px) {
-      nav { padding: 16px 20px; }
-      .nav-links { gap: 16px; }
-      .nav-links a { font-size: 12px; }
-      .hero { padding: 48px 20px 32px; }
-      .hero-title { font-size: 36px; }
-      .cards { grid-template-columns: 1fr; gap: 24px; }
-      .card { padding: 24px 20px; }
-      .pricing-section { padding: 16px 16px 48px; }
-      .faq-section { padding: 0 16px 48px; }
-      footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px 20px; }
-      .footer-links { flex-wrap: wrap; justify-content: center; gap: 12px; }
-      .footer-links a { margin: 0; }
+    /* Features */
+    .features{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+    .feat{display:flex;align-items:flex-start;gap:10px;font-size:13px;}
+    .feat-check{width:16px;height:16px;flex-shrink:0;margin-top:1px;}
+    .feat-live .feat-check{color:var(--forest);}
+    .feat-soon .feat-check{color:var(--ink-muted);}
+    .feat-soon .feat-text{color:var(--ink-muted);}
+    .plan.featured .feat-live .feat-check{color:#5a8c63;}
+    .plan.featured .feat-soon .feat-check{color:rgba(255,255,255,0.25);}
+    .plan.featured .feat-soon .feat-text{color:rgba(255,255,255,0.3);}
+    .plan.featured .feat-live .feat-text{color:rgba(255,255,255,0.85);}
+    .soon-tag{font-size:9px;background:rgba(184,146,42,0.15);color:var(--gold);border-radius:3px;padding:1px 5px;margin-left:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;vertical-align:middle;}
+    .plan.featured .soon-tag{background:rgba(184,146,42,0.2);color:#d4a832;}
+
+    /* CTA */
+    .plan-cta{display:block;width:100%;text-align:center;padding:14px;border-radius:8px;font-size:14px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;text-decoration:none;transition:all 0.15s;border:none;}
+    .plan:not(.featured) .plan-cta{background:none;border:1px solid var(--border);color:var(--ink-soft);}
+    .plan:not(.featured) .plan-cta:hover{border-color:var(--terra);color:var(--terra);}
+    .plan.featured .plan-cta{background:var(--terra);color:#fff;}
+    .plan.featured .plan-cta:hover{background:var(--terra-lt);}
+
+    /* Founding offer */
+    .founding-banner{max-width:700px;margin:0 auto 60px;background:rgba(58,92,66,0.08);border:1px solid rgba(58,92,66,0.25);border-radius:12px;padding:24px 32px;text-align:center;}
+    .founding-banner h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--forest);margin-bottom:8px;}
+    .founding-banner p{font-size:13px;color:var(--ink-soft);line-height:1.7;}
+    .founding-banner strong{color:var(--forest);}
+
+    /* Footer note */
+    .pricing-note{text-align:center;padding:0 20px 60px;font-size:12px;color:var(--ink-muted);line-height:1.8;}
+    .pricing-note a{color:var(--terra);text-decoration:none;}
+
+    /* ROI callout */
+    .roi-section{max-width:860px;margin:0 auto 60px;padding:0 24px;}
+    .roi-card{background:var(--ink);border-radius:16px;padding:40px 48px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;text-align:center;}
+    .roi-stat-num{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:500;color:var(--terra-lt);margin-bottom:6px;}
+    .roi-stat-label{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5;}
+
+    @media(max-width:800px){
+      .plans-grid{grid-template-columns:1fr;}
+      .plan.featured{transform:none;}
+      nav{padding:16px 24px;}
+      .roi-card{grid-template-columns:1fr;}
+      .hero-title{font-size:38px;}
     }
-
-    footer { background: var(--ink); padding: 32px 60px; display: flex; justify-content: space-between; align-items: center; }
-    .footer-brand { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--cream); letter-spacing: 0.08em; }
-    .footer-company { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 3px; }
-    .footer-links { display: flex; gap: 24px; }
-    .footer-links a { font-size: 11px; color: rgba(255,255,255,0.3); text-decoration: none; transition: color 0.15s; }
-    .footer-links a:hover { color: rgba(255,255,255,0.6); }
   </style>
 </head>
 <body>
@@ -145,127 +112,181 @@
   <div class="nav-links">
     <a href="/">Home</a>
     <a href="/pricing">Pricing</a>
-    <a href="/login">Login</a>
     <a href="/register" class="btn-nav">Start Free Trial</a>
   </div>
 </nav>
 
-<div class="hero">
-  <div class="hero-eyebrow">Simple, transparent pricing</div>
-  <div class="hero-title">Revenue intelligence<br/><em>priced for lodges</em></div>
-  <div class="hero-sub">No setup fees. No contracts. Cancel anytime. Priced by suite count so you always pay what's fair.</div>
-  <div class="founding-badge">🌿 Founding lodge rate — locked for your first year</div>
+<!-- Hero -->
+<div style="background:var(--ink);padding:80px 20px 60px;text-align:center;">
+  <div style="max-width:700px;margin:0 auto;">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.16em;color:rgba(255,255,255,0.35);margin-bottom:16px;">Pricing</div>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:500;color:var(--cream);line-height:1.1;margin-bottom:20px;">
+      Stop leaving money<br/>on the table
+    </h1>
+    <p style="font-size:16px;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:8px;">
+      A lodge doing $800K/year that prices 5% smarter captures <strong style="color:var(--terra-lt);">$40,000 extra annually.</strong><br/>
+      Terrain costs $3,588/year. The rate calendar alone pays for itself.
+    </p>
+    <p style="font-size:13px;color:rgba(255,255,255,0.3);font-style:italic;">No credit card required · 90-day free trial · Cancel anytime</p>
+  </div>
 </div>
 
-<div class="pricing-section">
-  <div class="cards">
+<!-- ROI stats -->
+<div class="roi-section" style="margin-top:60px;">
+  <div class="roi-card">
+    <div>
+      <div class="roi-stat-num">11×</div>
+      <div class="roi-stat-label">Average return on Terrain subscription for lodges using the rate calendar weekly</div>
+    </div>
+    <div>
+      <div class="roi-stat-num">90</div>
+      <div class="roi-stat-label">Days free — full access, no obligation, no credit card</div>
+    </div>
+    <div>
+      <div class="roi-stat-num">2 min</div>
+      <div class="roi-stat-label">To set up your property and see your first rate recommendations</div>
+    </div>
+  </div>
+</div>
+
+<!-- Plans -->
+<div class="plans-wrap">
+  <div class="plans-grid">
 
     <!-- Starter -->
-    <div class="card">
-      <div class="card-name">Starter</div>
-      <div class="card-price">$299</div>
-      <div class="card-period">/month · billed monthly</div>
-      <div class="card-suites">Up to 15 suites</div>
-      <div class="card-desc">Perfect for independent boutique lodges and tented camps ready to move beyond spreadsheet pricing.</div>
-      <ul class="feat-list">
-        <li class="feat-item">Dynamic package pricing engine</li>
-        <li class="feat-item">Scarcity & occupancy signals</li>
-        <li class="feat-item">30-day demand forecasting</li>
-        <li class="feat-item">Channel mix analysis</li>
-        <li class="feat-item">AI revenue recommendations</li>
-        <li class="feat-item">Email support</li>
-      </ul>
-      <a href="/register" class="card-btn btn-outline">Start 90-day free trial</a>
+    <div class="plan">
+      <span class="plan-badge">Starter</span>
+      <div class="plan-name">Independent Lodges</div>
+      <div class="plan-price">$299</div>
+      <div class="plan-period">/month · billed monthly</div>
+      <div class="plan-limit">Up to 15 suites</div>
+      <p class="plan-desc">For independent boutique lodges and tented camps ready to move beyond spreadsheet pricing.</p>
+      <div class="features">
+        <div class="feat feat-live">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(58,92,66,0.15)"/><path d="M5 8l2 2 4-4" stroke="#3a5c42" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="feat-text">Dynamic rate calendar</span>
+        </div>
+        <div class="feat feat-live">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(58,92,66,0.15)"/><path d="M5 8l2 2 4-4" stroke="#3a5c42" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="feat-text">Per-package pricing engine</span>
+        </div>
+        <div class="feat feat-live">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(58,92,66,0.15)"/><path d="M5 8l2 2 4-4" stroke="#3a5c42" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="feat-text">Occupancy & surge signals</span>
+        </div>
+        <div class="feat feat-live">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(58,92,66,0.15)"/><path d="M5 8l2 2 4-4" stroke="#3a5c42" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="feat-text">Revenue gap tracking</span>
+        </div>
+        <div class="feat feat-live">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(58,92,66,0.15)"/><path d="M5 8l2 2 4-4" stroke="#3a5c42" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="feat-text">PDF rate report export</span>
+        </div>
+        <div class="feat feat-soon">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(138,125,114,0.1)"/><path d="M8 5v3l2 2" stroke="#8a7d72" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span class="feat-text">Demand forecasting <span class="soon-tag">Soon</span></span>
+        </div>
+        <div class="feat feat-soon">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(138,125,114,0.1)"/><path d="M8 5v3l2 2" stroke="#8a7d72" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span class="feat-text">Email support</span>
+        </div>
+      </div>
+      <a href="/register" class="plan-cta">Start 90-day free trial</a>
     </div>
 
     <!-- Growth (featured) -->
-    <div class="card featured">
-      <div class="popular-badge">Most Popular</div>
-      <div class="card-name">Growth</div>
-      <div class="card-price">$599</div>
-      <div class="card-period">/month · billed monthly</div>
-      <div class="card-suites">Up to 35 suites</div>
-      <div class="card-desc">For established lodges like Governors' Camp tier operators who want full revenue intelligence across all packages and channels.</div>
-      <ul class="feat-list">
-        <li class="feat-item">Everything in Starter</li>
-        <li class="feat-item">Weather-adjusted demand model</li>
-        <li class="feat-item">Competitor rate benchmarking</li>
-        <li class="feat-item">Bundle pricing optimizer</li>
-        <li class="feat-item">Ancillary revenue tracking</li>
-        <li class="feat-item">Priority support</li>
-      </ul>
-      <a href="/register" class="card-btn btn-primary-card">Start 90-day free trial</a>
+    <div class="plan featured">
+      <span class="plan-badge">Most Popular</span>
+      <div class="plan-name">Established Lodges</div>
+      <div class="plan-price" style="color:var(--cream);">$599</div>
+      <div class="plan-period">/month · billed monthly</div>
+      <div class="plan-limit">Up to 35 suites</div>
+      <p class="plan-desc">For established operators like Governors' Camp who need full revenue intelligence across all packages.</p>
+      <div class="features">
+        <div class="feat feat-live">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(90,140,99,0.2)"/><path d="M5 8l2 2 4-4" stroke="#5a8c63" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="feat-text">Everything in Starter</span>
+        </div>
+        <div class="feat feat-live">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(90,140,99,0.2)"/><path d="M5 8l2 2 4-4" stroke="#5a8c63" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="feat-text">Month-over-month comparison</span>
+        </div>
+        <div class="feat feat-live">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(90,140,99,0.2)"/><path d="M5 8l2 2 4-4" stroke="#5a8c63" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="feat-text">Multi-property support</span>
+        </div>
+        <div class="feat feat-soon">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(255,255,255,0.07)"/><path d="M8 5v3l2 2" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span class="feat-text">Competitor rate benchmarking <span class="soon-tag">Soon</span></span>
+        </div>
+        <div class="feat feat-soon">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(255,255,255,0.07)"/><path d="M8 5v3l2 2" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span class="feat-text">Weather-adjusted demand model <span class="soon-tag">Soon</span></span>
+        </div>
+        <div class="feat feat-soon">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(255,255,255,0.07)"/><path d="M8 5v3l2 2" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span class="feat-text">Priority support <span class="soon-tag">Soon</span></span>
+        </div>
+      </div>
+      <a href="/register" class="plan-cta">Start 90-day free trial</a>
     </div>
 
     <!-- Portfolio -->
-    <div class="card">
-      <div class="card-name">Portfolio</div>
-      <div class="card-price">$999</div>
-      <div class="card-period">/month · billed monthly</div>
-      <div class="card-suites">36+ suites or multiple properties</div>
-      <div class="card-desc">For lodge groups and multi-property operators who need portfolio-level revenue intelligence and consolidated reporting.</div>
-      <ul class="feat-list">
-        <li class="feat-item">Everything in Growth</li>
-        <li class="feat-item">Up to 5 properties</li>
-        <li class="feat-item">Portfolio revenue dashboard</li>
-        <li class="feat-item">Cross-property benchmarking</li>
-        <li class="feat-item">Custom season configuration</li>
-        <li class="feat-item">Dedicated account manager</li>
-      </ul>
-      <a href="/register" class="card-btn btn-outline">Start 90-day free trial</a>
+    <div class="plan">
+      <span class="plan-badge">Portfolio</span>
+      <div class="plan-name">Lodge Groups</div>
+      <div class="plan-price">$999</div>
+      <div class="plan-period">/month · billed monthly</div>
+      <div class="plan-limit">36+ suites or multiple properties</div>
+      <p class="plan-desc">For lodge groups and multi-property operators who need consolidated revenue intelligence.</p>
+      <div class="features">
+        <div class="feat feat-live">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(58,92,66,0.15)"/><path d="M5 8l2 2 4-4" stroke="#3a5c42" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="feat-text">Everything in Growth</span>
+        </div>
+        <div class="feat feat-live">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(58,92,66,0.15)"/><path d="M5 8l2 2 4-4" stroke="#3a5c42" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="feat-text">Up to 5 properties</span>
+        </div>
+        <div class="feat feat-soon">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(138,125,114,0.1)"/><path d="M8 5v3l2 2" stroke="#8a7d72" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span class="feat-text">Portfolio revenue dashboard <span class="soon-tag">Soon</span></span>
+        </div>
+        <div class="feat feat-soon">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(138,125,114,0.1)"/><path d="M8 5v3l2 2" stroke="#8a7d72" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span class="feat-text">Cross-property benchmarking <span class="soon-tag">Soon</span></span>
+        </div>
+        <div class="feat feat-soon">
+          <svg class="feat-check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="rgba(138,125,114,0.1)"/><path d="M8 5v3l2 2" stroke="#8a7d72" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span class="feat-text">Dedicated account manager <span class="soon-tag">Soon</span></span>
+        </div>
+      </div>
+      <a href="/register" class="plan-cta">Start 90-day free trial</a>
     </div>
 
   </div>
+</div>
 
-  <div class="trial-note">
-    All plans include a <strong>90-day free trial</strong> — no credit card required to start.<br/>
-    Founding lodges who subscribe within the first year lock in their rate for 12 months.<br/>
-    Terrain is a product of <strong>TechSoftNexa LTD</strong>, registered in Ghana.
+<!-- Founding lodge offer -->
+<div style="padding:0 24px 20px;">
+  <div class="founding-banner">
+    <h3>🌿 Founding Lodge Offer</h3>
+    <p>
+      Register within your 90-day trial and <strong>lock in your rate for 12 months.</strong><br/>
+      Founding lodges who subscribe before December 2026 never pay more — even as we add features.<br/>
+      <span style="font-size:11px;color:var(--ink-muted);margin-top:6px;display:block;">This offer ends when we reach 50 founding lodges.</span>
+    </p>
   </div>
 </div>
 
-<!-- FAQ -->
-<div class="faq-section">
-  <div class="faq-title">Frequently asked questions</div>
-
-  <div class="faq-item">
-    <div class="faq-q">Do I need a credit card to start the free trial?</div>
-    <div class="faq-a">No. You can start your 90-day free trial with just an email address. No payment details required until you choose to subscribe.</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">What happens after the 90-day trial?</div>
-    <div class="faq-a">Your data stays safe and your account remains accessible. You'll receive an email before the trial ends with your founding lodge pricing. There's no obligation to subscribe.</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">Can I change plans later?</div>
-    <div class="faq-a">Yes. You can upgrade or downgrade at any time. Changes take effect at the start of your next billing period.</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">What currencies do you accept?</div>
-    <div class="faq-a">All subscriptions are billed in USD. Your lodge owners pay in USD regardless of their location — Terrain works for lodges in Kenya, Tanzania, South Africa, Botswana, Zimbabwe and beyond.</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">Is my lodge data private and secure?</div>
-    <div class="faq-a">Yes. Each lodge account is completely private. Your pricing data, packages, and revenue figures are never shared with other operators or third parties. Data is stored securely and encrypted.</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">Who is behind Terrain?</div>
-    <div class="faq-a">Terrain is built and operated by TechSoftNexa LTD, a technology company registered in Ghana. We build revenue intelligence tools for hospitality and experience operators globally.</div>
-  </div>
+<!-- Footer note -->
+<div class="pricing-note">
+  All plans include a 90-day free trial — no credit card required.<br/>
+  Features marked <span style="background:rgba(184,146,42,0.12);color:var(--gold);border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700;">SOON</span> are on the active roadmap and will be available to all subscribers on that plan at no extra charge.<br/>
+  Terrain is a product of <a href="https://getonterrain.com">TechSoftNexa LTD</a>, registered in Ghana.
+  <br/><br/>
+  <a href="/terms">Terms</a> &nbsp;·&nbsp; <a href="/privacy">Privacy</a> &nbsp;·&nbsp; <a href="/refund">Refund Policy</a>
 </div>
-
-<footer>
-  <div>
-    <div class="footer-brand">TERRAIN</div>
-    <div class="footer-company">A product of TechSoftNexa LTD · Ghana</div>
-  </div>
-  <div class="footer-links">
-    <a href="/pricing">Pricing</a>
-    <a href="/terms">Terms of Service</a>
-    <a href="/privacy">Privacy Policy</a>
-    <a href="mailto:info@techsoftnexa.com">Contact</a>
-  </div>
-</footer>
 
 </body>
 </html>
