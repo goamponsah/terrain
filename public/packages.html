@@ -365,108 +365,104 @@ function renderPackageRevenue(){
 
   const confirmedDays=allDays.filter(day=>day.hasData);
   const projectedDays=allDays.filter(day=>!day.hasData&&!day.isPast);
-  const PROJ_OCC=0.60; // conservative 60% baseline for unbooked days
+  const PROJ_OCC=0.60;
+
+  // Load manual booked overrides
+  let manualBooked={};
+  try{const mb=localStorage.getItem('terrainManualBooked');if(mb) manualBooked=JSON.parse(mb);}catch{}
 
   // Per-package stats
   const stats=packages.map((pkg,pi)=>{
-    // CONFIRMED — from actual calendar entries
-    let confBooked=0,confRev=0,confDays=0;
+    // Sum calendar confirmed bookings & compute avg smart rate from calendar
+    let calBooked=0, calRev=0, confDays=0;
     confirmedDays.forEach(({key})=>{
-      const booked=(calData[key]||{})[pi];
-      if(booked===undefined||booked===null) return;
-      const pct=Math.min(100,Math.round((booked/spp)*100));
-      confRev+=booked*getRec(pkg.base_rate,pct,key);
-      confBooked+=booked;
+      const b=(calData[key]||{})[pi];
+      if(b===undefined||b===null) return;
+      const pct=Math.min(100,Math.round((b/spp)*100));
+      calRev+=b*getRec(pkg.base_rate,pct,key);
+      calBooked+=b;
       confDays++;
     });
 
-    // PROJECTED — smart rate × 60% occ for remaining days
-    let projBooked=0,projRev=0;
+    // Avg smart rate per booked unit from calendar
+    const avgSmartRate=calBooked>0?Math.round(calRev/calBooked):Math.round(getRec(pkg.base_rate,-1,
+      `${year}-${String(month+1).padStart(2,'0')}-${String(today).padStart(2,'0')}`));
+
+    // Use manual booked if set, otherwise calendar-derived
+    const manualSet=manualBooked[pi]!==undefined;
+    const bookedCount=manualSet?parseInt(manualBooked[pi]):calBooked;
+
+    // Validate against max suites
+    const maxSuites=lodgeConfig.suites||20;
+    const isOverMax=bookedCount>maxSuites;
+
+    // Confirmed revenue = actual booked count × avg smart rate
+    const confRev=bookedCount*avgSmartRate;
+    // vs Base = confirmed rev vs what flat base rate earns for same bookings
+    const baseRev=bookedCount*pkg.base_rate;
+    const vsBase=confRev-baseRev;
+
+    // Projected — remaining days at 60% occ × smart default rate
+    let projRev=0;
     projectedDays.forEach(({key})=>{
       const assumedBooked=Math.round(spp*PROJ_OCC);
-      const rec=getRec(pkg.base_rate,-1,key); // smart default rate
-      projRev+=assumedBooked*rec;
-      projBooked+=assumedBooked;
+      projRev+=assumedBooked*getRec(pkg.base_rate,-1,key);
     });
 
-    // vs base: confirmed revenue vs what flat base rate would have earned
-    const baseConfRev=confBooked*pkg.base_rate;
-    const vsBase=confRev-baseConfRev;
-
-    const avgRate=confBooked>0?Math.round(confRev/confBooked):0;
-
-    return{pkg,pi,confBooked,confRev,confDays,projBooked,projRev,vsBase,avgRate,spp};
+    return{pkg,pi,bookedCount,confRev,confDays,projRev,vsBase,avgSmartRate,spp,isOverMax,manualSet,calBooked};
   });
 
-  // ── Month banner ──────────────────────────────────────────
+  // ── Month banner — uses manual booked values ──────────────
   const totalConf=stats.reduce((a,st)=>a+st.confRev,0);
   const totalProj=stats.reduce((a,st)=>a+st.projRev,0);
   const grandTotal=totalConf+totalProj;
   const daysLeft=projectedDays.length;
   const confBookedDays=confirmedDays.length;
 
-  if(totalConf>0||totalProj>0){
-    document.getElementById('monthBanner').style.display='block';
-    const mn=['January','February','March','April','May','June','July','August','September','October','November','December'][month];
-    document.getElementById('bannerMonth').textContent=`${mn} ${year} — Revenue Forecast`;
-    document.getElementById('bannerConfirmed').textContent=`${s}${Math.round(totalConf).toLocaleString()}`;
-    document.getElementById('bannerConfSub').textContent=`${confBookedDays} days with real bookings`;
-    document.getElementById('bannerProjected').textContent=`${s}${Math.round(totalProj).toLocaleString()}`;
-    document.getElementById('bannerProjSub').textContent=`${daysLeft} remaining days @ 60% occ.`;
-    document.getElementById('bannerTotal').textContent=`${s}${Math.round(grandTotal).toLocaleString()}`;
-    document.getElementById('bannerDaysSub').textContent=`${daysLeft} days still to fill`;
-  }
+  document.getElementById('monthBanner').style.display='block';
+  const mn=['January','February','March','April','May','June','July','August','September','October','November','December'][month];
+  document.getElementById('bannerMonth').textContent=`${mn} ${year} — Revenue Forecast`;
+  document.getElementById('bannerConfirmed').textContent=`${s}${Math.round(totalConf).toLocaleString()}`;
+  document.getElementById('bannerConfSub').textContent=`${stats.reduce((a,st)=>a+st.bookedCount,0)} total booked units`;
+  document.getElementById('bannerProjected').textContent=`${s}${Math.round(totalProj).toLocaleString()}`;
+  document.getElementById('bannerProjSub').textContent=`${daysLeft} remaining days @ 60% occ.`;
+  document.getElementById('bannerTotal').textContent=`${s}${Math.round(grandTotal).toLocaleString()}`;
+  document.getElementById('bannerDaysSub').textContent=`${daysLeft} days still to fill`;
 
   // ── Table ─────────────────────────────────────────────────
-  const hasAnyData=stats.some(st=>st.confDays>0);
-  if(!hasAnyData&&totalProj===0){
-    document.getElementById('pkgRevenueTable').innerHTML=`
-      <div class="empty-state">
-        <div class="es-icon">📊</div>
-        <div class="es-title">No calendar data yet</div>
-        <div class="es-sub">Enter your bookings in the <a href="/calendar">Rate Calendar</a> to see real revenue by package.</div>
-      </div>`;
-    document.getElementById('attachRates').innerHTML=`<div style="font-size:12px;color:var(--ink-muted);">Enter bookings in the Rate Calendar to see occupancy by package.</div>`;
-    return;
-  }
-
-  // Load any manually overridden booked counts
-  let manualBooked={};
-  try{const mb=localStorage.getItem('terrainManualBooked');if(mb) manualBooked=JSON.parse(mb);}catch{}
-
   const rows=stats.map(st=>{
-    // Use manual override if set, else calendar-derived
-    const booked=manualBooked[st.pi]!==undefined?manualBooked[st.pi]:st.confBooked;
-    const avgRate=booked>0?Math.round(st.confRev/Math.max(st.confBooked,1)):0;
-    // Recalc confirmed rev using actual booked count × avg rate
-    const actualConfRev=booked*Math.max(avgRate,Math.round(st.pkg.base_rate));
-    const actualVsBase=actualConfRev-(booked*st.pkg.base_rate);
+    const vsStr=st.vsBase>0
+      ?`<span class="positive">+${s}${Math.round(st.vsBase).toLocaleString()}</span>`
+      :st.vsBase<0
+      ?`<span class="negative">−${s}${Math.round(Math.abs(st.vsBase)).toLocaleString()}</span>`
+      :`<span style="color:var(--ink-muted);">On target</span>`;
 
-    const vsStr=actualVsBase>0
-      ?`<span class="positive">+${s}${Math.round(actualVsBase).toLocaleString()}</span>`
-      :actualVsBase<0
-      ?`<span class="negative">−${s}${Math.round(Math.abs(actualVsBase)).toLocaleString()}</span>`
-      :`<span style="color:var(--ink-muted);">—</span>`;
-
-    const confStr=actualConfRev>0?`${s}${Math.round(actualConfRev).toLocaleString()}`:'—';
+    const confStr=st.confRev>0?`${s}${Math.round(st.confRev).toLocaleString()}`:'—';
     const projStr=st.projRev>0
       ?`<span style="color:#8a7d72;font-style:italic;">${s}${Math.round(st.projRev).toLocaleString()}</span>`
       :'—';
 
+    // Warning if over max suites
+    const warn=st.isOverMax
+      ?`<div style="font-size:9px;color:var(--terra);margin-top:2px;">⚠️ Exceeds ${lodgeConfig.suites} suites</div>`:'';
+    // Note if manually overriding calendar
+    const calNote=st.manualSet&&st.calBooked>0&&st.calBooked!==st.bookedCount
+      ?`<div style="font-size:9px;color:var(--ink-muted);">Cal: ${st.calBooked}</div>`:'';
+
     return`<tr>
       <td class="td-name">${st.pkg.icon} ${st.pkg.name}</td>
       <td>
-        <input type="number" min="0"
-          value="${booked>0?booked:''}"
+        <input type="number" min="0" max="${lodgeConfig.suites||20}"
+          value="${st.bookedCount>0?st.bookedCount:''}"
           placeholder="0"
           title="Enter actual bookings from your PMS"
-          style="width:56px;border:1px solid var(--border);border-radius:5px;padding:4px 6px;font-size:12px;font-family:'DM Mono',monospace;color:var(--ink);background:var(--cream);text-align:center;"
+          style="width:56px;border:1px solid ${st.isOverMax?'var(--terra)':'var(--border)'};border-radius:5px;padding:4px 6px;font-size:12px;font-family:'DM Mono',monospace;color:var(--ink);background:var(--cream);text-align:center;"
           onchange="saveManualBooked(${st.pi}, this.value)"
           onfocus="this.style.borderColor='var(--terra)'"
-          onblur="this.style.borderColor='var(--border)'"
-        />
+          onblur="this.style.borderColor='${st.isOverMax?'var(--terra)':'var(--border)'}'"
+        />${warn}${calNote}
       </td>
-      <td>${avgRate>0?s+avgRate.toLocaleString():'—'}</td>
+      <td>${s}${st.avgSmartRate.toLocaleString()}</td>
       <td><strong>${confStr}</strong></td>
       <td>${projStr}</td>
       <td>${vsStr}</td>
@@ -475,8 +471,8 @@ function renderPackageRevenue(){
 
   document.getElementById('pkgRevenueTable').innerHTML=`
     <div style="font-size:10px;color:var(--ink-muted);margin-bottom:8px;margin-top:4px;">
-      <strong style="color:var(--ink-soft);">Booked</strong> = enter your actual figures from your PMS &nbsp;·&nbsp;
-      <em style="color:#8a7d72;">Projected</em> = remaining days at 60% occupancy
+      <strong style="color:var(--ink-soft);">Booked ✏️</strong> = type your actual figures from your PMS (max: ${lodgeConfig.suites||20} suites) &nbsp;·&nbsp;
+      <em style="color:#8a7d72;">Projected</em> = remaining days at 60% occ.
     </div>
     <table class="data-table">
       <thead><tr>
@@ -485,6 +481,20 @@ function renderPackageRevenue(){
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
+
+  // ── Occupancy bars ────────────────────────────────────────
+  const barColors=['#c4613a','#b8922a','#3a5c42','#7ab0d4','#8a6fa0'];
+  const maxBooked=Math.max(...stats.map(st=>st.bookedCount),1);
+  document.getElementById('attachRates').innerHTML=stats.map((st,i)=>{
+    const pct=Math.round((st.bookedCount/Math.max(maxBooked,1))*100);
+    const occPct=Math.round((st.bookedCount/(lodgeConfig.suites||20))*100);
+    return`<div class="attach-bar-row">
+      <div class="attach-bar-label">${st.pkg.icon} ${st.pkg.name}</div>
+      <div class="attach-bar-bg"><div class="attach-bar-fill" style="width:${Math.min(pct,100)}%;background:${barColors[i%barColors.length]};"></div></div>
+      <div class="attach-bar-pct">${occPct>0?occPct+'%':'—'}</div>
+    </div>`;
+  }).join('');
+}
 
   // ── Occupancy bars ────────────────────────────────────────
   const barColors=['#c4613a','#b8922a','#3a5c42','#7ab0d4','#8a6fa0'];
