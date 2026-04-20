@@ -349,12 +349,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           currency: lodgeData.lodge.currency || 'USD',
           country: lodgeData.lodge.country,
           type: lodgeData.lodge.property_type,
-          packages: (lodgeData.packages || []).map(p => p.name || p),
+          packages: (lodgeData.packages || []).map(p => ({ name: p.name || p, base_rate: p.base_rate })),
           channels: (lodgeData.channels || []).map(c => c.name || c),
           userEmail: me.user.email
         };
         buildDashboard(cfg);
         if (me.trial && me.trial.daysRemaining <= 30) showTrialBanner(me.trial.daysRemaining);
+        return;
+      } else {
+        // Logged in but no lodge — go to onboarding
+        window.location.href = '/onboarding';
         return;
       }
     }
@@ -363,16 +367,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const raw = localStorage.getItem('terrainConfig');
     if (!raw) { window.location.href = '/onboarding'; return; }
     const config = JSON.parse(raw);
+    if (!config || !config.name) { window.location.href = '/onboarding'; return; }
     buildDashboard(config);
 
-    // Show save banner for guests
     if (!me.user) showSaveBanner(config.name);
 
   } catch (err) {
-    const raw = localStorage.getItem('terrainConfig');
-    if (!raw) { window.location.href = '/onboarding'; return; }
-    buildDashboard(JSON.parse(raw));
-    showSaveBanner('');
+    console.error('Dashboard load error:', err);
+    try {
+      const raw = localStorage.getItem('terrainConfig');
+      if (raw) {
+        const config = JSON.parse(raw);
+        if (config && config.name) { buildDashboard(config); return; }
+      }
+    } catch(e) {}
+    window.location.href = '/onboarding';
   }
 });
 
