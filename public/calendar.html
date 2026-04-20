@@ -437,7 +437,7 @@ function renderGrid(){
     const maxT=packages.length*spp;
     const pct=Math.round((tot/maxT)*100);
     const cls=pct>=100?'full':pct>=85?'high':'';
-    html+=`<th><input class="occ-input ${cls}" type="number" min="0" max="${maxT}" value="${tot>0?tot:''}" placeholder="0" title="${pct}% occ." onchange="updateOcc('${key}',this.value,${maxT},${spp})" onclick="event.stopPropagation()"/></th>`;
+    html+=`<th><input class="occ-input ${cls}" type="number" min="0" max="${maxT}" value="${tot>0?tot:''}" placeholder="0" title="${pct}% occ." onblur="updateOcc('${key}',this.value,${maxT},${spp})" onclick="event.stopPropagation()"/></th>`;
   });
   html+='</tr></thead><tbody>';
 
@@ -474,7 +474,7 @@ function renderGrid(){
           value="${actual&&actual.s?actual.s:''}"
           placeholder=""
           title="Single guest rate"
-          onchange="updateActual('${key}',${pi},'s',this.value)"
+          onblur="updateActual('${key}',${pi},'s',this.value)"
           onclick="event.stopPropagation()"
           style="width:46px;"
         />
@@ -482,7 +482,7 @@ function renderGrid(){
           value="${actual&&actual.d?actual.d:''}"
           placeholder=""
           title="Double guest rate"
-          onchange="updateActual('${key}',${pi},'d',this.value)"
+          onblur="updateActual('${key}',${pi},'d',this.value)"
           onclick="event.stopPropagation()"
           style="width:46px;"
         />
