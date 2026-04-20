@@ -517,11 +517,29 @@ function updatePkgBooked(key,pi,value,spp){
     if(!occData[key]) occData[key]={};
     occData[key][pi]=Math.min(v,spp);
   }
+  autoSave();
   clearTimeout(renderTimer);
   renderTimer=setTimeout(()=>renderGrid(),600);
 }
 
 let renderTimer=null;
+let saveTimer=null;
+
+function autoSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(occData));
+    localStorage.setItem(ACTUAL_KEY,JSON.stringify(actualRates));
+    fetch('/api/calendar',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({occData})
+    }).catch(e=>console.warn('Autosave failed:',e));
+    // Flash a subtle indicator
+    const btn=document.querySelector('[onclick="saveCalendar()"]');
+    if(btn){const orig=btn.textContent;btn.textContent='✓ Saved';btn.style.background='#3a5c42';setTimeout(()=>{btn.textContent=orig;btn.style.background='';},1500);}
+  },1500);
+}
 function updateActual(key,pi,type,value){
   const v=parseInt(value);
   if(!actualRates[key]) actualRates[key]={};
@@ -534,12 +552,11 @@ function updateActual(key,pi,type,value){
     actualRates[key][pi][type]=v;
   }
   localStorage.setItem(ACTUAL_KEY,JSON.stringify(actualRates));
+  autoSave();
   // Debounce re-render by 600ms so user can click between single/double inputs
+  autoSave();
   clearTimeout(renderTimer);
-  renderTimer=setTimeout(()=>renderGrid(),600);
-}
-
-function updateSummary(dates,spp,s){
+  renderTimer=setTimeout(()=>renderGrid(),600);(dates,spp,s){
   let rev=0,occDays=0,occSum=0,sold=0,surge=0;
   dates.forEach(({key})=>{
     const tot=packages.reduce((sum,_,i)=>sum+((occData[key]||{})[i]||0),0);
