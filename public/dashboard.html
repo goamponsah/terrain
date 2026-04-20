@@ -537,7 +537,7 @@ function buildDashboard(cfg) {
           '<div class="sb-desc">' + cfg.packages.length + ' packages · ' + suites + ' suites · ' + MONTHS_SHORT[month] + ' ' + year + '</div>' +
         '</div>' +
       '</div>' +
-      '<button class="sb-btn" onclick="goTo('calendar')">Open Rate Calendar →</button>' +
+      '<button class="sb-btn" onclick="goTo(&quot;calendar&quot;)">Open Rate Calendar →</button>' +
     '</div>' +
 
     '<div class="kpi-strip">' +
@@ -575,7 +575,7 @@ function buildDashboard(cfg) {
           '<div style="font-size:13px;color:var(--ink-muted);line-height:1.7;margin-bottom:24px;max-width:380px;margin-left:auto;margin-right:auto;">' +
             (daysWithData === 0 ? noDataMsg : hasDataMsg) +
           '</div>' +
-          '<button onclick="goTo('calendar')" style="background:var(--terra);color:#fff;border:none;border-radius:8px;padding:14px 36px;font-size:14px;font-weight:600;cursor:pointer;font-family:Syne,sans-serif;">' +
+          '<button onclick="goTo(&quot;calendar&quot;)" style="background:var(--terra);color:#fff;border:none;border-radius:8px;padding:14px 36px;font-size:14px;font-weight:600;cursor:pointer;font-family:Syne,sans-serif;">' +
             'Open Rate Calendar →' +
           '</button>' +
         '</div>' +
@@ -590,7 +590,7 @@ function buildDashboard(cfg) {
             '<div style="display:flex;justify-content:space-between;font-size:12px;border-bottom:1px solid var(--border);padding-bottom:8px;"><span style="color:var(--ink-muted);">Country</span><span style="font-weight:500;">' + (cfg.country || '—') + '</span></div>' +
             '<div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--ink-muted);">Currency</span><span style="font-weight:500;">' + (cfg.currency || 'USD') + '</span></div>' +
           '</div>' +
-          '<button onclick="goTo('onboarding')" style="width:100%;margin-top:16px;background:none;border:1px solid var(--border);border-radius:6px;padding:9px;font-size:12px;cursor:pointer;font-family:Syne,sans-serif;color:var(--ink-soft);">Edit Property Settings</button>' +
+          '<button onclick="goTo(&quot;onboarding&quot;)" style="width:100%;margin-top:16px;background:none;border:1px solid var(--border);border-radius:6px;padding:9px;font-size:12px;cursor:pointer;font-family:Syne,sans-serif;color:var(--ink-soft);">Edit Property Settings</button>' +
         '</div>' +
         '<div class="card">' +
           '<div class="card-ey">Packages</div>' +
@@ -609,7 +609,7 @@ function buildDashboard(cfg) {
       '<div style="font-size:32px;margin-bottom:16px;">⚠️</div>' +
       '<div style="font-size:16px;margin-bottom:8px;">Dashboard failed to load</div>' +
       '<div style="font-size:12px;color:#8a7d72;margin-bottom:24px;">' + err.message + '</div>' +
-      '<button onclick="goTo('onboarding')" style="background:var(--terra);color:#fff;border:none;border-radius:6px;padding:10px 24px;cursor:pointer;font-size:13px;">Go to Setup →</button>' +
+      '<button onclick="goTo(&quot;onboarding&quot;)" style="background:var(--terra);color:#fff;border:none;border-radius:6px;padding:10px 24px;cursor:pointer;font-size:13px;">Go to Setup →</button>' +
       '</div>';
     document.getElementById('topbarTitle').textContent = 'Dashboard error';
   }
