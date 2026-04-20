@@ -47,10 +47,11 @@ async function loadLodgeData() {
         document.querySelectorAll('.weather-loc').forEach(el => el.textContent = region || country);
         document.querySelectorAll('.weather-info').forEach(el => el.textContent = w[1]);
 
-        // Update user avatar
-        const initials = name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
-        document.querySelectorAll('.avatar').forEach(el => el.textContent = initials.slice(0,2));
-        document.querySelectorAll('.user-name').forEach(el => el.textContent = 'Revenue Manager');
+        // Update user avatar — use email username not lodge initials
+        const emailUser = (me.user.email || '').split('@')[0] || name;
+        const initials = emailUser.slice(0,2).toUpperCase();
+        document.querySelectorAll('.avatar').forEach(el => el.textContent = initials);
+        document.querySelectorAll('.user-name').forEach(el => el.textContent = emailUser);
       }
     }
   } catch (e) {
