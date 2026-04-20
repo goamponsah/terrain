@@ -498,6 +498,20 @@ function buildDashboard(cfg) {
   document.getElementById('topbarDate').textContent = now.toLocaleDateString('en-GB', fmtOpts) + ' – ' + endDate.toLocaleDateString('en-GB', fmtOpts);
 
   // Real calendar data
+  // Clear stale localStorage if it belongs to a different lodge
+  const storedConfig = localStorage.getItem('terrainConfig');
+  if (storedConfig) {
+    try {
+      const stored = JSON.parse(storedConfig);
+      if (stored.name && cfg.name && stored.name !== cfg.name) {
+        localStorage.removeItem('terrainCalendarV2');
+        localStorage.removeItem('terrainActualRates');
+        localStorage.removeItem('terrainManualBooked');
+        localStorage.setItem('terrainConfig', JSON.stringify({name:cfg.name}));
+      }
+    } catch(e) {}
+  }
+
   const calRaw = localStorage.getItem('terrainCalendarV2');
   const calData = calRaw ? JSON.parse(calRaw) : {};
   const year = now.getFullYear(), month = now.getMonth();

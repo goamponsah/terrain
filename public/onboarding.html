@@ -265,6 +265,19 @@ async function handleSubmit(){
     pricing_philosophy:'', target_revenue:0, target_occupancy:70, target_direct:50
   };
 
+  // Clear previous calendar data — this is a new/updated property
+  const existingConfig = localStorage.getItem('terrainConfig');
+  if (existingConfig) {
+    try {
+      const prev = JSON.parse(existingConfig);
+      if (prev.name !== name) {
+        localStorage.removeItem('terrainCalendarV2');
+        localStorage.removeItem('terrainActualRates');
+        localStorage.removeItem('terrainManualBooked');
+      }
+    } catch(e) {}
+  }
+
   // Always save to localStorage first — works for both guests and logged-in users
   localStorage.setItem('terrainConfig',JSON.stringify({
     name, country, type, suites, currency,
