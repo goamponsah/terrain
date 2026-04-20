@@ -284,8 +284,26 @@ document.addEventListener('DOMContentLoaded', async()=>{
   }
   if(!lodgeConfig.name) lodgeConfig={name:'Your Lodge',suites:20,currency:'USD',country:'Kenya',type:'Safari Lodge'};
 
-  // Load calendar data
-  try{const s=localStorage.getItem(CAL_KEY);if(s) calData=JSON.parse(s);}catch{}
+  // Load calendar data — API first, fallback to localStorage
+  try{
+    const calRes=await fetch('/api/calendar').then(r=>r.json());
+    if(calRes.occData&&Object.keys(calRes.occData).length>0){
+      calData=calRes.occData;
+      localStorage.setItem('terrainCalendarV2',JSON.stringify(calData));
+    } else {
+      const s=localStorage.getItem('terrainCalendarV2');if(s) calData=JSON.parse(s);
+    }
+  }catch{
+    try{const s=localStorage.getItem('terrainCalendarV2');if(s) calData=JSON.parse(s);}catch{}
+  }
+
+  // Load manual booked — API first, fallback to localStorage
+  try{
+    const mbRes=await fetch('/api/manual-booked').then(r=>r.json());
+    if(mbRes.manualBooked&&Object.keys(mbRes.manualBooked).length>0){
+      localStorage.setItem('terrainManualBooked',JSON.stringify(mbRes.manualBooked));
+    }
+  }catch{}
 
   // Sidebar
   document.getElementById('sidePropName').textContent=lodgeConfig.name;
@@ -566,6 +584,12 @@ function saveManualBooked(pi, value){
   if(isNaN(v)||value==='') delete mb[pi];
   else mb[pi]=Math.max(0,v);
   localStorage.setItem('terrainManualBooked',JSON.stringify(mb));
+  // Save to DB
+  fetch('/api/manual-booked',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({manualBooked:mb})
+  }).catch(e=>console.warn('Manual booked save failed:',e));
   renderPackageRevenue();
 }
 

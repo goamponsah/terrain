@@ -253,7 +253,18 @@ document.addEventListener('DOMContentLoaded',async()=>{
   }
   if(!lodgeConfig.name) lodgeConfig={name:'Your Lodge',suites:20,currency:'USD',country:'Kenya',type:'Safari Lodge'};
   if(packages.length===0) packages=DEFAULT_PKG;
-  try{const s=localStorage.getItem(STORAGE_KEY);if(s) occData=JSON.parse(s);}catch{}
+  // Load calendar data — API first, fallback to localStorage
+  try{
+    const calRes=await fetch('/api/calendar').then(r=>r.json());
+    if(calRes.occData&&Object.keys(calRes.occData).length>0){
+      occData=calRes.occData;
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(occData));
+    } else {
+      const s=localStorage.getItem(STORAGE_KEY);if(s) occData=JSON.parse(s);
+    }
+  }catch{
+    try{const s=localStorage.getItem(STORAGE_KEY);if(s) occData=JSON.parse(s);}catch{}
+  }
 
   document.getElementById('sidePropName').textContent=lodgeConfig.name;
   document.getElementById('sidePropMeta').textContent=`${lodgeConfig.type} · ${lodgeConfig.suites} suites`;
@@ -454,6 +465,13 @@ function changeMonth(dir){
 
 function saveCalendar(){
   localStorage.setItem(STORAGE_KEY,JSON.stringify(occData));
+  // Save to DB
+  fetch('/api/calendar',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({occData})
+  }).catch(e=>console.warn('Calendar save to DB failed:',e));
+
   const btn=event.target;
   btn.textContent='✓ Saved';btn.style.background='#3a5c42';
   setTimeout(()=>{btn.textContent='Save Rates';btn.style.background='';},2000);
