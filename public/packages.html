@@ -183,6 +183,28 @@
 
         <!-- Package Revenue — from real calendar data -->
         <div class="card">
+          <!-- Month projection banner -->
+          <div id="monthBanner" style="display:none;margin-bottom:20px;padding:16px;background:var(--ink);border-radius:10px;color:var(--cream);">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.35);margin-bottom:8px;" id="bannerMonth">This Month</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+              <div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Confirmed</div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;" id="bannerConfirmed">—</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;" id="bannerConfSub">from real bookings</div>
+              </div>
+              <div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Projected</div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:#e8896a;" id="bannerProjected">—</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;" id="bannerProjSub">remaining days @ 60% occ.</div>
+              </div>
+              <div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Full Month Total</div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:#5a8c63;" id="bannerTotal">—</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;" id="bannerDaysSub">— days remaining</div>
+              </div>
+            </div>
+          </div>
+
           <div class="card-eyebrow">Performance</div>
           <div class="card-title">Package Revenue by Type</div>
           <div id="pkgRevenueTable">
@@ -327,89 +349,132 @@ function renderSeasons(){
 function renderPackageRevenue(){
   const s=sym();
   const spp=Math.max(1,Math.floor((lodgeConfig.suites||20)/Math.max(1,packages.length)));
+  const now=new Date();
+  const year=now.getFullYear(), month=now.getMonth();
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const today=now.getDate();
 
-  // Compute per-package stats from calData
-  // calData = { 'YYYY-MM-DD': { pkgIdx: bookedCount } }
+  // Build all days in current month
+  const allDays=[];
+  for(let d=1;d<=daysInMonth;d++){
+    const key=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isPast=d<today;
+    const hasData=calData[key]&&Object.keys(calData[key]).length>0;
+    allDays.push({d,key,isPast,hasData});
+  }
+
+  const confirmedDays=allDays.filter(day=>day.hasData);
+  const projectedDays=allDays.filter(day=>!day.hasData&&!day.isPast);
+  const PROJ_OCC=0.60; // conservative 60% baseline for unbooked days
+
+  // Per-package stats
   const stats=packages.map((pkg,pi)=>{
-    let totalBooked=0, totalRev=0, daysWithData=0, surgeOpp=0;
-
-    Object.entries(calData).forEach(([key,dayObj])=>{
-      const booked=dayObj[pi];
+    // CONFIRMED — from actual calendar entries
+    let confBooked=0,confRev=0,confDays=0;
+    confirmedDays.forEach(({key})=>{
+      const booked=(calData[key]||{})[pi];
       if(booked===undefined||booked===null) return;
       const pct=Math.min(100,Math.round((booked/spp)*100));
-      const rec=getRec(pkg.base_rate,pct,key);
-      totalBooked+=booked;
-      totalRev+=booked*rec;
-      daysWithData++;
-      if(pct>=85&&pct<100) surgeOpp++;
+      confRev+=booked*getRec(pkg.base_rate,pct,key);
+      confBooked+=booked;
+      confDays++;
     });
 
-    const avgRate=totalBooked>0?Math.round(totalRev/totalBooked):0;
-    // Optimal: what revenue would be if lodge always charged recommended rate at current occupancy
-    const optimalRev=totalRev; // Already using recommended rates — show vs base rate
-    const baseRev=packages.map((_,i)=>{
-      let r=0;
-      Object.entries(calData).forEach(([key,dayObj])=>{
-        const b=dayObj[i];
-        if(b===undefined||b===null) return;
-        r+=b*pkg.base_rate;
-      });
-      return r;
-    })[pi];
-    const vsBase=totalRev-baseRev;
+    // PROJECTED — smart rate × 60% occ for remaining days
+    let projBooked=0,projRev=0;
+    projectedDays.forEach(({key})=>{
+      const assumedBooked=Math.round(spp*PROJ_OCC);
+      const rec=getRec(pkg.base_rate,-1,key); // smart default rate
+      projRev+=assumedBooked*rec;
+      projBooked+=assumedBooked;
+    });
 
-    return{pkg,totalBooked,totalRev,avgRate,daysWithData,surgeOpp,vsBase,spp};
+    // vs base: confirmed revenue vs what flat base rate would have earned
+    const baseConfRev=confBooked*pkg.base_rate;
+    const vsBase=confRev-baseConfRev;
+
+    const avgRate=confBooked>0?Math.round(confRev/confBooked):0;
+
+    return{pkg,pi,confBooked,confRev,confDays,projBooked,projRev,vsBase,avgRate,spp};
   });
 
-  const hasAnyData=stats.some(st=>st.daysWithData>0);
+  // ── Month banner ──────────────────────────────────────────
+  const totalConf=stats.reduce((a,st)=>a+st.confRev,0);
+  const totalProj=stats.reduce((a,st)=>a+st.projRev,0);
+  const grandTotal=totalConf+totalProj;
+  const daysLeft=projectedDays.length;
+  const confBookedDays=confirmedDays.length;
 
-  if(!hasAnyData){
+  if(totalConf>0||totalProj>0){
+    document.getElementById('monthBanner').style.display='block';
+    const mn=['January','February','March','April','May','June','July','August','September','October','November','December'][month];
+    document.getElementById('bannerMonth').textContent=`${mn} ${year} — Revenue Forecast`;
+    document.getElementById('bannerConfirmed').textContent=`${s}${Math.round(totalConf).toLocaleString()}`;
+    document.getElementById('bannerConfSub').textContent=`${confBookedDays} days with real bookings`;
+    document.getElementById('bannerProjected').textContent=`${s}${Math.round(totalProj).toLocaleString()}`;
+    document.getElementById('bannerProjSub').textContent=`${daysLeft} remaining days @ 60% occ.`;
+    document.getElementById('bannerTotal').textContent=`${s}${Math.round(grandTotal).toLocaleString()}`;
+    document.getElementById('bannerDaysSub').textContent=`${daysLeft} days still to fill`;
+  }
+
+  // ── Table ─────────────────────────────────────────────────
+  const hasAnyData=stats.some(st=>st.confDays>0);
+  if(!hasAnyData&&totalProj===0){
     document.getElementById('pkgRevenueTable').innerHTML=`
       <div class="empty-state">
         <div class="es-icon">📊</div>
         <div class="es-title">No calendar data yet</div>
-        <div class="es-sub">Enter your bookings in the <a href="/calendar">Rate Calendar</a> to see real revenue figures per package.</div>
+        <div class="es-sub">Enter your bookings in the <a href="/calendar">Rate Calendar</a> to see real revenue by package.</div>
       </div>`;
     document.getElementById('attachRates').innerHTML=`<div style="font-size:12px;color:var(--ink-muted);">Enter bookings in the Rate Calendar to see occupancy by package.</div>`;
     return;
   }
 
-  // Revenue table
-  const maxRev=Math.max(...stats.map(st=>st.totalRev),1);
   const rows=stats.map(st=>{
-    if(st.daysWithData===0) return`<tr>
-      <td class="td-name">${st.pkg.icon} ${st.pkg.name}</td>
-      <td style="color:var(--ink-muted);">—</td><td>—</td><td>—</td>
-      <td style="color:var(--ink-muted);font-size:11px;">No data</td>
-    </tr>`;
-    const vsStr=st.vsBase>0?`<span class="positive">+${s}${Math.round(st.vsBase).toLocaleString()}</span>`
-      :st.vsBase<0?`<span class="negative">−${s}${Math.round(Math.abs(st.vsBase)).toLocaleString()}</span>`
-      :`<span style="color:var(--ink-muted);">On target</span>`;
+    const vsStr=st.vsBase>0
+      ?`<span class="positive">+${s}${Math.round(st.vsBase).toLocaleString()}</span>`
+      :st.vsBase<0
+      ?`<span class="negative">−${s}${Math.round(Math.abs(st.vsBase)).toLocaleString()}</span>`
+      :`<span style="color:var(--ink-muted);">—</span>`;
+
+    const confStr=st.confRev>0?`${s}${Math.round(st.confRev).toLocaleString()}`:'—';
+    const projStr=st.projRev>0
+      ?`<span style="color:#8a7d72;font-style:italic;">${s}${Math.round(st.projRev).toLocaleString()}</span>`
+      :'—';
+
     return`<tr>
       <td class="td-name">${st.pkg.icon} ${st.pkg.name}</td>
-      <td>${st.totalBooked}</td>
-      <td>${s}${st.avgRate.toLocaleString()}</td>
-      <td>${s}${Math.round(st.totalRev).toLocaleString()}</td>
+      <td>${st.confBooked>0?st.confBooked:'—'}</td>
+      <td>${st.avgRate>0?s+st.avgRate.toLocaleString():'—'}</td>
+      <td><strong>${confStr}</strong></td>
+      <td>${projStr}</td>
       <td>${vsStr}</td>
     </tr>`;
   }).join('');
 
   document.getElementById('pkgRevenueTable').innerHTML=`
+    <div style="font-size:10px;color:var(--ink-muted);margin-bottom:8px;margin-top:4px;">
+      <strong style="color:var(--ink-soft);">Confirmed</strong> = from real bookings entered &nbsp;·&nbsp;
+      <em style="color:#8a7d72;">Projected</em> = remaining days at 60% occupancy
+    </div>
     <table class="data-table">
-      <thead><tr><th>Package</th><th>Booked</th><th>Avg Rate</th><th>Revenue</th><th>vs Base</th></tr></thead>
+      <thead><tr>
+        <th>Package</th><th>Booked</th><th>Avg Rate</th>
+        <th>Confirmed Rev</th><th>Projected Rev</th><th>vs Base</th>
+      </tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
 
-  // Occupancy bars
+  // ── Occupancy bars ────────────────────────────────────────
   const barColors=['#c4613a','#b8922a','#3a5c42','#7ab0d4','#8a6fa0'];
-  const maxBooked=Math.max(...stats.map(st=>st.totalBooked),1);
+  const maxBooked=Math.max(...stats.map(st=>st.confBooked),1);
   document.getElementById('attachRates').innerHTML=stats.map((st,i)=>{
-    const pct=Math.round((st.totalBooked/Math.max(maxBooked,1))*100);
-    const occPct=st.daysWithData>0?Math.round((st.totalBooked/(st.daysWithData*st.spp))*100):0;
+    const pct=Math.round((st.confBooked/Math.max(maxBooked,1))*100);
+    const occPct=st.confDays>0?Math.round((st.confBooked/(st.confDays*st.spp))*100):0;
     return`<div class="attach-bar-row">
       <div class="attach-bar-label">${st.pkg.icon} ${st.pkg.name}</div>
       <div class="attach-bar-bg"><div class="attach-bar-fill" style="width:${pct}%;background:${barColors[i%barColors.length]};"></div></div>
-      <div class="attach-bar-pct">${occPct}%</div>
+      <div class="attach-bar-pct">${occPct>0?occPct+'%':'—'}</div>
     </div>`;
   }).join('');
 }
