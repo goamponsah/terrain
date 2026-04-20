@@ -430,22 +430,43 @@ function renderPackageRevenue(){
     return;
   }
 
+  // Load any manually overridden booked counts
+  let manualBooked={};
+  try{const mb=localStorage.getItem('terrainManualBooked');if(mb) manualBooked=JSON.parse(mb);}catch{}
+
   const rows=stats.map(st=>{
-    const vsStr=st.vsBase>0
-      ?`<span class="positive">+${s}${Math.round(st.vsBase).toLocaleString()}</span>`
-      :st.vsBase<0
-      ?`<span class="negative">−${s}${Math.round(Math.abs(st.vsBase)).toLocaleString()}</span>`
+    // Use manual override if set, else calendar-derived
+    const booked=manualBooked[st.pi]!==undefined?manualBooked[st.pi]:st.confBooked;
+    const avgRate=booked>0?Math.round(st.confRev/Math.max(st.confBooked,1)):0;
+    // Recalc confirmed rev using actual booked count × avg rate
+    const actualConfRev=booked*Math.max(avgRate,Math.round(st.pkg.base_rate));
+    const actualVsBase=actualConfRev-(booked*st.pkg.base_rate);
+
+    const vsStr=actualVsBase>0
+      ?`<span class="positive">+${s}${Math.round(actualVsBase).toLocaleString()}</span>`
+      :actualVsBase<0
+      ?`<span class="negative">−${s}${Math.round(Math.abs(actualVsBase)).toLocaleString()}</span>`
       :`<span style="color:var(--ink-muted);">—</span>`;
 
-    const confStr=st.confRev>0?`${s}${Math.round(st.confRev).toLocaleString()}`:'—';
+    const confStr=actualConfRev>0?`${s}${Math.round(actualConfRev).toLocaleString()}`:'—';
     const projStr=st.projRev>0
       ?`<span style="color:#8a7d72;font-style:italic;">${s}${Math.round(st.projRev).toLocaleString()}</span>`
       :'—';
 
     return`<tr>
       <td class="td-name">${st.pkg.icon} ${st.pkg.name}</td>
-      <td>${st.confBooked>0?st.confBooked:'—'}</td>
-      <td>${st.avgRate>0?s+st.avgRate.toLocaleString():'—'}</td>
+      <td>
+        <input type="number" min="0"
+          value="${booked>0?booked:''}"
+          placeholder="0"
+          title="Enter actual bookings from your PMS"
+          style="width:56px;border:1px solid var(--border);border-radius:5px;padding:4px 6px;font-size:12px;font-family:'DM Mono',monospace;color:var(--ink);background:var(--cream);text-align:center;"
+          onchange="saveManualBooked(${st.pi}, this.value)"
+          onfocus="this.style.borderColor='var(--terra)'"
+          onblur="this.style.borderColor='var(--border)'"
+        />
+      </td>
+      <td>${avgRate>0?s+avgRate.toLocaleString():'—'}</td>
       <td><strong>${confStr}</strong></td>
       <td>${projStr}</td>
       <td>${vsStr}</td>
@@ -454,12 +475,12 @@ function renderPackageRevenue(){
 
   document.getElementById('pkgRevenueTable').innerHTML=`
     <div style="font-size:10px;color:var(--ink-muted);margin-bottom:8px;margin-top:4px;">
-      <strong style="color:var(--ink-soft);">Confirmed</strong> = from real bookings entered &nbsp;·&nbsp;
+      <strong style="color:var(--ink-soft);">Booked</strong> = enter your actual figures from your PMS &nbsp;·&nbsp;
       <em style="color:#8a7d72;">Projected</em> = remaining days at 60% occupancy
     </div>
     <table class="data-table">
       <thead><tr>
-        <th>Package</th><th>Booked</th><th>Avg Rate</th>
+        <th>Package</th><th>Booked ✏️</th><th>Avg Rate</th>
         <th>Confirmed Rev</th><th>Projected Rev</th><th>vs Base</th>
       </tr></thead>
       <tbody>${rows}</tbody>
@@ -526,6 +547,16 @@ function updateBundle(){
   else if(total>5000) rec='Strong premium bundle. Ensure this is positioned as a limited availability offering to maintain exclusivity pricing.';
   else rec='Well-balanced bundle. Compare to your peak season rate to ensure sufficient margin on high-demand dates.';
   document.getElementById('bb_rec').textContent=rec;
+}
+
+function saveManualBooked(pi, value){
+  let mb={};
+  try{const s=localStorage.getItem('terrainManualBooked');if(s) mb=JSON.parse(s);}catch{}
+  const v=parseInt(value);
+  if(isNaN(v)||value==='') delete mb[pi];
+  else mb[pi]=Math.max(0,v);
+  localStorage.setItem('terrainManualBooked',JSON.stringify(mb));
+  renderPackageRevenue();
 }
 
 async function doLogout(){
