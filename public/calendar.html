@@ -497,6 +497,7 @@ function renderGrid(){
   updateSummary(dates,spp,s);
 }
 
+let renderTimer=null;
 function updateActual(key,pi,type,value){
   const v=parseInt(value);
   if(!actualRates[key]) actualRates[key]={};
@@ -509,7 +510,9 @@ function updateActual(key,pi,type,value){
     actualRates[key][pi][type]=v;
   }
   localStorage.setItem(ACTUAL_KEY,JSON.stringify(actualRates));
-  renderGrid();
+  // Debounce re-render by 600ms so user can click between single/double inputs
+  clearTimeout(renderTimer);
+  renderTimer=setTimeout(()=>renderGrid(),600);
 }
 
 function updateSummary(dates,spp,s){
@@ -583,7 +586,8 @@ function updateOcc(key,value,maxT,spp){
     // give remainder to first package
     if(remaining>0) occData[key][0]=(occData[key][0]||0)+remaining;
   }
-  renderGrid();
+  clearTimeout(renderTimer);
+  renderTimer=setTimeout(()=>renderGrid(),600);
 }
 
 function populateMonthSelect(){
