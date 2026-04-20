@@ -300,15 +300,10 @@
       </div>
     </nav>
     <div class="sidebar-footer">
-      <div class="weather-mini">
-        <div class="wm-temp" id="weatherTemp">—</div>
-        <div class="wm-info" id="weatherInfo">—</div>
-      </div>
       <div class="user-mini">
         <div class="avatar" id="userAvatar">?</div>
         <div style="flex:1;">
           <div class="user-name" id="userName">—</div>
-          <div class="user-role-label">Revenue Manager</div>
         </div>
         <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);border-radius:5px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:'Syne',sans-serif;flex-shrink:0;transition:all 0.15s;" onmouseover="this.style.borderColor='rgba(196,97,58,0.5)';this.style.color='#e8896a'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.4)'">Log out</button>
       </div>
@@ -324,7 +319,6 @@
       <div class="topbar-right">
         <div class="date-chip" id="topbarDate">—</div>
         <button class="btn-ghost" onclick="window.location.href=\'/onboarding\'">Edit Setup</button>
-        <button class="btn-primary" id="pushPricingBtn" onclick="doPushPricing(this)">Push Pricing</button>
       </div>
     </div>
 
@@ -491,21 +485,14 @@ function buildDashboard(cfg) {
   cfg.packages = cfg.packages || [];
   cfg.channels = cfg.channels || [];
 
-  // Sidebar
-  const initials = cfg.name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
-  document.getElementById('userAvatar').textContent = initials.slice(0,2);
-  document.getElementById('userName').textContent = userEmail.split('@')[0] || cfg.name;
+  // Sidebar — use email for avatar and name, nothing else
+  const emailName = userEmail.split('@')[0] || cfg.name;
+  const emailInitials = emailName.slice(0,2).toUpperCase();
+  document.getElementById('userAvatar').textContent = emailInitials;
+  document.getElementById('userName').textContent = emailName;
   document.getElementById('sidePropName').textContent = cfg.name;
   document.getElementById('sidePropMeta').textContent = (cfg.type || 'Safari Lodge') + ' · ' + suites + ' suites · ' + (cfg.country || '');
   document.getElementById('topbarTitle').textContent = 'Welcome back — ' + cfg.name;
-
-  // Season label for sidebar
-  const now = new Date();
-  const mo = now.getMonth();
-  const seasonLabels = ['Green Season','Green Season','Green Season','Green Season','Shoulder','High Season','Peak Season','Peak Season','High Season','High Season','Shoulder','Shoulder'];
-  const seasonPcts   = [55, 55, 60, 50, 65, 75, 90, 88, 78, 75, 65, 60];
-  document.getElementById('weatherTemp').textContent = seasonLabels[mo];
-  document.getElementById('weatherInfo').textContent = (cfg.country || '') + ' · ' + seasonPcts[mo] + '% est. occupancy';
 
   // Date range label
   const endDate = new Date(now); endDate.setDate(now.getDate() + 30);
