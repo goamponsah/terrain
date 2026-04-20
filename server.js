@@ -501,6 +501,141 @@ app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'public', 'p
 app.get('/refund', (req, res) => res.sendFile(path.join(__dirname, 'public', 'refund.html')));
 
 // Start
-initDB().then(() => {
+initDB().then(() => migrateDB()).then(() => {
   app.listen(PORT, () => console.log(`Terrain running on port ${PORT}`));
+});
+
+// NOTE: Run this once to add new tables (safe to call repeatedly due to IF NOT EXISTS)
+async function migrateDB() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS calendar_data (
+        id SERIAL PRIMARY KEY,
+        lodge_id INTEGER REFERENCES lodges(id) ON DELETE CASCADE,
+        date_key VARCHAR(10) NOT NULL,
+        pkg_idx INTEGER NOT NULL,
+        booked_count INTEGER DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(lodge_id, date_key, pkg_idx)
+      );
+      CREATE TABLE IF NOT EXISTS manual_booked (
+        id SERIAL PRIMARY KEY,
+        lodge_id INTEGER REFERENCES lodges(id) ON DELETE CASCADE,
+        pkg_idx INTEGER NOT NULL,
+        booked_count INTEGER DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(lodge_id, pkg_idx)
+      );
+    `);
+    console.log('Migration complete');
+  } catch (err) {
+    console.error('Migration error:', err.message);
+  }
+}
+
+// ============================================================
+// CALENDAR DATA ROUTES
+// ============================================================
+
+// Save calendar occupancy data
+app.post('/api/calendar', authRequired, async (req, res) => {
+  const { occData } = req.body; // { 'YYYY-MM-DD': { pkgIdx: bookedCount } }
+  if (!occData) return res.status(400).json({ error: 'No data provided' });
+
+  try {
+    const lodge = await pool.query('SELECT id FROM lodges WHERE user_id = $1 LIMIT 1', [req.user.id]);
+    if (lodge.rows.length === 0) return res.status(404).json({ error: 'No lodge found' });
+    const lodgeId = lodge.rows[0].id;
+
+    // Upsert each date/pkg entry
+    for (const [dateKey, pkgObj] of Object.entries(occData)) {
+      for (const [pkgIdx, bookedCount] of Object.entries(pkgObj)) {
+        await pool.query(`
+          INSERT INTO calendar_data (lodge_id, date_key, pkg_idx, booked_count, updated_at)
+          VALUES ($1, $2, $3, $4, NOW())
+          ON CONFLICT (lodge_id, date_key, pkg_idx)
+          DO UPDATE SET booked_count = $4, updated_at = NOW()
+        `, [lodgeId, dateKey, parseInt(pkgIdx), parseInt(bookedCount) || 0]);
+      }
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Calendar save error:', err);
+    res.status(500).json({ error: 'Failed to save calendar data' });
+  }
+});
+
+// Load calendar occupancy data
+app.get('/api/calendar', authRequired, async (req, res) => {
+  try {
+    const lodge = await pool.query('SELECT id FROM lodges WHERE user_id = $1 LIMIT 1', [req.user.id]);
+    if (lodge.rows.length === 0) return res.json({ occData: {} });
+    const lodgeId = lodge.rows[0].id;
+
+    const result = await pool.query(
+      'SELECT date_key, pkg_idx, booked_count FROM calendar_data WHERE lodge_id = $1',
+      [lodgeId]
+    );
+
+    // Reconstruct { 'YYYY-MM-DD': { pkgIdx: bookedCount } }
+    const occData = {};
+    result.rows.forEach(row => {
+      if (!occData[row.date_key]) occData[row.date_key] = {};
+      occData[row.date_key][row.pkg_idx] = row.booked_count;
+    });
+
+    res.json({ occData });
+  } catch (err) {
+    console.error('Calendar load error:', err);
+    res.status(500).json({ error: 'Failed to load calendar data' });
+  }
+});
+
+// Save manual booked overrides (packages page)
+app.post('/api/manual-booked', authRequired, async (req, res) => {
+  const { manualBooked } = req.body; // { pkgIdx: bookedCount }
+  if (!manualBooked) return res.status(400).json({ error: 'No data provided' });
+
+  try {
+    const lodge = await pool.query('SELECT id FROM lodges WHERE user_id = $1 LIMIT 1', [req.user.id]);
+    if (lodge.rows.length === 0) return res.status(404).json({ error: 'No lodge found' });
+    const lodgeId = lodge.rows[0].id;
+
+    for (const [pkgIdx, bookedCount] of Object.entries(manualBooked)) {
+      await pool.query(`
+        INSERT INTO manual_booked (lodge_id, pkg_idx, booked_count, updated_at)
+        VALUES ($1, $2, $3, NOW())
+        ON CONFLICT (lodge_id, pkg_idx)
+        DO UPDATE SET booked_count = $3, updated_at = NOW()
+      `, [lodgeId, parseInt(pkgIdx), parseInt(bookedCount) || 0]);
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Manual booked save error:', err);
+    res.status(500).json({ error: 'Failed to save manual booked data' });
+  }
+});
+
+// Load manual booked overrides
+app.get('/api/manual-booked', authRequired, async (req, res) => {
+  try {
+    const lodge = await pool.query('SELECT id FROM lodges WHERE user_id = $1 LIMIT 1', [req.user.id]);
+    if (lodge.rows.length === 0) return res.json({ manualBooked: {} });
+    const lodgeId = lodge.rows[0].id;
+
+    const result = await pool.query(
+      'SELECT pkg_idx, booked_count FROM manual_booked WHERE lodge_id = $1',
+      [lodgeId]
+    );
+
+    const manualBooked = {};
+    result.rows.forEach(row => { manualBooked[row.pkg_idx] = row.booked_count; });
+
+    res.json({ manualBooked });
+  } catch (err) {
+    console.error('Manual booked load error:', err);
+    res.status(500).json({ error: 'Failed to load manual booked data' });
+  }
 });
