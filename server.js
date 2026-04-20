@@ -527,6 +527,8 @@ async function migrateDB() {
         UNIQUE(lodge_id, pkg_idx)
       );
     `);
+    // Add active_lodge_id column if not exists
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS active_lodge_id INTEGER REFERENCES lodges(id) ON DELETE SET NULL`);
     console.log('Migration complete');
   } catch (err) {
     console.error('Migration error:', err.message);
@@ -651,8 +653,12 @@ app.get('/api/lodges', authRequired, async (req, res) => {
       'SELECT id, name, country, region, property_type, suites, currency FROM lodges WHERE user_id = $1 ORDER BY created_at ASC',
       [req.user.id]
     );
-    const user = await pool.query('SELECT active_lodge_id FROM users WHERE id = $1', [req.user.id]);
-    res.json({ lodges: lodges.rows, activeLodgeId: user.rows[0]?.active_lodge_id || null });
+    let activeLodgeId = null;
+    try {
+      const user = await pool.query('SELECT active_lodge_id FROM users WHERE id = $1', [req.user.id]);
+      activeLodgeId = user.rows[0]?.active_lodge_id || null;
+    } catch(e) { /* column may not exist yet */ }
+    res.json({ lodges: lodges.rows, activeLodgeId });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to load lodges' });
