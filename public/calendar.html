@@ -469,7 +469,7 @@ function renderGrid(){
         if(sig.label) html+=`<span class="rc-badge ${sig.cls}">${sig.label}</span>`;
       }
       // Actual rate display — single and double
-        <div class="rc-actual-wrap">
+      html+=`<div class="rc-actual-wrap">
         <input class="rc-actual-input" type="number" min="0"
           value="${actual&&actual.s?actual.s:''}"
           placeholder=""
@@ -487,7 +487,7 @@ function renderGrid(){
           style="width:46px;"
         />
         ${gapS!==null?`<div class="${gapS>0?'rc-gap-pos':gapS<0?'rc-gap-neg':'rc-gap-zero'}" style="font-size:8px;">${gapS>0?'+':''}${s}${Math.abs(gapS).toLocaleString()}</div>`:''}
-      </div>;
+      </div>`;
       html+=`</div></td>`;
     });
     html+='</tr>';
