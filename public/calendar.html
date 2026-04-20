@@ -213,7 +213,7 @@
       <div class="leg-item"><div class="leg-dot" style="background:rgba(184,146,42,0.55);"></div> Surge ↑ 85%+</div>
       <div class="leg-item"><div class="leg-dot" style="background:rgba(58,92,66,0.45);"></div> Hold 60–84%</div>
       <div class="leg-item"><div class="leg-dot" style="background:rgba(100,130,180,0.45);"></div> Slow — promo?</div>
-      <div class="leg-item" style="margin-left:auto;font-size:10px;color:var(--ink-muted);">Large = 1 guest &nbsp;·&nbsp; Small = 2 guests &nbsp;·&nbsp; Enter total suites booked in dark row</div>
+      <div class="leg-item" style="margin-left:auto;font-size:10px;color:var(--ink-muted);">Large = 1 guest &nbsp;·&nbsp; Small = 2 guests &nbsp;·&nbsp; Enter booked suites per package</div>
     </div>
 
     <div id="lotBanner" style="display:none;padding:12px 32px 0;">
@@ -429,25 +429,15 @@ function renderGrid(){
   });
   html+='</tr>';
 
-  // Occupancy input row
-  html+='<tr class="occ-row">';
-  html+=`<th class="pkg-col">Total booked suites</th>`;
-  dates.forEach(({key})=>{
-    const tot=packages.reduce((sum,_,i)=>sum+((occData[key]||{})[i]||0),0);
-    const maxT=packages.length*spp;
-    const pct=Math.round((tot/maxT)*100);
-    const cls=pct>=100?'full':pct>=85?'high':'';
-    html+=`<th><input class="occ-input ${cls}" type="number" min="0" max="${maxT}" value="${tot>0?tot:''}" placeholder="0" title="${pct}% occ." onblur="updateOcc('${key}',this.value,${maxT},${spp})" onclick="event.stopPropagation()"/></th>`;
-  });
   html+='</tr></thead><tbody>';
 
-  // Package rows
+  // Package rows — booking input per package per day
   packages.forEach((pkg,pi)=>{
     html+='<tr>';
     html+=`<td class="pkg-col"><div class="pkg-name">${pkg.icon} ${pkg.name}</div><div class="pkg-base">Base: ${s}${Math.round(pkg.base_rate).toLocaleString()} / night</div></td>`;
     dates.forEach(({key,isToday,isPast})=>{
       const booked=(occData[key]||{})[pi];
-      const hasData=booked!==undefined&&booked!==null;
+      const hasData=booked!==undefined&&booked!==null&&booked>0;
       const pct=hasData?Math.min(100,Math.round((booked/spp)*100)):-1;
       const rec=getRec(pkg.base_rate,pct,key);
       const rec2=Math.round(rec*2);
@@ -455,11 +445,12 @@ function renderGrid(){
       const actual=(actualRates[key]||{})[pi];
       const hasActual=actual&&(actual.s||actual.d);
       const gapS=hasActual&&actual.s?actual.s-rec:null;
-      const gapD=hasActual&&actual.d?actual.d-rec2:null;
 
       const colCls=['rate-cell',isToday?'today-col':'',isPast?'past-col':'',sig.sig].filter(Boolean).join(' ');
       html+=`<td class="${colCls}" onclick="event.target.tagName!=='INPUT'&&openInsight('${key}',${pi},${pct},${rec},${spp},${hasData?booked:0})">`;
       html+=`<div class="rc-inner">`;
+
+      // Recommended rates
       if(pct===100){
         html+=`<div class="rc-single">${s}${rec.toLocaleString()}</div><div class="rc-sold">SOLD</div>`;
       } else {
@@ -468,26 +459,41 @@ function renderGrid(){
         html+=`<div class="rc-double" style="${op}">${s}${rec2.toLocaleString()}</div>`;
         if(sig.label) html+=`<span class="rc-badge ${sig.cls}">${sig.label}</span>`;
       }
-      // Actual rate display — single and double
+
+      // Booked input per package
+      html+=`<div style="border-top:1px dashed var(--border);margin-top:4px;padding-top:4px;display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <div style="font-size:8px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;">Booked</div>
+        <input type="number" min="0" max="${spp}"
+          value="${hasData?booked:''}"
+          placeholder="0"
+          title="Suites booked for ${pkg.name}"
+          style="width:44px;border:1px solid var(--border);border-radius:4px;padding:3px 4px;font-size:11px;font-family:'DM Mono',monospace;color:var(--ink);text-align:center;background:rgba(255,255,255,0.8);"
+          onblur="updatePkgBooked('${key}',${pi},this.value,${spp})"
+          onclick="event.stopPropagation()"
+          onfocus="this.style.borderColor='var(--terra)';event.stopPropagation()"
+          onblur="updatePkgBooked('${key}',${pi},this.value,${spp});this.style.borderColor='var(--border)'"
+        />
+      </div>`;
+
+      // Actual rate inputs
       html+=`<div class="rc-actual-wrap">
         <input class="rc-actual-input" type="number" min="0"
           value="${actual&&actual.s?actual.s:''}"
-          placeholder=""
-          title="Single guest rate"
+          placeholder="" title="Single guest actual rate"
           onblur="updateActual('${key}',${pi},'s',this.value)"
           onclick="event.stopPropagation()"
           style="width:46px;"
         />
         <input class="rc-actual-input" type="number" min="0"
           value="${actual&&actual.d?actual.d:''}"
-          placeholder=""
-          title="Double guest rate"
+          placeholder="" title="Double guest actual rate"
           onblur="updateActual('${key}',${pi},'d',this.value)"
           onclick="event.stopPropagation()"
           style="width:46px;"
         />
         ${gapS!==null?`<div class="${gapS>0?'rc-gap-pos':gapS<0?'rc-gap-neg':'rc-gap-zero'}" style="font-size:8px;">${gapS>0?'+':''}${s}${Math.abs(gapS).toLocaleString()}</div>`:''}
       </div>`;
+
       html+=`</div></td>`;
     });
     html+='</tr>';
@@ -495,6 +501,18 @@ function renderGrid(){
   html+='</tbody>';
   document.getElementById('rateGrid').innerHTML=html;
   updateSummary(dates,spp,s);
+}
+
+function updatePkgBooked(key,pi,value,spp){
+  const v=parseInt(value);
+  if(isNaN(v)||value===''){
+    if(occData[key]) delete occData[key][pi];
+  } else {
+    if(!occData[key]) occData[key]={};
+    occData[key][pi]=Math.min(v,spp);
+  }
+  clearTimeout(renderTimer);
+  renderTimer=setTimeout(()=>renderGrid(),600);
 }
 
 let renderTimer=null;
