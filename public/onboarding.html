@@ -2,1175 +2,319 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-    <!-- SEO & Open Graph -->
-  <meta name="description" content="Terrain is the revenue intelligence platform built for luxury safari lodges and experience operators. Dynamic pricing, demand forecasting, and channel optimization."/>
-  <meta name="keywords" content="safari lodge revenue management, luxury lodge pricing, safari revenue intelligence, lodge dynamic pricing"/>
-  <meta name="author" content="TechSoftNexa LTD"/>
-  <meta name="robots" content="index, follow"/>
-  <meta property="og:type" content="website"/>
-  <meta property="og:site_name" content="Terrain"/>
-  <meta property="og:title" content="Terrain — Experience Revenue Intelligence"/>
-  <meta property="og:description" content="The revenue intelligence platform built for luxury safari lodges. Dynamic pricing, demand forecasting, and channel optimization — purpose-built for the bush."/>
-  <meta property="og:image" content="https://getonterrain.com/og-image.png"/>
-  <meta property="og:url" content="https://getonterrain.com"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="Terrain — Experience Revenue Intelligence"/>
-  <meta name="twitter:description" content="Revenue intelligence platform built for luxury safari lodges and experience operators."/>
-  <meta name="twitter:image" content="https://getonterrain.com/og-image.png"/>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Terrain — Setup Your Property</title>
+  <title>Terrain — Property Setup</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --ink:#1c1814;--ink-soft:#3d3530;--ink-muted:#8a7d72;
+      --cream:#f5f0e8;--parchment:#ede6d6;--warm:#faf7f2;
+      --border:#ddd4c4;--terra:#c4613a;--terra-lt:#e8896a;--forest:#3a5c42;
+    }
+    html,body{min-height:100vh;background:var(--ink);font-family:'Syne',sans-serif;color:var(--cream);}
+    body{display:flex;align-items:flex-start;justify-content:center;padding:40px 20px 80px;}
 
-    :root {
-      --ink:      #1c1814;
-      --ink-soft: #3d3530;
-      --ink-muted:#8a7d72;
-      --ink-faint:#c4b9ad;
-      --cream:    #f5f0e8;
-      --parchment:#ede6d6;
-      --warm:     #faf7f2;
-      --border:   #ddd4c4;
-      --border2:  #ccc0ae;
-      --terra:    #c4613a;
-      --terra-lt: #e8896a;
-      --forest:   #3a5c42;
-      --gold:     #b8922a;
-      --sky:      #3a5878;
-    }
+    .wrap{width:100%;max-width:560px;}
 
-    html, body {
-      min-height: 100vh;
-      background: var(--warm);
-      font-family: 'Syne', sans-serif;
-      color: var(--ink);
-    }
+    /* Header */
+    .logo{text-align:center;margin-bottom:40px;}
+    .logo-name{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:600;letter-spacing:0.1em;}
+    .logo-sub{font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.18em;text-transform:uppercase;margin-top:4px;}
 
-    /* Grain */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 9999; opacity: 0.5;
-    }
+    .page-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;text-align:center;margin-bottom:6px;}
+    .page-sub{font-size:12px;color:rgba(255,255,255,0.35);text-align:center;margin-bottom:36px;}
 
-    /* ---- Layout ---- */
-    .wizard {
-      display: grid;
-      grid-template-columns: 380px 1fr;
-      min-height: 100vh;
-    }
+    /* Sections */
+    .section{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px;margin-bottom:20px;}
+    .section-title{font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:rgba(255,255,255,0.35);margin-bottom:16px;}
 
-    /* ---- Left Panel ---- */
-    .left-panel {
-      background: var(--ink);
-      padding: 48px 40px;
-      display: flex;
-      flex-direction: column;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
+    /* Fields */
+    .field{margin-bottom:16px;}
+    .field:last-child{margin-bottom:0;}
+    .field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.4);margin-bottom:7px;}
+    .field input,.field select{
+      width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+      border-radius:7px;padding:12px 14px;font-size:14px;color:var(--cream);
+      font-family:'Syne',sans-serif;outline:none;transition:border-color 0.15s;
+      appearance:none;
     }
+    .field input:focus,.field select:focus{border-color:var(--terra);}
+    .field input::placeholder{color:rgba(255,255,255,0.2);}
+    .field select option{background:#1c1814;color:#fff;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 
-    .left-panel::after {
-      content: 'TERRAIN';
-      position: absolute;
-      bottom: -20px; left: -12px;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 130px; font-weight: 700;
-      color: rgba(255,255,255,0.03);
-      letter-spacing: -4px;
-      pointer-events: none;
-      line-height: 1;
-    }
+    /* Packages */
+    .pkg-list{display:flex;flex-direction:column;gap:10px;}
+    .pkg-row{display:grid;grid-template-columns:36px 1fr 120px 32px;gap:8px;align-items:center;}
+    .pkg-icon-btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;width:36px;height:36px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+    .pkg-icon-btn:hover{background:rgba(255,255,255,0.12);}
+    .pkg-input{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:9px 12px;font-size:13px;color:var(--cream);font-family:'Syne',sans-serif;outline:none;width:100%;transition:border-color 0.15s;}
+    .pkg-input:focus{border-color:var(--terra);}
+    .pkg-input::placeholder{color:rgba(255,255,255,0.2);}
+    .pkg-rate-wrap{position:relative;}
+    .pkg-rate-wrap .cur{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;pointer-events:none;}
+    .pkg-rate{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:9px 12px 9px 26px;font-size:13px;color:var(--cream);font-family:'DM Mono',monospace;outline:none;width:100%;transition:border-color 0.15s;}
+    .pkg-rate:focus{border-color:var(--terra);}
+    .pkg-rate::placeholder{color:rgba(255,255,255,0.2);}
+    .pkg-del{background:none;border:none;color:rgba(255,255,255,0.25);font-size:16px;cursor:pointer;padding:4px;border-radius:4px;transition:color 0.15s;}
+    .pkg-del:hover{color:var(--terra);}
+    .add-pkg-btn{width:100%;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.15);border-radius:7px;padding:10px;font-size:12px;color:rgba(255,255,255,0.4);cursor:pointer;font-family:'Syne',sans-serif;margin-top:10px;transition:all 0.15s;}
+    .add-pkg-btn:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);}
 
-    .brand { margin-bottom: 48px; }
-    .brand-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 32px; font-weight: 600;
-      color: var(--cream); letter-spacing: 0.08em;
-    }
-    .brand-sub {
-      font-size: 11px; color: rgba(255,255,255,0.3);
-      letter-spacing: 0.16em; text-transform: uppercase;
-      margin-top: 4px;
-    }
+    /* Icon picker */
+    .icon-picker{position:absolute;background:#1c1814;border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px;display:flex;flex-wrap:wrap;gap:4px;z-index:100;width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+    .icon-picker span{font-size:18px;cursor:pointer;padding:4px;border-radius:4px;transition:background 0.1s;}
+    .icon-picker span:hover{background:rgba(255,255,255,0.1);}
 
-    /* Steps nav */
-    .steps { flex: 1; }
-    .step-item {
-      display: flex; gap: 16px; align-items: flex-start;
-      margin-bottom: 32px; opacity: 0.35;
-      transition: opacity 0.3s;
-    }
-    .step-item.active { opacity: 1; }
-    .step-item.done { opacity: 0.6; }
-    .step-num {
-      width: 28px; height: 28px; border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.2);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-family: 'DM Mono', monospace;
-      color: rgba(255,255,255,0.4); flex-shrink: 0;
-      transition: all 0.3s;
-    }
-    .step-item.active .step-num {
-      background: var(--terra); border-color: var(--terra);
-      color: #fff;
-    }
-    .step-item.done .step-num {
-      background: var(--forest); border-color: var(--forest);
-      color: #fff;
-    }
-    .step-label { font-size: 13px; color: rgba(255,255,255,0.5); padding-top: 4px; }
-    .step-item.active .step-label { color: var(--cream); font-weight: 500; }
-    .step-desc { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 3px; }
+    /* Submit */
+    .btn-submit{width:100%;background:var(--terra);color:#fff;border:none;border-radius:8px;padding:16px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;margin-top:8px;transition:background 0.15s;}
+    .btn-submit:hover{background:var(--terra-lt);}
+    .btn-submit:disabled{opacity:0.6;cursor:not-allowed;}
 
-    /* Preview card */
-    .preview-card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
-      padding: 20px;
-      margin-top: 32px;
-      flex-shrink: 0;
-    }
-    .preview-label { font-size: 9px; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 10px; }
-    .preview-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--cream); margin-bottom: 4px; }
-    .preview-type { font-size: 11px; color: rgba(255,255,255,0.35); }
-    .preview-stats {
-      display: flex; gap: 16px; margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
-    .ps-item { }
-    .ps-val { font-family: 'DM Mono', monospace; font-size: 16px; color: var(--cream); }
-    .ps-label { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 2px; }
+    .trial-badge{background:rgba(58,92,66,0.15);border:1px solid rgba(58,92,66,0.3);border-radius:8px;padding:12px 16px;margin-bottom:24px;font-size:12px;color:#5a8c63;line-height:1.6;text-align:center;}
+    .trial-badge strong{color:#3dd6a3;}
 
-    /* ---- Right Panel ---- */
-    .right-panel {
-      padding: 64px 72px;
-      max-width: 680px;
-    }
-
-    /* ============ MOBILE RESPONSIVE ============ */
-    @media (max-width: 768px) {
-      .wizard {
-        grid-template-columns: 1fr;
-        min-height: 100vh;
-      }
-
-      .left-panel {
-        position: relative;
-        height: auto;
-        padding: 24px 20px 20px;
-        overflow: visible;
-      }
-
-      .left-panel::after { display: none; }
-
-      .brand { margin-bottom: 16px; }
-      .brand-name { font-size: 24px; }
-      .brand-sub { font-size: 9px; }
-
-      .property-selector { margin-top: 12px; padding: 8px 10px; }
-      .prop-name { font-size: 13px; }
-
-      /* Collapse steps into horizontal scrollable strip */
-      .steps {
-        display: flex;
-        overflow-x: auto;
-        gap: 8px;
-        padding-bottom: 4px;
-        flex: none;
-        margin-top: 16px;
-      }
-      .steps::-webkit-scrollbar { display: none; }
-
-      .step-item {
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        margin-bottom: 0;
-        flex-shrink: 0;
-        min-width: 56px;
-        text-align: center;
-      }
-
-      .step-label { font-size: 9px; white-space: nowrap; }
-      .step-desc { display: none; }
-
-      /* Hide preview card on mobile */
-      .preview-card { display: none; }
-
-      /* Sidebar footer hide on mobile */
-      .sidebar-footer { display: none; }
-
-      .right-panel {
-        padding: 24px 20px 40px;
-        max-width: 100%;
-      }
-
-      .step-title { font-size: 28px; }
-
-      .type-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .type-card { padding: 12px 8px; }
-      .type-icon { font-size: 22px; }
-      .type-name { font-size: 11px; }
-      .type-sub { font-size: 9px; }
-
-      .field-row { grid-template-columns: 1fr; gap: 0; }
-
-      .pkg-row { flex-wrap: wrap; gap: 8px; }
-      .pkg-price-input { width: 80px; }
-
-      .season-row {
-        grid-template-columns: 20px 1fr 60px;
-        gap: 8px;
-      }
-      .season-months { display: none; }
-      .season-row span:last-of-type { display: none; }
-
-      .channel-grid { grid-template-columns: 1fr; }
-
-      .step-nav {
-        flex-direction: column-reverse;
-        gap: 10px;
-      }
-      .btn-back, .btn-next { width: 100%; justify-content: center; }
-
-      /* Success screen */
-      .success-screen { padding: 40px 20px; }
-      .success-title { font-size: 32px; }
-      .config-summary { padding: 16px 18px; }
-      .btn-launch { width: 100%; }
-    }
-    /* =========================================== */
-
-    .step-panel { display: none; }
-    .step-panel.active {
-      display: block;
-      animation: fadeSlide 0.3s ease both;
-    }
-
-    @keyframes fadeSlide {
-      from { opacity: 0; transform: translateX(16px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-
-    .step-eyebrow {
-      font-size: 10px; color: var(--ink-muted);
-      text-transform: uppercase; letter-spacing: 0.14em;
-      margin-bottom: 8px;
-    }
-    .step-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 40px; font-weight: 500;
-      line-height: 1.1; margin-bottom: 8px;
-    }
-    .step-desc-text {
-      font-size: 13px; color: var(--ink-muted);
-      margin-bottom: 40px; line-height: 1.7;
-    }
-
-    /* Form elements */
-    .field-group { margin-bottom: 24px; }
-    .field-label {
-      display: block; font-size: 11px;
-      text-transform: uppercase; letter-spacing: 0.1em;
-      color: var(--ink-muted); margin-bottom: 8px;
-    }
-    .field-input {
-      width: 100%;
-      background: var(--cream);
-      border: 1px solid var(--border2);
-      border-radius: 8px;
-      padding: 14px 16px;
-      font-size: 15px; font-family: 'Syne', sans-serif;
-      color: var(--ink); outline: none;
-      transition: border-color 0.15s;
-    }
-    .field-input:focus { border-color: var(--terra); }
-    .field-input::placeholder { color: var(--ink-faint); }
-
-    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-    select.field-input { cursor: pointer; }
-
-    /* Type selector */
-    .type-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    .type-card {
-      background: var(--cream);
-      border: 2px solid var(--border);
-      border-radius: 10px;
-      padding: 18px 14px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .type-card:hover { border-color: var(--border2); }
-    .type-card.selected {
-      border-color: var(--terra);
-      background: rgba(196,97,58,0.05);
-    }
-    .type-icon { font-size: 28px; margin-bottom: 8px; }
-    .type-name { font-size: 12px; font-weight: 600; color: var(--ink-soft); }
-    .type-sub { font-size: 10px; color: var(--ink-muted); margin-top: 3px; }
-
-    /* Package builder */
-    .pkg-builder { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-    .pkg-row {
-      display: flex; align-items: center; gap: 10px;
-      background: var(--cream); border: 1px solid var(--border);
-      border-radius: 8px; padding: 12px 14px;
-    }
-    .pkg-icon-pick { font-size: 20px; cursor: pointer; }
-    .pkg-name-input {
-      flex: 1; background: none; border: none;
-      font-family: 'Syne', sans-serif; font-size: 13px;
-      color: var(--ink); outline: none;
-    }
-    .pkg-price-input {
-      width: 90px; background: var(--parchment);
-      border: 1px solid var(--border); border-radius: 6px;
-      padding: 6px 10px; font-family: 'DM Mono', monospace;
-      font-size: 13px; color: var(--ink); outline: none;
-      text-align: right;
-    }
-    .pkg-remove {
-      background: none; border: none; color: var(--ink-faint);
-      cursor: pointer; font-size: 16px; padding: 0 4px;
-      transition: color 0.15s;
-    }
-    .pkg-remove:hover { color: var(--terra); }
-    .add-pkg-btn {
-      display: flex; align-items: center; gap: 8px;
-      background: none; border: 1px dashed var(--border2);
-      border-radius: 8px; padding: 12px 14px;
-      font-size: 12px; color: var(--ink-muted);
-      cursor: pointer; font-family: 'Syne', sans-serif;
-      transition: all 0.15s; width: 100%;
-    }
-    .add-pkg-btn:hover { border-color: var(--terra); color: var(--terra); }
-
-    /* Season builder */
-    .season-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-    .season-row {
-      display: grid; grid-template-columns: 28px 1fr 80px 100px 100px 28px;
-      align-items: center; gap: 10px;
-      background: var(--cream); border: 1px solid var(--border);
-      border-radius: 8px; padding: 10px 14px;
-    }
-    .season-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .season-name-input {
-      background: none; border: none; font-family: 'Syne', sans-serif;
-      font-size: 13px; color: var(--ink); outline: none; width: 100%;
-    }
-    .season-mult {
-      background: var(--parchment); border: 1px solid var(--border);
-      border-radius: 6px; padding: 6px 8px;
-      font-family: 'DM Mono', monospace; font-size: 12px;
-      color: var(--ink); outline: none; text-align: center; width: 100%;
-    }
-    .season-months {
-      background: var(--parchment); border: 1px solid var(--border);
-      border-radius: 6px; padding: 6px 8px;
-      font-family: 'DM Mono', monospace; font-size: 11px;
-      color: var(--ink); outline: none; width: 100%;
-    }
-
-    /* Channel selector */
-    .channel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
-    .channel-item {
-      display: flex; align-items: center; gap: 10px;
-      background: var(--cream); border: 2px solid var(--border);
-      border-radius: 8px; padding: 12px 14px;
-      cursor: pointer; transition: all 0.15s;
-    }
-    .channel-item.selected {
-      border-color: var(--forest);
-      background: rgba(58,92,66,0.05);
-    }
-    .channel-check {
-      width: 18px; height: 18px; border-radius: 4px;
-      border: 2px solid var(--border2); flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10px;
-    }
-    .channel-item.selected .channel-check {
-      background: var(--forest); border-color: var(--forest); color: #fff;
-    }
-    .channel-name { font-size: 12px; font-weight: 500; }
-    .channel-comm { font-size: 10px; color: var(--ink-muted); font-family: 'DM Mono', monospace; }
-
-    /* Nav buttons */
-    .step-nav {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-top: 40px; padding-top: 32px;
-      border-top: 1px solid var(--border);
-    }
-    .btn-back {
-      background: none; border: 1px solid var(--border2);
-      border-radius: 8px; padding: 12px 24px;
-      font-size: 13px; color: var(--ink-muted);
-      cursor: pointer; font-family: 'Syne', sans-serif;
-      transition: all 0.15s;
-    }
-    .btn-back:hover { border-color: var(--ink-muted); color: var(--ink); }
-    .btn-next {
-      background: var(--terra); color: #fff;
-      border: none; border-radius: 8px;
-      padding: 14px 32px; font-size: 13px; font-weight: 600;
-      cursor: pointer; font-family: 'Syne', sans-serif;
-      letter-spacing: 0.03em; transition: all 0.15s;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .btn-next:hover { background: var(--terra-lt); }
-    .btn-next svg { width: 14px; height: 14px; }
-
-    /* Progress bar */
-    .progress-bar {
-      position: fixed; top: 0; left: 380px; right: 0;
-      height: 3px; background: var(--border);
-      z-index: 100;
-    }
-    .progress-fill {
-      height: 100%; background: var(--terra);
-      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* ---- Success Screen ---- */
-    .success-screen {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 80px 60px;
-      animation: fadeSlide 0.4s ease both;
-    }
-    .success-screen.active { display: flex; }
-    .success-icon {
-      width: 80px; height: 80px;
-      background: rgba(58,92,66,0.1);
-      border: 2px solid var(--forest);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 32px; margin-bottom: 28px;
-    }
-    .success-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 48px; font-weight: 500;
-      margin-bottom: 12px;
-    }
-    .success-sub {
-      font-size: 14px; color: var(--ink-muted);
-      max-width: 440px; line-height: 1.7;
-      margin-bottom: 40px;
-    }
-    .config-summary {
-      background: var(--cream); border: 1px solid var(--border);
-      border-radius: 12px; padding: 28px 32px;
-      text-align: left; width: 100%; max-width: 500px;
-      margin-bottom: 32px;
-    }
-    .cs-row {
-      display: flex; justify-content: space-between;
-      align-items: center; padding: 8px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 13px;
-    }
-    .cs-row:last-child { border-bottom: none; }
-    .cs-label { color: var(--ink-muted); }
-    .cs-val { font-weight: 500; font-family: 'DM Mono', monospace; font-size: 12px; }
-    .btn-launch {
-      background: var(--ink); color: var(--cream);
-      border: none; border-radius: 10px;
-      padding: 18px 48px; font-size: 15px; font-weight: 600;
-      cursor: pointer; font-family: 'Syne', sans-serif;
-      letter-spacing: 0.04em; transition: all 0.2s;
-    }
-    .btn-launch:hover { background: var(--terra); }
-
-    /* Range slider */
-    input[type=range] { accent-color: var(--terra); width: 100%; }
-    .range-row { display: flex; align-items: center; gap: 14px; }
-    .range-val {
-      font-family: 'DM Mono', monospace; font-size: 18px;
-      font-weight: 500; width: 60px; text-align: right;
-      flex-shrink: 0;
-    }
-    .range-label { font-size: 12px; color: var(--ink-muted); margin-bottom: 6px; }
-
-    /* Tooltip hint */
-    .hint {
-      display: flex; gap: 8px; align-items: flex-start;
-      background: rgba(184,146,42,0.08);
-      border: 1px solid rgba(184,146,42,0.2);
-      border-radius: 8px; padding: 12px 14px;
-      margin-bottom: 24px;
-    }
-    .hint-icon { font-size: 14px; flex-shrink: 0; padding-top: 1px; }
-    .hint-text { font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+    .error{background:rgba(196,97,58,0.15);border:1px solid rgba(196,97,58,0.3);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--terra-lt);margin-bottom:16px;display:none;}
   </style>
 </head>
 <body>
+<div class="wrap">
+  <div class="logo">
+    <div class="logo-name">TERRAIN</div>
+    <div class="logo-sub">Experience Revenue Intelligence</div>
+  </div>
 
-<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:20%"></div></div>
+  <div class="trial-badge">
+    <strong>Setup takes under 2 minutes.</strong> Enter your property details and packages — Terrain handles everything else.
+  </div>
 
-<div class="wizard">
+  <div class="error" id="errorMsg"></div>
 
-  <!-- Left Panel -->
-  <div class="left-panel">
-    <div class="brand">
-      <div class="brand-name">TERRAIN</div>
-      <div class="brand-sub">Experience Revenue Intelligence</div>
-      <div style="margin-top:10px;font-size:11px;color:rgba(255,255,255,0.25);">
-        Already have an account? <a href="/login" style="color:rgba(255,255,255,0.45);text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.2);">Sign in</a>
+  <!-- Property -->
+  <div class="section">
+    <div class="section-title">Your Property</div>
+    <div class="field">
+      <label>Property Name</label>
+      <input type="text" id="f_name" placeholder="e.g. Governors' Camp" autocomplete="off"/>
+    </div>
+    <div class="two-col">
+      <div class="field">
+        <label>Country</label>
+        <select id="f_country">
+          <option value="">Select country</option>
+          <option value="Kenya">Kenya</option>
+          <option value="Tanzania">Tanzania</option>
+          <option value="South Africa">South Africa</option>
+          <option value="Botswana">Botswana</option>
+          <option value="Zimbabwe">Zimbabwe</option>
+          <option value="Zambia">Zambia</option>
+          <option value="Rwanda">Rwanda</option>
+          <option value="Uganda">Uganda</option>
+          <option value="Namibia">Namibia</option>
+          <option value="Mozambique">Mozambique</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Property Type</label>
+        <select id="f_type">
+          <option value="Safari Lodge">Safari Lodge</option>
+          <option value="Tented Camp">Tented Camp</option>
+          <option value="Private Ranch">Private Ranch</option>
+          <option value="Boutique Hotel">Boutique Hotel</option>
+          <option value="Wellness Retreat">Wellness Retreat</option>
+          <option value="Other">Other</option>
+        </select>
       </div>
     </div>
-
-    <div class="steps">
-      <div class="step-item active" id="nav-1">
-        <div class="step-num">01</div>
-        <div>
-          <div class="step-label">Property Basics</div>
-          <div class="step-desc">Name, location, type & size</div>
-        </div>
+    <div class="two-col">
+      <div class="field">
+        <label>Total Suites / Units</label>
+        <input type="number" id="f_suites" min="1" max="500" placeholder="e.g. 20"/>
       </div>
-      <div class="step-item" id="nav-2">
-        <div class="step-num">02</div>
-        <div>
-          <div class="step-label">Experience Packages</div>
-          <div class="step-desc">Your offerings & base rates</div>
-        </div>
-      </div>
-      <div class="step-item" id="nav-3">
-        <div class="step-num">03</div>
-        <div>
-          <div class="step-label">Seasons & Pricing Bands</div>
-          <div class="step-desc">Define your rate calendar</div>
-        </div>
-      </div>
-      <div class="step-item" id="nav-4">
-        <div class="step-num">04</div>
-        <div>
-          <div class="step-label">Distribution Channels</div>
-          <div class="step-desc">Where you sell today</div>
-        </div>
-      </div>
-      <div class="step-item" id="nav-5">
-        <div class="step-num">05</div>
-        <div>
-          <div class="step-label">Revenue Goals</div>
-          <div class="step-desc">Set targets for optimization</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="preview-card">
-      <div class="preview-label">Your Property</div>
-      <div class="preview-name" id="previewName">—</div>
-      <div class="preview-type" id="previewType">Complete setup to preview</div>
-      <div class="preview-stats">
-        <div class="ps-item">
-          <div class="ps-val" id="previewSuites">—</div>
-          <div class="ps-label">Suites</div>
-        </div>
-        <div class="ps-item">
-          <div class="ps-val" id="previewPkgs">—</div>
-          <div class="ps-label">Packages</div>
-        </div>
-        <div class="ps-item">
-          <div class="ps-val" id="previewCurrency">—</div>
-          <div class="ps-label">Currency</div>
-        </div>
+      <div class="field">
+        <label>Currency</label>
+        <select id="f_currency">
+          <option value="USD">USD ($)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="ZAR">ZAR (R)</option>
+          <option value="BWP">BWP (P)</option>
+        </select>
       </div>
     </div>
   </div>
 
-  <!-- Right Panel -->
-  <div class="right-panel">
-
-    <!-- Step 1: Property Basics -->
-    <div class="step-panel active" id="step-1">
-      <div class="step-eyebrow">Step 1 of 5</div>
-      <div class="step-title">Tell us about<br/><em>your property</em></div>
-      <div class="step-desc-text">Terrain will configure itself entirely around your specific operation — no two setups are the same.</div>
-
-      <div class="field-group">
-        <label class="field-label">Property Name</label>
-        <input class="field-input" type="text" id="propName" placeholder="e.g. Ridgeline Safari Lodge" oninput="updatePreview()"/>
-      </div>
-
-      <div class="field-row">
-        <div class="field-group">
-          <label class="field-label">Country</label>
-          <select class="field-input" id="propCountry" onchange="updateCurrency()">
-            <option value="">Select country</option>
-            <option value="Kenya">Kenya</option>
-            <option value="Tanzania">Tanzania</option>
-            <option value="South Africa">South Africa</option>
-            <option value="Botswana">Botswana</option>
-            <option value="Zimbabwe">Zimbabwe</option>
-            <option value="Rwanda">Rwanda</option>
-            <option value="Uganda">Uganda</option>
-            <option value="Zambia">Zambia</option>
-            <option value="Namibia">Namibia</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Region / Conservancy</label>
-          <input class="field-input" type="text" id="propRegion" placeholder="e.g. Laikipia, Masai Mara"/>
-        </div>
-      </div>
-
-      <div class="field-group">
-        <label class="field-label" style="margin-bottom:12px;">Property Type</label>
-        <div class="type-grid">
-          <div class="type-card selected" onclick="selectType(this,'Safari Lodge')">
-            <div class="type-icon">🦁</div>
-            <div class="type-name">Safari Lodge</div>
-            <div class="type-sub">Game drives & wildlife</div>
-          </div>
-          <div class="type-card" onclick="selectType(this,'Tented Camp')">
-            <div class="type-icon">⛺</div>
-            <div class="type-name">Tented Camp</div>
-            <div class="type-sub">Immersive bush camp</div>
-          </div>
-          <div class="type-card" onclick="selectType(this,'Private Ranch')">
-            <div class="type-icon">🏕️</div>
-            <div class="type-name">Private Ranch</div>
-            <div class="type-sub">Exclusive use property</div>
-          </div>
-          <div class="type-card" onclick="selectType(this,'Ski Resort')">
-            <div class="type-icon">⛷️</div>
-            <div class="type-name">Ski Resort</div>
-            <div class="type-sub">Mountain & snow</div>
-          </div>
-          <div class="type-card" onclick="selectType(this,'Yacht Charter')">
-            <div class="type-icon">⛵</div>
-            <div class="type-name">Yacht Charter</div>
-            <div class="type-sub">Marine experience</div>
-          </div>
-          <div class="type-card" onclick="selectType(this,'Wellness Retreat')">
-            <div class="type-icon">🧘</div>
-            <div class="type-name">Wellness Retreat</div>
-            <div class="type-sub">Spa & wellbeing</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="field-row">
-        <div class="field-group">
-          <label class="field-label">Number of Suites / Units</label>
-          <input class="field-input" type="number" id="propSuites" placeholder="e.g. 24" min="1" max="500" oninput="updatePreview()"/>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Primary Currency</label>
-          <select class="field-input" id="propCurrency" onchange="updatePreview()">
-            <option value="USD">USD — US Dollar</option>
-            <option value="ZAR">ZAR — South African Rand</option>
-            <option value="BWP">BWP — Botswana Pula</option>
-            <option value="EUR">EUR — Euro</option>
-            <option value="GBP">GBP — British Pound</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="step-nav">
-        <div></div>
-        <button class="btn-next" onclick="goToStep(2)">
-          Continue
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Step 2: Experience Packages -->
-    <div class="step-panel" id="step-2">
-      <div class="step-eyebrow">Step 2 of 5</div>
-      <div class="step-title">Your experience<br/><em>packages</em></div>
-      <div class="step-desc-text">Add the core packages you sell. Terrain optimizes bundle pricing for each one — not just nightly rates.</div>
-
-      <div class="hint">
-        <div class="hint-icon">💡</div>
-        <div class="hint-text">Include your most common packages. You can always add or edit packages later. Set base rate per person or per suite — whichever you use.</div>
-      </div>
-
-      <div class="pkg-builder" id="pkgBuilder">
-        <div class="pkg-row">
-          <span class="pkg-icon-pick">🦁</span>
-          <input class="pkg-name-input" type="text" value="Classic Safari & Stay" placeholder="Package name"/>
-          <input class="pkg-price-input" type="number" value="4200" placeholder="Rate"/>
-          <button class="pkg-remove" onclick="removePkg(this)">×</button>
-        </div>
-        <div class="pkg-row">
-          <span class="pkg-icon-pick">✈️</span>
-          <input class="pkg-name-input" type="text" value="Fly-In Wilderness Week" placeholder="Package name"/>
-          <input class="pkg-price-input" type="number" value="9800" placeholder="Rate"/>
-          <button class="pkg-remove" onclick="removePkg(this)">×</button>
-        </div>
-        <div class="pkg-row">
-          <span class="pkg-icon-pick">🌙</span>
-          <input class="pkg-name-input" type="text" value="Honeymoon Escape" placeholder="Package name"/>
-          <input class="pkg-price-input" type="number" value="5600" placeholder="Rate"/>
-          <button class="pkg-remove" onclick="removePkg(this)">×</button>
-        </div>
-      </div>
-      <button class="add-pkg-btn" onclick="addPkg()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add another package
-      </button>
-
-      <div class="step-nav">
-        <button class="btn-back" onclick="goToStep(1)">← Back</button>
-        <button class="btn-next" onclick="goToStep(3)">
-          Continue
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Step 3: Seasons -->
-    <div class="step-panel" id="step-3">
-      <div class="step-eyebrow">Step 3 of 5</div>
-      <div class="step-title">Define your<br/><em>pricing seasons</em></div>
-      <div class="step-desc-text">Terrain applies these multipliers automatically to all package rates. Set the bands that match your destination's demand patterns.</div>
-
-      <div class="season-list" id="seasonList">
-        <div style="display:grid;grid-template-columns:28px 1fr 80px 100px 100px 28px;gap:10px;padding:0 14px 8px;font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.1em;">
-          <span></span><span>Season Name</span><span>Multiplier</span><span>Months</span><span>Rate boost</span><span></span>
-        </div>
-        <div class="season-row">
-          <div class="season-dot" style="background:#c4613a;"></div>
-          <input class="season-name-input" type="text" value="Peak Season"/>
-          <input class="season-mult" type="number" value="1.4" min="0.5" max="3" step="0.05" oninput="updateSeasonLabel(this)"/>
-          <input class="season-months" type="text" value="Jul–Oct"/>
-          <span style="font-size:11px;color:#c4613a;font-family:'DM Mono',monospace;">+40%</span>
-          <button class="pkg-remove" onclick="removeSeason(this)">×</button>
-        </div>
-        <div class="season-row">
-          <div class="season-dot" style="background:#b8922a;"></div>
-          <input class="season-name-input" type="text" value="High Season"/>
-          <input class="season-mult" type="number" value="1.2" min="0.5" max="3" step="0.05" oninput="updateSeasonLabel(this)"/>
-          <input class="season-months" type="text" value="Apr–Jun"/>
-          <span style="font-size:11px;color:#b8922a;font-family:'DM Mono',monospace;">+20%</span>
-          <button class="pkg-remove" onclick="removeSeason(this)">×</button>
-        </div>
-        <div class="season-row">
-          <div class="season-dot" style="background:#3a5c42;"></div>
-          <input class="season-name-input" type="text" value="Shoulder Season"/>
-          <input class="season-mult" type="number" value="1.0" min="0.5" max="3" step="0.05" oninput="updateSeasonLabel(this)"/>
-          <input class="season-months" type="text" value="Nov–Dec"/>
-          <span style="font-size:11px;color:#3a5c42;font-family:'DM Mono',monospace;">Base</span>
-          <button class="pkg-remove" onclick="removeSeason(this)">×</button>
-        </div>
-        <div class="season-row">
-          <div class="season-dot" style="background:#7ab0d4;"></div>
-          <input class="season-name-input" type="text" value="Green Season"/>
-          <input class="season-mult" type="number" value="0.7" min="0.5" max="3" step="0.05" oninput="updateSeasonLabel(this)"/>
-          <input class="season-months" type="text" value="Jan–Mar"/>
-          <span style="font-size:11px;color:#7ab0d4;font-family:'DM Mono',monospace;">−30%</span>
-          <button class="pkg-remove" onclick="removeSeason(this)">×</button>
-        </div>
-      </div>
-      <button class="add-pkg-btn" onclick="addSeason()" style="margin-top:10px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add season
-      </button>
-
-      <div class="step-nav">
-        <button class="btn-back" onclick="goToStep(2)">← Back</button>
-        <button class="btn-next" onclick="goToStep(4)">
-          Continue
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Step 4: Channels -->
-    <div class="step-panel" id="step-4">
-      <div class="step-eyebrow">Step 4 of 5</div>
-      <div class="step-title">How do guests<br/><em>find you today?</em></div>
-      <div class="step-desc-text">Select all channels you currently use. Terrain will calculate your commission leak and recommend rebalancing.</div>
-
-      <div class="channel-grid">
-        <div class="channel-item selected" onclick="toggleChannel(this)">
-          <div class="channel-check">✓</div>
-          <div>
-            <div class="channel-name">Direct Website</div>
-            <div class="channel-comm">0% commission</div>
-          </div>
-        </div>
-        <div class="channel-item selected" onclick="toggleChannel(this)">
-          <div class="channel-check">✓</div>
-          <div>
-            <div class="channel-name">Luxury Travel Agents</div>
-            <div class="channel-comm">10–15% commission</div>
-          </div>
-        </div>
-        <div class="channel-item" onclick="toggleChannel(this)">
-          <div class="channel-check"></div>
-          <div>
-            <div class="channel-name">Booking.com / OTA</div>
-            <div class="channel-comm">18–22% commission</div>
-          </div>
-        </div>
-        <div class="channel-item" onclick="toggleChannel(this)">
-          <div class="channel-check"></div>
-          <div>
-            <div class="channel-name">Expedia / Hotels.com</div>
-            <div class="channel-comm">15–20% commission</div>
-          </div>
-        </div>
-        <div class="channel-item" onclick="toggleChannel(this)">
-          <div class="channel-check"></div>
-          <div>
-            <div class="channel-name">Wholesale / Tour Ops</div>
-            <div class="channel-comm">15–20% commission</div>
-          </div>
-        </div>
-        <div class="channel-item" onclick="toggleChannel(this)">
-          <div class="channel-check"></div>
-          <div>
-            <div class="channel-name">GDS / Corporate</div>
-            <div class="channel-comm">12–18% commission</div>
-          </div>
-        </div>
-        <div class="channel-item" onclick="toggleChannel(this)">
-          <div class="channel-check"></div>
-          <div>
-            <div class="channel-name">Social Media / Instagram</div>
-            <div class="channel-comm">0% commission</div>
-          </div>
-        </div>
-        <div class="channel-item" onclick="toggleChannel(this)">
-          <div class="channel-check"></div>
-          <div>
-            <div class="channel-name">Email List / Repeat</div>
-            <div class="channel-comm">0% commission</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="step-nav">
-        <button class="btn-back" onclick="goToStep(3)">← Back</button>
-        <button class="btn-next" onclick="goToStep(5)">
-          Continue
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Step 5: Goals -->
-    <div class="step-panel" id="step-5">
-      <div class="step-eyebrow">Step 5 of 5</div>
-      <div class="step-title">Set your<br/><em>revenue targets</em></div>
-      <div class="step-desc-text">Terrain calibrates its optimization engine around these goals — it won't recommend changes that conflict with your priorities.</div>
-
-      <div class="field-group">
-        <label class="field-label">How many suites/units are occupied right now this month?</label>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <input type="number" class="field-input" id="currentOccupied" placeholder="e.g. 28" min="0" max="500" style="max-width:120px;"
-            oninput="updateOccupancyPreview()"/>
-          <span style="font-size:13px;color:var(--ink-muted);">out of <strong id="totalSuitesLabel">—</strong> suites</span>
-          <span id="occupancyPreview" style="font-size:13px;font-weight:600;color:var(--terra);"></span>
-        </div>
-        <div style="font-size:11px;color:var(--ink-muted);margin-top:6px;">Leave blank to use regional seasonal estimates</div>
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">What is your average nightly rate per suite? (USD)</label>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:16px;color:var(--ink-muted);">$</span>
-          <input type="number" class="field-input" id="currentNightlyRate" placeholder="e.g. 453" min="0" style="max-width:140px;"/>
-        </div>
-        <div style="font-size:11px;color:var(--ink-muted);margin-top:6px;">Your current base rate — Terrain will suggest optimal rates from here</div>
-      </div>
-
-      <div class="field-group">
-        <div class="range-label">Annual Revenue Target</div>
-        <div class="range-row">
-          <input type="range" min="200000" max="5000000" step="50000" value="1500000"
-            oninput="document.getElementById('targetRevVal').textContent='$'+parseInt(this.value).toLocaleString()"/>
-          <div class="range-val" id="targetRevVal">$1,500,000</div>
-        </div>
-      </div>
-
-      <div class="field-group">
-        <div class="range-label">Target Occupancy Rate (%)</div>
-        <div class="range-row">
-          <input type="range" min="40" max="98" step="1" value="80"
-            oninput="document.getElementById('targetOccVal').textContent=this.value+'%'"/>
-          <div class="range-val" id="targetOccVal">80%</div>
-        </div>
-      </div>
-
-      <div class="field-group">
-        <div class="range-label">Direct Booking Target (%)</div>
-        <div class="range-row">
-          <input type="range" min="10" max="95" step="5" value="55"
-            oninput="document.getElementById('targetDirectVal').textContent=this.value+'%'"/>
-          <div class="range-val" id="targetDirectVal">55%</div>
-        </div>
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">Pricing Philosophy</label>
-        <select class="field-input" id="pricingPhilosophy">
-          <option>Maximize revenue per available suite</option>
-          <option>Maximize total annual revenue</option>
-          <option>Maximize occupancy (fill first, optimize later)</option>
-          <option>Protect rate integrity (never discount below floor)</option>
-        </select>
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">How are you pricing today?</label>
-        <select class="field-input">
-          <option>Spreadsheet / manual</option>
-          <option>Gut feel / experience</option>
-          <option>Basic PMS with rate rules</option>
-          <option>Another revenue management tool</option>
-        </select>
-      </div>
-
-      <div class="step-nav">
-        <button class="btn-back" onclick="goToStep(4)">← Back</button>
-        <button class="btn-next" onclick="completeSetup()" style="background:var(--forest);">
-          Launch Terrain →
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Success Screen -->
-    <div class="success-screen" id="successScreen">
-      <div class="success-icon">✓</div>
-      <div class="success-title">You're all set,<br/><em id="successPropertyName">Lodge</em></div>
-      <div class="success-sub">Terrain has been configured for your property. Your personalized revenue intelligence dashboard is ready — with pricing, forecasting, and recommendations built around your specific packages and seasons.</div>
-      <div class="config-summary" id="configSummary"></div>
-      <button class="btn-launch" id="launchBtn" onclick="window.location.href='/dashboard'">Open Your Dashboard →</button>
-    </div>
-
+  <!-- Packages -->
+  <div class="section">
+    <div class="section-title">Your Packages & Nightly Rates</div>
+    <div class="pkg-list" id="pkgList"></div>
+    <button class="add-pkg-btn" onclick="addPackage()">+ Add another package</button>
   </div>
+
+  <button class="btn-submit" id="submitBtn" onclick="handleSubmit()">Go to My Rate Calendar →</button>
+</div>
+
+<!-- Icon picker popup -->
+<div class="icon-picker" id="iconPicker" style="display:none;position:fixed;">
+  <span onclick="pickIcon('🏕️')">🏕️</span><span onclick="pickIcon('🦁')">🦁</span>
+  <span onclick="pickIcon('✈️')">✈️</span><span onclick="pickIcon('🌙')">🌙</span>
+  <span onclick="pickIcon('🌿')">🌿</span><span onclick="pickIcon('🐘')">🐘</span>
+  <span onclick="pickIcon('🦒')">🦒</span><span onclick="pickIcon('🦅')">🦅</span>
+  <span onclick="pickIcon('🌅')">🌅</span><span onclick="pickIcon('💎')">💎</span>
+  <span onclick="pickIcon('🏡')">🏡</span><span onclick="pickIcon('🌺')">🌺</span>
+  <span onclick="pickIcon('🎯')">🎯</span><span onclick="pickIcon('⭐')">⭐</span>
+  <span onclick="pickIcon('🔥')">🔥</span><span onclick="pickIcon('🧘')">🧘</span>
 </div>
 
 <script>
-  let currentStep = 1;
-  let selectedType = 'Safari Lodge';
-  const pkgIcons = ['🦁','✈️','🌙','📷','🧘','🏔️','🛶','🐘','🌅','🎣'];
-  let pkgIconIndex = pkgIcons.length - 1;
+let packages=[
+  {icon:'🏕️',name:'',rate:''},
+  {icon:'🦁',name:'',rate:''},
+];
+let activeIconIdx=null;
 
-  function goToStep(n) {
-    document.getElementById(`step-${currentStep}`).classList.remove('active');
-    document.getElementById(`nav-${currentStep}`).classList.remove('active');
-    document.getElementById(`nav-${currentStep}`).classList.add('done');
+function getCurrencySymbol(){
+  const m={USD:'$',EUR:'€',GBP:'£',ZAR:'R',BWP:'P'};
+  return m[document.getElementById('f_currency').value]||'$';
+}
 
-    currentStep = n;
-    document.getElementById(`step-${n}`).classList.add('active');
-    document.getElementById(`nav-${n}`).classList.remove('done');
-    document.getElementById(`nav-${n}`).classList.add('active');
+function renderPackages(){
+  const sym=getCurrencySymbol();
+  const list=document.getElementById('pkgList');
+  list.innerHTML=packages.map((p,i)=>`
+    <div class="pkg-row" id="pkg-${i}">
+      <button class="pkg-icon-btn" onclick="openIconPicker(${i},event)" title="Change icon">${p.icon}</button>
+      <input class="pkg-input" type="text" placeholder="Package name (e.g. Classic Safari)"
+        value="${p.name}" onchange="packages[${i}].name=this.value" />
+      <div class="pkg-rate-wrap">
+        <span class="cur">${sym}</span>
+        <input class="pkg-rate" type="number" min="0" placeholder="0"
+          value="${p.rate}" onchange="packages[${i}].rate=this.value" />
+      </div>
+      ${packages.length>1?`<button class="pkg-del" onclick="removePackage(${i})" title="Remove">✕</button>`:'<div></div>'}
+    </div>
+  `).join('');
+}
 
-    // Progress bar
-    document.getElementById('progressFill').style.width = (n / 5 * 100) + '%';
-    window.scrollTo(0, 0);
+function addPackage(){
+  const icons=['🌿','🌙','✈️','💎','🌅','🏡'];
+  packages.push({icon:icons[packages.length%icons.length],name:'',rate:''});
+  renderPackages();
+}
 
-    // When entering step 5, populate the total suites label
-    if (n === 5) {
-      const suites = document.getElementById('propSuites').value || '—';
-      document.getElementById('totalSuitesLabel').textContent = suites;
-    }
+function removePackage(i){
+  if(packages.length<=1) return;
+  packages.splice(i,1);
+  renderPackages();
+}
+
+function openIconPicker(idx,e){
+  e.stopPropagation();
+  activeIconIdx=idx;
+  const picker=document.getElementById('iconPicker');
+  const rect=e.target.getBoundingClientRect();
+  picker.style.display='flex';
+  picker.style.top=(rect.bottom+8)+'px';
+  picker.style.left=rect.left+'px';
+}
+
+function pickIcon(icon){
+  if(activeIconIdx!==null){
+    packages[activeIconIdx].icon=icon;
+    renderPackages();
   }
+  document.getElementById('iconPicker').style.display='none';
+  activeIconIdx=null;
+}
 
-  function updateOccupancyPreview() {
-    const occupied = parseInt(document.getElementById('currentOccupied').value) || 0;
-    const total = parseInt(document.getElementById('propSuites').value) || 0;
-    const preview = document.getElementById('occupancyPreview');
-    if (occupied > 0 && total > 0) {
-      const pct = Math.round((occupied / total) * 100);
-      preview.textContent = `= ${pct}% occupancy`;
+document.addEventListener('click',()=>{
+  document.getElementById('iconPicker').style.display='none';
+});
+
+// Re-render when currency changes
+document.getElementById('f_currency').addEventListener('change',renderPackages);
+
+async function handleSubmit(){
+  const btn=document.getElementById('submitBtn');
+  const name=document.getElementById('f_name').value.trim();
+  const country=document.getElementById('f_country').value;
+  const type=document.getElementById('f_type').value;
+  const suites=parseInt(document.getElementById('f_suites').value)||0;
+  const currency=document.getElementById('f_currency').value;
+
+  // Sync package values from DOM
+  document.querySelectorAll('.pkg-input').forEach((el,i)=>{if(packages[i]) packages[i].name=el.value.trim();});
+  document.querySelectorAll('.pkg-rate').forEach((el,i)=>{if(packages[i]) packages[i].rate=el.value;});
+
+  if(!name){showError('Please enter your property name.');return;}
+  if(!country){showError('Please select your country.');return;}
+  if(!suites||suites<1){showError('Please enter the number of suites.');return;}
+  const validPkgs=packages.filter(p=>p.name&&p.rate);
+  if(validPkgs.length===0){showError('Please add at least one package with a name and nightly rate.');return;}
+
+  btn.disabled=true;
+  btn.textContent='Saving…';
+
+  const payload={
+    name, country, type, suites, currency,
+    packages: validPkgs.map((p,i)=>({name:p.name, icon:p.icon, base_rate:parseFloat(p.rate)||0, display_order:i})),
+    seasons:[], channels:[], region:'',
+    pricing_philosophy:'', target_revenue:0, target_occupancy:70, target_direct:50
+  };
+
+  // Save to localStorage as fallback
+  localStorage.setItem('terrainConfig',JSON.stringify({
+    name, country, type, suites, currency,
+    packages: validPkgs.map(p=>({name:p.name,icon:p.icon,rate:parseFloat(p.rate)||0}))
+  }));
+
+  try{
+    const res=await fetch('/api/lodge',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    const data=await res.json();
+    if(data.success||data.lodgeId){
+      window.location.href='/calendar';
     } else {
-      preview.textContent = '';
+      showError(data.error||'Save failed. Please try again.');
+      btn.disabled=false; btn.textContent='Go to My Rate Calendar →';
     }
+  } catch(err){
+    // If not logged in, go to calendar anyway (guest mode)
+    window.location.href='/calendar';
   }
+}
 
-  function selectType(el, type) {
-    document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedType = type;
-    updatePreview();
-  }
+function showError(msg){
+  const el=document.getElementById('errorMsg');
+  el.textContent=msg; el.style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
-  function updatePreview() {
-    const name = document.getElementById('propName').value || '—';
-    const suites = document.getElementById('propSuites').value || '—';
-    const currency = document.getElementById('propCurrency').value || '—';
-    const pkgCount = document.querySelectorAll('#pkgBuilder .pkg-row').length;
-
-    document.getElementById('previewName').textContent = name;
-    document.getElementById('previewType').textContent = selectedType;
-    document.getElementById('previewSuites').textContent = suites;
-    document.getElementById('previewPkgs').textContent = pkgCount || '—';
-    document.getElementById('previewCurrency').textContent = currency;
-  }
-
-  function updateCurrency() {
-    const country = document.getElementById('propCountry').value;
-    const currMap = {
-      'South Africa': 'ZAR', 'Botswana': 'BWP',
-      'Kenya': 'USD', 'Tanzania': 'USD', 'Zimbabwe': 'USD',
-      'Rwanda': 'USD', 'Uganda': 'USD', 'Zambia': 'USD',
-      'Namibia': 'USD'
-    };
-    if (currMap[country]) {
-      document.getElementById('propCurrency').value = currMap[country];
-    }
-    updatePreview();
-  }
-
-  function addPkg() {
-    pkgIconIndex = (pkgIconIndex + 1) % pkgIcons.length;
-    const icon = pkgIcons[pkgIconIndex];
-    const row = document.createElement('div');
-    row.className = 'pkg-row';
-    row.innerHTML = `
-      <span class="pkg-icon-pick">${icon}</span>
-      <input class="pkg-name-input" type="text" placeholder="Package name (e.g. Photography Expedition)"/>
-      <input class="pkg-price-input" type="number" placeholder="Rate"/>
-      <button class="pkg-remove" onclick="removePkg(this)">×</button>
-    `;
-    document.getElementById('pkgBuilder').appendChild(row);
-    updatePreview();
-  }
-
-  function removePkg(btn) {
-    const rows = document.querySelectorAll('#pkgBuilder .pkg-row');
-    if (rows.length > 1) {
-      btn.closest('.pkg-row').remove();
-      updatePreview();
-    }
-  }
-
-  function addSeason() {
-    const colors = ['#c4613a','#b8922a','#3a5c42','#7ab0d4','#7c6af7','#e8896a'];
-    const color = colors[document.querySelectorAll('.season-row').length % colors.length];
-    const row = document.createElement('div');
-    row.className = 'season-row';
-    row.innerHTML = `
-      <div class="season-dot" style="background:${color};"></div>
-      <input class="season-name-input" type="text" value="New Season" placeholder="Season name"/>
-      <input class="season-mult" type="number" value="1.0" min="0.5" max="3" step="0.05" oninput="updateSeasonLabel(this)"/>
-      <input class="season-months" type="text" value="Jan–Feb" placeholder="Months"/>
-      <span style="font-size:11px;color:${color};font-family:'DM Mono',monospace;">Base</span>
-      <button class="pkg-remove" onclick="removeSeason(this)">×</button>
-    `;
-    document.getElementById('seasonList').appendChild(row);
-  }
-
-  function removeSeason(btn) {
-    const rows = document.querySelectorAll('.season-row');
-    if (rows.length > 1) btn.closest('.season-row').remove();
-  }
-
-  function updateSeasonLabel(input) {
-    const mult = parseFloat(input.value) || 1;
-    const label = input.closest('.season-row').querySelector('span');
-    if (mult > 1) label.textContent = '+' + Math.round((mult - 1) * 100) + '%';
-    else if (mult < 1) label.textContent = '−' + Math.round((1 - mult) * 100) + '%';
-    else label.textContent = 'Base';
-  }
-
-  function toggleChannel(el) {
-    el.classList.toggle('selected');
-    const check = el.querySelector('.channel-check');
-    check.textContent = el.classList.contains('selected') ? '✓' : '';
-  }
-
-
-  // No login required — guests explore freely
-
-  async function completeSetup() {
-    const name = document.getElementById('propName').value || 'Your Lodge';
-    const suites = parseInt(document.getElementById('propSuites').value) || 0;
-    const currency = document.getElementById('propCurrency').value || 'USD';
-    const country = document.getElementById('propCountry').value || '';
-    const region = document.getElementById('propRegion').value || '';
-
-    const pkgRows = document.querySelectorAll('#pkgBuilder .pkg-row');
-    const packages = [...pkgRows].map(row => ({
-      name: row.querySelector('.pkg-name-input')?.value || '',
-      icon: row.querySelector('.pkg-icon-pick')?.textContent || '🏕️',
-      rate: parseFloat(row.querySelector('.pkg-price-input')?.value) || 0
-    })).filter(p => p.name);
-
-    const seasonRows = document.querySelectorAll('.season-row');
-    const seasons = [...seasonRows].map((row, i) => ({
-      name: row.querySelector('.season-name-input')?.value || '',
-      multiplier: parseFloat(row.querySelector('.season-mult')?.value) || 1.0,
-      months: row.querySelector('.season-months')?.value || '',
-      color: ['#c4613a','#b8922a','#3a5c42','#7ab0d4'][i] || '#3a5c42'
-    }));
-
-    const channels = [...document.querySelectorAll('.channel-item.selected .channel-name')].map(el => el.textContent);
-    const target_revenue = parseInt(document.getElementById('targetRevVal')?.textContent?.replace(/[$,]/g,'')) || 0;
-    const target_occupancy = parseInt(document.getElementById('targetOccVal')?.textContent) || 80;
-    const target_direct = parseInt(document.getElementById('targetDirectVal')?.textContent) || 55;
-    const pricing_philosophy = document.getElementById('pricingPhilosophy')?.value || '';
-
-    // Actual occupancy data from lodge
-    const currentOccupied = parseInt(document.getElementById('currentOccupied')?.value) || 0;
-    const currentNightlyRate = parseFloat(document.getElementById('currentNightlyRate')?.value) || 0;
-    const actualOccupancyPct = (currentOccupied > 0 && suites > 0)
-      ? Math.round((currentOccupied / suites) * 100)
-      : null;
-
-    const config = { name, country, region, property_type: selectedType, suites, currency, packages, seasons, channels, target_revenue, target_occupancy, target_direct, pricing_philosophy, currentOccupied, currentNightlyRate, actualOccupancyPct };
-
-    // Save to localStorage — works for all guests
-    localStorage.setItem('terrainConfig', JSON.stringify(config));
-
-    // If already logged in, also save to database silently
-    try {
-      const me = await fetch('/api/auth/me').then(r => r.json());
-      if (me.user) {
-        await fetch('/api/lodge', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(config)
-        });
+// Load existing data if editing
+async function loadExisting(){
+  try{
+    const res=await fetch('/api/lodge').then(r=>r.json());
+    if(res.lodge){
+      document.getElementById('f_name').value=res.lodge.name||'';
+      document.getElementById('f_country').value=res.lodge.country||'';
+      document.getElementById('f_type').value=res.lodge.property_type||'Safari Lodge';
+      document.getElementById('f_suites').value=res.lodge.suites||'';
+      document.getElementById('f_currency').value=res.lodge.currency||'USD';
+      if(res.packages&&res.packages.length>0){
+        packages=res.packages.map(p=>({icon:p.icon||'🏕️',name:p.name||'',rate:p.base_rate||''}));
       }
-    } catch(e) { /* guest — that's fine */ }
+    }
+  } catch{}
+  renderPackages();
+}
 
-    // Show success screen
-    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('successPropertyName').textContent = name;
-    document.getElementById('successScreen').classList.add('active');
-
-    const summary = document.getElementById('configSummary');
-    summary.innerHTML = `
-      <div class="cs-row"><span class="cs-label">Property</span><span class="cs-val">${name}</span></div>
-      <div class="cs-row"><span class="cs-label">Type</span><span class="cs-val">${selectedType}</span></div>
-      <div class="cs-row"><span class="cs-label">Location</span><span class="cs-val">${country}</span></div>
-      <div class="cs-row"><span class="cs-label">Suites</span><span class="cs-val">${suites}</span></div>
-      <div class="cs-row"><span class="cs-label">Packages configured</span><span class="cs-val">${packages.length}</span></div>
-      <div class="cs-row"><span class="cs-label">Channels tracked</span><span class="cs-val">${channels.length}</span></div>
-      <div class="cs-row"><span class="cs-label">Currency</span><span class="cs-val">${currency}</span></div>
-    `;
-
-    document.getElementById('progressFill').style.width = '100%';
-    document.querySelectorAll('.step-item').forEach(s => { s.classList.remove('active'); s.classList.add('done'); });
-    window.scrollTo(0, 0);
-  }
+loadExisting();
 </script>
 </body>
 </html>
