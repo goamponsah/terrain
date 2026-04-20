@@ -145,15 +145,9 @@
       </div>
     </nav>
     <div class="sidebar-footer">
-      <div class="weather-mini">
-        <div class="wm-temp" id="weatherTemp">—</div>
-        <div class="wm-info" id="weatherInfo">—</div>
-      </div>
-      <div class="user-mini">
-        <div class="avatar" id="userAvatar">?</div>
+      <div class="avatar" id="userAvatar">?</div>
         <div style="flex:1;">
           <div class="user-name" id="userName">—</div>
-          <div class="user-role-label">Revenue Manager</div>
         </div>
         <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);border-radius:5px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:'Syne',sans-serif;">Log out</button>
       </div>
@@ -313,12 +307,8 @@ document.addEventListener('DOMContentLoaded',async()=>{
 
   document.getElementById('sidePropName').textContent=lodgeConfig.name;
   document.getElementById('sidePropMeta').textContent=`${lodgeConfig.type} · ${lodgeConfig.suites} suites`;
-  const ini=lodgeConfig.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
-  document.getElementById('userAvatar').textContent=ini.slice(0,2);
-  const wm={'Kenya':['24°C','☀️ Masai Mara · Shoulder'],'Tanzania':['26°C','☀️ Serengeti · Dry'],'South Africa':['18°C','🌤️ Mild'],'Botswana':['29°C','☀️ Okavango · Dry'],'default':['22°C','🌤️ Favorable']};
-  const w=wm[lodgeConfig.country]||wm['default'];
-  document.getElementById('weatherTemp').textContent=w[0];
-  document.getElementById('weatherInfo').textContent=w[1];
+  const emailName=(document.getElementById('userName').textContent||lodgeConfig.name).slice(0,2).toUpperCase();
+  document.getElementById('userAvatar').textContent=emailName;
   document.getElementById('calTitle').textContent=`Rate Calendar — ${lodgeConfig.name}`;
   await loadProperties();
   renderGrid();
