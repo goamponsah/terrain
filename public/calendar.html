@@ -265,7 +265,7 @@ let currentYear=new Date().getFullYear();
 let lodgeConfig={};
 let packages=[];
 let occData={};
-let actualRates={}; // { 'YYYY-MM-DD': { pkgIdx: actualRate } }
+let actualRates={}; // { 'YYYY-MM-DD': { pkgIdx: {s: singleRate, d: doubleRate} } }
 const STORAGE_KEY='terrainCalendarV2';
 const ACTUAL_KEY='terrainActualRates';
 
@@ -442,8 +442,10 @@ function renderGrid(){
       const rec2=Math.round(rec*2);
       const sig=getSignal(pct,key);
       const actual=(actualRates[key]||{})[pi];
-      const hasActual=actual!==undefined&&actual!==null;
-      const gap=hasActual?actual-rec:null;
+      const hasActual=actual&&(actual.s||actual.d);
+      const gapS=hasActual&&actual.s?actual.s-rec:null;
+      const gapD=hasActual&&actual.d?actual.d-rec2:null;
+
       const colCls=['rate-cell',isToday?'today-col':'',isPast?'past-col':'',sig.sig].filter(Boolean).join(' ');
       html+=`<td class="${colCls}" onclick="event.target.tagName!=='INPUT'&&openInsight('${key}',${pi},${pct},${rec},${spp},${hasData?booked:0})">`;
       html+=`<div class="rc-inner">`;
@@ -455,17 +457,26 @@ function renderGrid(){
         html+=`<div class="rc-double" style="${op}">${s}${rec2.toLocaleString()}</div>`;
         if(sig.label) html+=`<span class="rc-badge ${sig.cls}">${sig.label}</span>`;
       }
-      // Actual rate input — always visible
+      // Actual rate display — single and double
       html+=`<div class="rc-actual-wrap">
         <div class="rc-actual-label">Actual ✏️</div>
         <input class="rc-actual-input" type="number" min="0"
-          value="${hasActual?actual:''}"
-          placeholder="—"
-          title="Rate you actually set"
-          onchange="updateActual('${key}',${pi},this.value)"
+          value="${actual&&actual.s?actual.s:''}"
+          placeholder="1x"
+          title="Single guest rate you set"
+          onchange="updateActual('${key}',${pi},'s',this.value)"
           onclick="event.stopPropagation()"
+          style="width:46px;"
         />
-        ${gap!==null?`<div class="${gap>0?'rc-gap-pos':gap<0?'rc-gap-neg':'rc-gap-zero'}">${gap>0?'+':''}${s}${Math.abs(gap).toLocaleString()}${gap>0?' ↑':gap<0?' ↓':' ='}</div>`:''}
+        <input class="rc-actual-input" type="number" min="0"
+          value="${actual&&actual.d?actual.d:''}"
+          placeholder="2x"
+          title="Double guest rate you set"
+          onchange="updateActual('${key}',${pi},'d',this.value)"
+          onclick="event.stopPropagation()"
+          style="width:46px;"
+        />
+        ${gapS!==null?`<div class="${gapS>0?'rc-gap-pos':gapS<0?'rc-gap-neg':'rc-gap-zero'}" style="font-size:8px;">${gapS>0?'+':''}${s}${Math.abs(gapS).toLocaleString()}</div>`:''}
       </div>`;
       html+=`</div></td>`;
     });
@@ -476,13 +487,16 @@ function renderGrid(){
   updateSummary(dates,spp,s);
 }
 
-function updateActual(key,pi,value){
+function updateActual(key,pi,type,value){
   const v=parseInt(value);
+  if(!actualRates[key]) actualRates[key]={};
+  if(!actualRates[key][pi]) actualRates[key][pi]={};
   if(isNaN(v)||value===''){
-    if(actualRates[key]) delete actualRates[key][pi];
+    delete actualRates[key][pi][type];
+    if(!actualRates[key][pi].s&&!actualRates[key][pi].d) delete actualRates[key][pi];
+    if(Object.keys(actualRates[key]).length===0) delete actualRates[key];
   } else {
-    if(!actualRates[key]) actualRates[key]={};
-    actualRates[key][pi]=v;
+    actualRates[key][pi][type]=v;
   }
   localStorage.setItem(ACTUAL_KEY,JSON.stringify(actualRates));
   renderGrid();
@@ -516,11 +530,13 @@ function updateSummary(dates,spp,s){
     if(!actualRates[key]) return;
     packages.forEach((pkg,pi)=>{
       const actual=(actualRates[key]||{})[pi];
-      if(actual===undefined||actual===null) return;
+      if(!actual||(!actual.s&&!actual.d)) return;
       const booked=(occData[key]||{})[pi]||0;
       const pct2=Math.min(100,Math.round((booked/spp)*100));
       const rec=getRec(pkg.base_rate,pct2>=0?pct2:-1,key);
-      const gap=(actual-rec)*Math.max(booked,1);
+      const rec2=Math.round(rec*2);
+      // Use single gap if available, else double gap
+      const gap=actual.s?(actual.s-rec)*Math.max(booked,1):(actual.d?(actual.d-rec2)*Math.max(booked,1):0);
       lotTotal+=gap;
       lotDays++;
     });
@@ -609,7 +625,7 @@ function openInsight(key,pi,pct,rec,spp,booked){
     return`<tr><td>${p.icon} ${p.name}</td><td style="text-align:center;">${b>0?b+'/'+spp+' ('+p2+'%)':'—'}</td><td>${s}${r.toLocaleString()}</td></tr>`;
   }).join('');
 
-  const existingActual=(actualRates[key]||{})[pi];
+  const existingActual=(actualRates[key]||{})[pi]||{};
 
   document.getElementById('ipBody').innerHTML=`
     <div class="ip-stat">
@@ -625,20 +641,33 @@ function openInsight(key,pi,pct,rec,spp,booked){
 
     <!-- Rate Override -->
     <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:16px;margin-bottom:12px;">
-      <div style="font-size:11px;font-weight:600;color:var(--cream);margin-bottom:10px;">✏️ Set Your Rate</div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <input id="overrideInput" type="number" min="0"
-          value="${existingActual||''}"
-          placeholder="${rec}"
-          style="flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:8px 12px;font-size:14px;font-family:'DM Mono',monospace;color:#fff;font-weight:600;"
-        />
-        <button onclick="applyRateOverride('${key}',${pi})"
-          style="background:var(--terra);border:none;border-radius:6px;padding:8px 16px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;font-family:'Syne',sans-serif;white-space:nowrap;">
-          Apply Rate
-        </button>
-        ${existingActual?`<button onclick="clearRateOverride('${key}',${pi})" style="background:none;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:8px 10px;font-size:11px;color:rgba(255,255,255,0.5);cursor:pointer;">✕</button>`:''}
+      <div style="font-size:11px;font-weight:600;color:var(--cream);margin-bottom:12px;">✏️ Set Your Rate</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;">Single Guest</div>
+          <input id="overrideS" type="number" min="0"
+            value="${existingActual.s||''}" placeholder="${rec}"
+            style="width:100%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:8px 10px;font-size:14px;font-family:'DM Mono',monospace;color:#fff;font-weight:600;"
+          />
+          ${existingActual.s?`<div style="font-size:10px;margin-top:3px;color:${existingActual.s>=rec?'#5a8c63':'#e8896a'};">${existingActual.s>=rec?'+':''}${s}${(existingActual.s-rec).toLocaleString()} vs rec</div>`:''}
+        </div>
+        <div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;">Double Guest</div>
+          <input id="overrideD" type="number" min="0"
+            value="${existingActual.d||''}" placeholder="${rec2}"
+            style="width:100%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:8px 10px;font-size:14px;font-family:'DM Mono',monospace;color:#fff;font-weight:600;"
+          />
+          ${existingActual.d?`<div style="font-size:10px;margin-top:3px;color:${existingActual.d>=rec2?'#5a8c63':'#e8896a'};">${existingActual.d>=rec2?'+':''}${s}${(existingActual.d-rec2).toLocaleString()} vs rec</div>`:''}
+        </div>
       </div>
-      <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:6px;">Sets the rate you'll charge in your booking system. Terrain tracks variance vs recommendation.</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="applyRateOverride('${key}',${pi},${rec},${rec2})"
+          style="flex:1;background:var(--terra);border:none;border-radius:6px;padding:9px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;font-family:'Syne',sans-serif;">
+          Apply Rates
+        </button>
+        ${(existingActual.s||existingActual.d)?`<button onclick="clearRateOverride('${key}',${pi})" style="background:none;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:9px 12px;font-size:11px;color:rgba(255,255,255,0.5);cursor:pointer;">Clear</button>`:''}
+      </div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:8px;">Enter the rates you'll set in your booking system. Terrain tracks the gap vs recommendation.</div>
     </div>
 
     <div class="ip-rec">
@@ -657,11 +686,18 @@ function openInsight(key,pi,pct,rec,spp,booked){
   document.getElementById('insightPanel').classList.add('open');
 }
 
-function applyRateOverride(key,pi){
-  const val=parseInt(document.getElementById('overrideInput').value);
-  if(isNaN(val)||val<=0) return;
+function applyRateOverride(key,pi,rec,rec2){
+  const vs=parseInt(document.getElementById('overrideS').value);
+  const vd=parseInt(document.getElementById('overrideD').value);
+  if(isNaN(vs)&&isNaN(vd)) return;
   if(!actualRates[key]) actualRates[key]={};
-  actualRates[key][pi]=val;
+  if(!actualRates[key][pi]) actualRates[key][pi]={};
+  if(!isNaN(vs)&&vs>0) actualRates[key][pi].s=vs;
+  if(!isNaN(vd)&&vd>0) actualRates[key][pi].d=vd;
+  // Auto-fill double if only single entered (×2)
+  if(!isNaN(vs)&&vs>0&&(isNaN(vd)||vd<=0)) actualRates[key][pi].d=vs*2;
+  // Auto-fill single if only double entered (÷2)
+  if(!isNaN(vd)&&vd>0&&(isNaN(vs)||vs<=0)) actualRates[key][pi].s=Math.round(vd/2);
   localStorage.setItem(ACTUAL_KEY,JSON.stringify(actualRates));
   closeInsight();
   renderGrid();
@@ -809,9 +845,10 @@ function exportPDF(){
       const hasData=booked!==undefined&&booked!==null;
       const pct=hasData?Math.min(100,Math.round((booked/spp)*100)):-1;
       const rec=getRec(pkg.base_rate,pct,key);
-      const actual=(actualRates[key]||{})[pi];
-      const hasActual=actual!==undefined&&actual!==null;
-      const gap=hasActual?actual-rec:null;
+      const rec2=Math.round(rec*2);
+      const actual=(actualRates[key]||{})[pi]||{};
+      const hasActual=actual.s||actual.d;
+      const gapS=actual.s?actual.s-rec:null;
       const sig=getSignal(pct,key);
 
       if(hasData){
@@ -822,12 +859,13 @@ function exportPDF(){
         if(pct>=85&&pct<100) surgeDays++;
       }
       if(hasActual&&hasData){
-        totalActual+=booked*actual;
-        lotTotal+=gap*Math.max(booked,1);
+        const usedRate=actual.s||Math.round((actual.d||0)/2);
+        totalActual+=booked*usedRate;
+        lotTotal+=(usedRate-rec)*Math.max(booked,1);
         lotDays++;
       }
 
-      rows.push({d,dow,key,pkg,pi,pct,rec,actual:hasActual?actual:null,gap,sig,booked:hasData?booked:null,isPast});
+      rows.push({d,dow,key,pkg,pi,pct,rec,rec2,actual:hasActual?actual:null,gapS,sig,booked:hasData?booked:null,isPast});
     });
   }
 
@@ -867,8 +905,9 @@ function exportPDF(){
       let cellHtml=`<div style="font-size:13px;font-weight:700;color:#1c1814;font-family:monospace;">${s}${rec.toLocaleString()}</div>`;
       if(hasData) cellHtml+=`<div style="font-size:10px;color:${sigColor};font-weight:600;margin-top:1px;">${sigLabel} · ${pct}%</div>`;
       if(hasActual){
-        const gapColor=gap>0?'#3a5c42':gap<0?'#c4613a':'#aaa';
-        cellHtml+=`<div style="font-size:10px;margin-top:3px;color:#666;">Actual: <strong style="color:#1c1814;">${s}${actual.toLocaleString()}</strong> <span style="color:${gapColor};font-weight:700;">${gap>0?'+':''}${s}${gap.toLocaleString()}</span></div>`;
+        if(actual.s){const g=actual.s-rec;const gc=g>0?'#3a5c42':g<0?'#c4613a':'#aaa';cellHtml+=`<div style="font-size:10px;margin-top:2px;color:#666;">1x: <strong style="color:#1c1814;">${s}${actual.s.toLocaleString()}</strong> <span style="color:${gc};font-weight:700;">${g>0?'+':''}${s}${g.toLocaleString()}</span></div>`;}
+        if(actual.d){const g=actual.d-rec2;const gc=g>0?'#3a5c42':g<0?'#c4613a':'#aaa';cellHtml+=`<div style="font-size:10px;margin-top:1px;color:#666;">2x: <strong style="color:#1c1814;">${s}${actual.d.toLocaleString()}</strong> <span style="color:${gc};font-weight:700;">${g>0?'+':''}${s}${g.toLocaleString()}</span></div>`;}
+
       }
       return`<td style="padding:8px 12px;border-right:1px solid #ede6d6;vertical-align:top;opacity:${isPast?0.6:1};">${cellHtml}</td>`;
     }).join('');
