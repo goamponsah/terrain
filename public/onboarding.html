@@ -284,7 +284,8 @@ async function handleSubmit(){
   } catch(e){ /* guest mode — that's fine */ }
 
   // Always go to dashboard
-  window.location.href='/dashboard';
+  const isEditing=document.getElementById('submitBtn').textContent.includes('Update');
+  window.location.href=isEditing?'/dashboard':'/dashboard';
 }
 
 function showError(msg){
@@ -306,6 +307,10 @@ async function loadExisting(){
       if(res.packages&&res.packages.length>0){
         packages=res.packages.map(p=>({icon:p.icon||'🏕️',name:p.name||'',rate:p.base_rate||''}));
       }
+      // Change button label to indicate editing
+      document.getElementById('submitBtn').textContent='Update Property Settings →';
+      document.querySelector('.page-title').textContent='Edit Property';
+      document.querySelector('.page-sub').textContent='Update your property details or packages below.';
     }
   } catch{}
   renderPackages();

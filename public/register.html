@@ -137,6 +137,11 @@
             });
           } catch(e) {}
         }
+        // Clear all localStorage for clean state
+        localStorage.removeItem('terrainConfig');
+        localStorage.removeItem('terrainCalendarV2');
+        localStorage.removeItem('terrainActualRates');
+        localStorage.removeItem('terrainManualBooked');
         window.location.href = '/dashboard';
       } else {
         showError(data.error || 'Registration failed');

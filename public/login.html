@@ -119,6 +119,11 @@
       });
       const data = await res.json();
       if (data.success) {
+        // Clear localStorage so previous user's data doesn't show
+        localStorage.removeItem('terrainConfig');
+        localStorage.removeItem('terrainCalendarV2');
+        localStorage.removeItem('terrainActualRates');
+        localStorage.removeItem('terrainManualBooked');
         // Check if they have a lodge
         const me = await fetch('/api/auth/me').then(r => r.json());
         window.location.href = me.hasLodge ? '/dashboard' : '/onboarding';

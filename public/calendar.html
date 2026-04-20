@@ -309,11 +309,11 @@ document.addEventListener('DOMContentLoaded',async()=>{
   }
   if(!lodgeConfig.name) lodgeConfig={name:'Your Lodge',suites:20,currency:'USD',country:'Kenya',type:'Safari Lodge'};
   if(packages.length===0) packages=DEFAULT_PKG;
-  // Load calendar data — API first, fallback to localStorage
+  // Load calendar data — API first for logged-in users, localStorage for guests
   try{
     const calRes=await fetch('/api/calendar').then(r=>r.json());
-    if(calRes.occData&&Object.keys(calRes.occData).length>0){
-      occData=calRes.occData;
+    if(calRes.occData){
+      occData=calRes.occData; // Trust API over localStorage for logged-in users
       localStorage.setItem(STORAGE_KEY,JSON.stringify(occData));
     } else {
       const s=localStorage.getItem(STORAGE_KEY);if(s) occData=JSON.parse(s);
