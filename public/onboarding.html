@@ -154,7 +154,7 @@
     <button class="add-pkg-btn" onclick="addPackage()">+ Add another package</button>
   </div>
 
-  <button class="btn-submit" id="submitBtn" onclick="handleSubmit()">Go to My Rate Calendar →</button>
+  <button class="btn-submit" id="submitBtn" onclick="handleSubmit()">See My Rate Calendar →</button>
 </div>
 
 <!-- Icon picker popup -->
@@ -256,7 +256,7 @@ async function handleSubmit(){
   if(validPkgs.length===0){showError('Please add at least one package with a name and nightly rate.');return;}
 
   btn.disabled=true;
-  btn.textContent='Saving…';
+  btn.textContent='Setting up…';
 
   const payload={
     name, country, type, suites, currency,
@@ -265,29 +265,26 @@ async function handleSubmit(){
     pricing_philosophy:'', target_revenue:0, target_occupancy:70, target_direct:50
   };
 
-  // Save to localStorage as fallback
+  // Always save to localStorage first — works for both guests and logged-in users
   localStorage.setItem('terrainConfig',JSON.stringify({
     name, country, type, suites, currency,
     packages: validPkgs.map(p=>({name:p.name,icon:p.icon,rate:parseFloat(p.rate)||0}))
   }));
 
+  // Try to save to DB if logged in — but don't block on it
   try{
-    const res=await fetch('/api/lodge',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
-    });
-    const data=await res.json();
-    if(data.success||data.lodgeId){
-      window.location.href='/calendar';
-    } else {
-      showError(data.error||'Save failed. Please try again.');
-      btn.disabled=false; btn.textContent='Go to My Rate Calendar →';
+    const me=await fetch('/api/auth/me').then(r=>r.json());
+    if(me.user){
+      await fetch('/api/lodge',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
     }
-  } catch(err){
-    // If not logged in, go to calendar anyway (guest mode)
-    window.location.href='/calendar';
-  }
+  } catch(e){ /* guest mode — that's fine */ }
+
+  // Always go to dashboard
+  window.location.href='/dashboard';
 }
 
 function showError(msg){
