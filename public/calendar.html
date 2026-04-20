@@ -171,11 +171,12 @@
         </div>
         <div class="cal-nav">
           <button onclick="changeMonth(-1)">← Prev</button>
-          <div class="cal-month-label" id="monthLabel">—</div>
+          <select id="monthSelect" onchange="jumpToMonth(this.value)" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--ink-soft);border:1px solid var(--border);border-radius:6px;padding:5px 10px;background:var(--warm);cursor:pointer;min-width:160px;text-align:center;">
+          </select>
           <button onclick="changeMonth(1)">Next →</button>
         </div>
         <button class="btn-primary" onclick="saveCalendar()">Save Rates</button>
-        <button class="btn-secondary" onclick="exportPDF()" style="background:none;border:1px solid var(--border);color:var(--ink-soft);border-radius:6px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:'Syne',sans-serif;">↓ Export Report</button>
+        <button class="btn-secondary" onclick="showExportModal()" style="background:none;border:1px solid var(--border);color:var(--ink-soft);border-radius:6px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:'Syne',sans-serif;">↓ Export Report</button>
       </div>
     </div>
 
@@ -238,6 +239,28 @@
     <div class="ip-title" id="ipTitle">Day Analysis</div>
   </div>
   <div class="ip-body" id="ipBody"></div>
+</div>
+
+<!-- Export date range modal -->
+<div id="exportModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:12px;padding:32px;width:340px;font-family:'Syne',sans-serif;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:#1c1814;margin-bottom:6px;">Export Rate Report</div>
+    <div style="font-size:12px;color:#8a7d72;margin-bottom:24px;">Select the date range for your PDF report</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+      <div>
+        <label style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#8a7d72;display:block;margin-bottom:6px;">From</label>
+        <input type="date" id="exportFrom" style="width:100%;border:1px solid #ddd4c4;border-radius:6px;padding:8px 10px;font-size:13px;font-family:'DM Mono',monospace;color:#1c1814;"/>
+      </div>
+      <div>
+        <label style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#8a7d72;display:block;margin-bottom:6px;">To</label>
+        <input type="date" id="exportTo" style="width:100%;border:1px solid #ddd4c4;border-radius:6px;padding:8px 10px;font-size:13px;font-family:'DM Mono',monospace;color:#1c1814;"/>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="closeExportModal()" style="flex:1;background:none;border:1px solid #ddd4c4;border-radius:6px;padding:10px;font-size:13px;cursor:pointer;font-family:'Syne',sans-serif;color:#8a7d72;">Cancel</button>
+      <button onclick="exportPDF()" style="flex:2;background:#c4613a;border:none;border-radius:6px;padding:10px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:'Syne',sans-serif;">Generate PDF →</button>
+    </div>
+  </div>
 </div>
 
 <script src="app.js"></script>
@@ -307,6 +330,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   const emailName=(document.getElementById('userName').textContent||lodgeConfig.name).slice(0,2).toUpperCase();
   document.getElementById('userAvatar').textContent=emailName;
   document.getElementById('calTitle').textContent=`Rate Calendar — ${lodgeConfig.name}`;
+  populateMonthSelect();
   await loadProperties();
   renderGrid();
   saveMonthSnapshot();
@@ -383,7 +407,7 @@ function renderGrid(){
   const daysInMonth=new Date(year,month+1,0).getDate();
   const today=new Date();
   const spp=spkg();
-  document.getElementById('monthLabel').textContent=`${MONTHS[month]} ${year}`;
+  document.getElementById('monthSelect') && updateMonthSelect();
 
   const dates=[];
   for(let d=1;d<=daysInMonth;d++){
@@ -445,26 +469,25 @@ function renderGrid(){
         if(sig.label) html+=`<span class="rc-badge ${sig.cls}">${sig.label}</span>`;
       }
       // Actual rate display — single and double
-      html+=`<div class="rc-actual-wrap">
-        <div class="rc-actual-label">Actual ✏️</div>
+        <div class="rc-actual-wrap">
         <input class="rc-actual-input" type="number" min="0"
           value="${actual&&actual.s?actual.s:''}"
-          placeholder="1x"
-          title="Single guest rate you set"
+          placeholder=""
+          title="Single guest rate"
           onchange="updateActual('${key}',${pi},'s',this.value)"
           onclick="event.stopPropagation()"
           style="width:46px;"
         />
         <input class="rc-actual-input" type="number" min="0"
           value="${actual&&actual.d?actual.d:''}"
-          placeholder="2x"
-          title="Double guest rate you set"
+          placeholder=""
+          title="Double guest rate"
           onchange="updateActual('${key}',${pi},'d',this.value)"
           onclick="event.stopPropagation()"
           style="width:46px;"
         />
         ${gapS!==null?`<div class="${gapS>0?'rc-gap-pos':gapS<0?'rc-gap-neg':'rc-gap-zero'}" style="font-size:8px;">${gapS>0?'+':''}${s}${Math.abs(gapS).toLocaleString()}</div>`:''}
-      </div>`;
+      </div>;
       html+=`</div></td>`;
     });
     html+='</tr>';
@@ -563,10 +586,49 @@ function updateOcc(key,value,maxT,spp){
   renderGrid();
 }
 
+function populateMonthSelect(){
+  const sel=document.getElementById('monthSelect');
+  sel.innerHTML='';
+  const now=new Date();
+  // Show 12 months back and 24 months forward
+  for(let offset=-12;offset<=24;offset++){
+    const d=new Date(now.getFullYear(),now.getMonth()+offset,1);
+    const y=d.getFullYear(),m=d.getMonth();
+    const opt=document.createElement('option');
+    opt.value=`${y}-${m}`;
+    opt.textContent=`${MONTHS[m]} ${y}`;
+    if(y===currentYear&&m===currentMonth) opt.selected=true;
+    sel.appendChild(opt);
+  }
+}
+
+function jumpToMonth(val){
+  const [y,m]=val.split('-').map(Number);
+  currentYear=y; currentMonth=m;
+  renderGrid();
+  saveMonthSnapshot();
+  if(showComparison) loadLastYearData();
+}
+
+function updateMonthSelect(){
+  const sel=document.getElementById('monthSelect');
+  if(!sel) return;
+  const val=`${currentYear}-${currentMonth}`;
+  // Check if option exists, if not add it
+  let found=false;
+  for(const opt of sel.options){ if(opt.value===val){opt.selected=true;found=true;break;} }
+  if(!found){
+    const opt=document.createElement('option');
+    opt.value=val; opt.textContent=`${MONTHS[currentMonth]} ${currentYear}`; opt.selected=true;
+    sel.appendChild(opt);
+  }
+}
+
 function changeMonth(dir){
   currentMonth+=dir;
   if(currentMonth>11){currentMonth=0;currentYear++;}
   if(currentMonth<0){currentMonth=11;currentYear--;}
+  updateMonthSelect();
   renderGrid();
   saveMonthSnapshot();
   if(showComparison) loadLastYearData();
@@ -807,23 +869,50 @@ function updateMoMDisplay(){
   .forEach(({id,cur,ly})=>{const el=document.getElementById(id);if(el){el.style.display='block';el.innerHTML=momBadge(cur,ly);}});
 }
 
+function showExportModal(){
+  // Default: first to last day of current month
+  const now=new Date();
+  const y=currentYear,m=currentMonth;
+  const first=`${y}-${String(m+1).padStart(2,'0')}-01`;
+  const last=`${y}-${String(m+1).padStart(2,'0')}-${String(new Date(y,m+1,0).getDate()).padStart(2,'0')}`;
+  document.getElementById('exportFrom').value=first;
+  document.getElementById('exportTo').value=last;
+  const modal=document.getElementById('exportModal');
+  modal.style.display='flex';
+}
+function closeExportModal(){
+  document.getElementById('exportModal').style.display='none';
+}
+
 function exportPDF(){
-  const s=sym();
-  const year=currentYear, month=currentMonth;
-  const daysInMonth=new Date(year,month+1,0).getDate();
+  closeExportModal();
+  const fromVal=document.getElementById('exportFrom').value;
+  const toVal=document.getElementById('exportTo').value;
+  const fromDate=fromVal?new Date(fromVal):new Date(currentYear,currentMonth,1);
+  const toDate=toVal?new Date(toVal):new Date(currentYear,currentMonth+1,0);
+
   const spp=spkg();
-  const mn=MONTHS[month];
   const today=new Date();
   const generatedDate=today.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+  // Build date list from fromDate to toDate
+  const dateList=[];
+  const cur=new Date(fromDate);
+  while(cur<=toDate){
+    dateList.push(new Date(cur));
+    cur.setDate(cur.getDate()+1);
+  }
+  const rangeLabel=fromDate.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})
+    +' – '+toDate.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 
   // Compute summary stats
   let totalRec=0, totalActual=0, totalBooked=0, daysWithData=0;
   let soldOut=0, surgeDays=0, lotTotal=0, lotDays=0;
 
   const rows=[];
-  for(let d=1;d<=daysInMonth;d++){
+  dateList.forEach(dt=>{
+    const year=dt.getFullYear(),month=dt.getMonth(),d=dt.getDate();
     const key=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const dt=new Date(year,month,d);
     const dow=DAYS[dt.getDay()];
     const isPast=dt<today&&dt.toDateString()!==today.toDateString();
 
@@ -854,7 +943,7 @@ function exportPDF(){
 
       rows.push({d,dow,key,pkg,pi,pct,rec,rec2,actual:hasActual?actual:null,gapS,sig,booked:hasData?booked:null,isPast});
     });
-  }
+  });
 
   const avgOcc=daysWithData>0?Math.round((totalBooked/(daysWithData*spp))*100):0;
   const lotStr=lotDays>0?(lotTotal>=0?`+${s}${Math.round(lotTotal).toLocaleString()}`:`-${s}${Math.round(Math.abs(lotTotal)).toLocaleString()}`):'—';
