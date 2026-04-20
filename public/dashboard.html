@@ -662,13 +662,13 @@ function buildDashboard(cfg) {
       <div class="kpi-card accent">
         <div class="kpi-label">Days with Bookings</div>
         <div class="kpi-value">${daysWithData > 0 ? daysWithData : '—'}</div>
-        <div class="kpi-delta ${daysWithData > 0 ? 'up' : ''}">${daysWithData > 0 ? `of ${daysInMonth} days this month` : 'Enter bookings in Rate Calendar'}</div>
+        <div class="kpi-delta ${daysWithData > 0 ? 'up' : ''}">${daysWithData > 0 ? 'of ' + daysInMonth + ' days this month' : 'Enter bookings in Rate Calendar'}</div>
         <div class="kpi-orn">📅</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-label">Avg Occupancy</div>
         <div class="kpi-value">${avgOcc !== null ? avgOcc + '%' : '—'}</div>
-        <div class="kpi-delta">${avgOcc !== null ? `Based on ${daysWithData} days entered` : 'No data yet'}</div>
+        <div class="kpi-delta">${avgOcc !== null ? 'Based on ' + daysWithData + ' days entered' : 'No data yet'}</div>
         <div class="kpi-orn">%</div>
       </div>
       <div class="kpi-card">
@@ -736,7 +736,7 @@ function buildDashboard(cfg) {
           <div class="card-ey">Packages</div>
           <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
             ${cfg.packages.length > 0
-              ? cfg.packages.map(p => `<div style="font-size:12px;color:var(--ink-soft);padding:6px 8px;background:var(--parchment);border-radius:5px;">${p}</div>`).join('')
+              ? cfg.packages.map(p => '<div style="font-size:12px;color:var(--ink-soft);padding:6px 8px;background:var(--parchment);border-radius:5px;">' + p + '</div>').join('')
               : '<div style="font-size:12px;color:var(--ink-muted);">No packages configured yet.</div>'}
           </div>
         </div>
