@@ -490,9 +490,9 @@ app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', '
 app.get('/onboarding', (req, res) => res.sendFile(path.join(__dirname, 'public', 'onboarding.html')));
 app.get('/calendar', (req, res) => res.sendFile(path.join(__dirname, 'public', 'calendar.html')));
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
-app.get('/packages', (req, res) => res.sendFile(path.join(__dirname, 'public', 'packages.html')));
-app.get('/forecast', (req, res) => res.sendFile(path.join(__dirname, 'public', 'forecast.html')));
-app.get('/channels', (req, res) => res.sendFile(path.join(__dirname, 'public', 'channels.html')));
+app.get('/packages', (req, res) => res.redirect('/calendar'));
+app.get('/forecast', (req, res) => res.redirect('/calendar'));
+app.get('/channels', (req, res) => res.redirect('/calendar'));
 app.get('/forgot-password', (req, res) => res.sendFile(path.join(__dirname, 'public', 'forgot-password.html')));
 app.get('/reset-password', (req, res) => res.sendFile(path.join(__dirname, 'public', 'reset-password.html')));
 app.get('/pricing', (req, res) => res.sendFile(path.join(__dirname, 'public', 'pricing.html')));
@@ -637,5 +637,86 @@ app.get('/api/manual-booked', authRequired, async (req, res) => {
   } catch (err) {
     console.error('Manual booked load error:', err);
     res.status(500).json({ error: 'Failed to load manual booked data' });
+  }
+});
+
+// ============================================================
+// MULTI-PROPERTY SUPPORT
+// ============================================================
+
+// Get all lodges for this user
+app.get('/api/lodges', authRequired, async (req, res) => {
+  try {
+    const lodges = await pool.query(
+      'SELECT id, name, country, region, property_type, suites, currency FROM lodges WHERE user_id = $1 ORDER BY created_at ASC',
+      [req.user.id]
+    );
+    const user = await pool.query('SELECT active_lodge_id FROM users WHERE id = $1', [req.user.id]);
+    res.json({ lodges: lodges.rows, activeLodgeId: user.rows[0]?.active_lodge_id || null });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to load lodges' });
+  }
+});
+
+// Switch active lodge
+app.post('/api/lodges/switch', authRequired, async (req, res) => {
+  const { lodgeId } = req.body;
+  if (!lodgeId) return res.status(400).json({ error: 'lodgeId required' });
+  try {
+    // Verify this lodge belongs to user
+    const check = await pool.query('SELECT id FROM lodges WHERE id = $1 AND user_id = $2', [lodgeId, req.user.id]);
+    if (check.rows.length === 0) return res.status(403).json({ error: 'Not your lodge' });
+    // Add active_lodge_id column if not exists
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS active_lodge_id INTEGER REFERENCES lodges(id) ON DELETE SET NULL`);
+    await pool.query('UPDATE users SET active_lodge_id = $1 WHERE id = $2', [lodgeId, req.user.id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to switch lodge' });
+  }
+});
+
+// Create new property (additional lodge)
+app.post('/api/lodges/new', authRequired, async (req, res) => {
+  const { name, country, region, property_type, suites, currency } = req.body;
+  if (!name) return res.status(400).json({ error: 'Name required' });
+  try {
+    const result = await pool.query(
+      'INSERT INTO lodges (user_id, name, country, region, property_type, suites, currency) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id',
+      [req.user.id, name, country || '', region || '', property_type || 'Safari Lodge', suites || 20, currency || 'USD']
+    );
+    const lodgeId = result.rows[0].id;
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS active_lodge_id INTEGER REFERENCES lodges(id) ON DELETE SET NULL`).catch(()=>{});
+    await pool.query('UPDATE users SET active_lodge_id = $1 WHERE id = $2', [lodgeId, req.user.id]);
+    res.json({ success: true, lodgeId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create lodge' });
+  }
+});
+
+// Get active lodge (respects active_lodge_id)
+app.get('/api/active-lodge', authRequired, async (req, res) => {
+  try {
+    const user = await pool.query('SELECT active_lodge_id FROM users WHERE id = $1', [req.user.id]).catch(() => ({ rows: [{}] }));
+    const activeLodgeId = user.rows[0]?.active_lodge_id;
+
+    let lodge;
+    if (activeLodgeId) {
+      lodge = await pool.query('SELECT * FROM lodges WHERE id = $1 AND user_id = $2', [activeLodgeId, req.user.id]);
+    }
+    if (!lodge || lodge.rows.length === 0) {
+      lodge = await pool.query('SELECT * FROM lodges WHERE user_id = $1 ORDER BY created_at ASC LIMIT 1', [req.user.id]);
+    }
+
+    if (lodge.rows.length === 0) return res.json({ lodge: null });
+    const lodgeId = lodge.rows[0].id;
+    const packages = await pool.query('SELECT * FROM packages WHERE lodge_id = $1 ORDER BY display_order', [lodgeId]);
+    const seasons = await pool.query('SELECT * FROM seasons WHERE lodge_id = $1 ORDER BY display_order', [lodgeId]);
+    res.json({ lodge: lodge.rows[0], packages: packages.rows, seasons: seasons.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to load active lodge' });
   }
 });

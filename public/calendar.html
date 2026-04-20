@@ -68,7 +68,21 @@
     .sig-hold{background:rgba(58,92,66,0.05)!important;}
     .sig-slow{background:rgba(100,130,180,0.05)!important;}
     .rc-sold{font-size:9px;font-weight:700;letter-spacing:0.08em;color:var(--terra);background:rgba(196,97,58,0.12);border-radius:3px;padding:2px 5px;margin-top:1px;}
-    .insight-panel{position:fixed;right:0;top:0;bottom:0;width:340px;background:var(--ink);transform:translateX(100%);transition:transform 0.3s ease;z-index:200;display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(0,0,0,0.25);}
+    .rc-actual-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;margin-top:3px;border-top:1px dashed var(--border);padding-top:4px;width:100%;}
+    .rc-actual-label{font-size:8px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);}
+    .rc-actual-input{width:58px;background:rgba(255,255,255,0.7);border:1px solid var(--border);border-radius:4px;padding:3px 4px;font-size:11px;font-family:'DM Mono',monospace;color:var(--ink);text-align:center;transition:border-color 0.15s;}
+    .rc-actual-input:focus{outline:none;border-color:var(--terra);background:#fff;}
+    .rc-gap-pos{font-size:9px;font-weight:700;color:#3a5c42;} /* charged more than rec */
+    .rc-gap-neg{font-size:9px;font-weight:700;color:var(--terra);} /* left money on table */
+    .rc-gap-zero{font-size:9px;color:var(--ink-muted);}
+    /* Left on table summary */
+    .lot-banner{background:rgba(196,97,58,0.08);border:1px solid rgba(196,97,58,0.2);border-radius:8px;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;margin:0 32px 0;}
+    .lot-label{font-size:11px;color:var(--terra);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;}
+    .lot-value{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;color:var(--terra);}
+    .lot-sub{font-size:11px;color:var(--ink-muted);}
+    .lot-good{background:rgba(58,92,66,0.08);border-color:rgba(58,92,66,0.2);}
+    .lot-good .lot-label{color:var(--forest);}
+    .lot-good .lot-value{color:var(--forest);}right:0;top:0;bottom:0;width:340px;background:var(--ink);transform:translateX(100%);transition:transform 0.3s ease;z-index:200;display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(0,0,0,0.25);}
     .insight-panel.open{transform:translateX(0);}
     .ip-header{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
     .ip-close{float:right;background:none;border:none;color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;}
@@ -112,15 +126,15 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         Rate Calendar
       </a>
-      <a class="nav-item" href="/packages">
+      <a class="nav-item" href="/packages" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
         Experience Packages
       </a>
-      <a class="nav-item" href="/forecast">
+      <a class="nav-item" href="/forecast" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
         Demand & Weather
       </a>
-      <a class="nav-item" href="/channels">
+      <a class="nav-item" href="/channels" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
         Channel Mix
       </a>
@@ -151,14 +165,26 @@
       <div>
         <div class="page-eyebrow">Pricing Engine</div>
         <div class="cal-title" id="calTitle">Rate Calendar</div>
+        <!-- Property switcher -->
+        <div id="propertySwitcher" style="display:none;margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"></div>
       </div>
-      <div style="display:flex;align-items:center;gap:12px;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <!-- Month-over-month toggle -->
+        <div style="display:flex;align-items:center;gap:6px;background:var(--parchment);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--ink-soft);">
+          <span id="momLabel" style="font-family:'DM Mono',monospace;font-size:10px;">vs last year</span>
+          <label style="position:relative;display:inline-block;width:32px;height:18px;cursor:pointer;">
+            <input type="checkbox" id="momToggle" onchange="toggleComparison()" style="opacity:0;width:0;height:0;"/>
+            <span id="momSlider" style="position:absolute;inset:0;background:#ccc;border-radius:9px;transition:0.2s;"></span>
+            <span id="momThumb" style="position:absolute;left:2px;top:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:0.2s;"></span>
+          </label>
+        </div>
         <div class="cal-nav">
           <button onclick="changeMonth(-1)">← Prev</button>
           <div class="cal-month-label" id="monthLabel">—</div>
           <button onclick="changeMonth(1)">Next →</button>
         </div>
         <button class="btn-primary" onclick="saveCalendar()">Save Rates</button>
+        <button class="btn-secondary" onclick="exportPDF()" style="background:none;border:1px solid var(--border);color:var(--ink-soft);border-radius:6px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:'Syne',sans-serif;">↓ Export Report</button>
       </div>
     </div>
 
@@ -167,21 +193,25 @@
         <div class="cs-label">Projected Revenue</div>
         <div class="cs-value" id="sumRevenue">—</div>
         <div class="cs-sub" id="sumRevSub">This month</div>
+        <div class="cs-mom" id="momRevenue" style="display:none;font-size:10px;margin-top:4px;"></div>
       </div>
       <div class="cs-item">
         <div class="cs-label">Avg Lodge Occupancy</div>
         <div class="cs-value" id="sumOccupancy">—</div>
         <div class="cs-sub">Based on entered bookings</div>
+        <div class="cs-mom" id="momOccupancy" style="display:none;font-size:10px;margin-top:4px;"></div>
       </div>
       <div class="cs-item">
         <div class="cs-label">Sold Out Days</div>
         <div class="cs-value" id="sumSoldOut">0</div>
         <div class="cs-sub">All packages fully booked</div>
+        <div class="cs-mom" id="momSoldOut" style="display:none;font-size:10px;margin-top:4px;"></div>
       </div>
       <div class="cs-item">
         <div class="cs-label">Surge Days</div>
         <div class="cs-value" id="sumSurge">0</div>
         <div class="cs-sub">Rate increase recommended</div>
+        <div class="cs-mom" id="momSurge" style="display:none;font-size:10px;margin-top:4px;"></div>
       </div>
     </div>
 
@@ -192,6 +222,16 @@
       <div class="leg-item"><div class="leg-dot" style="background:rgba(58,92,66,0.45);"></div> Hold 60–84%</div>
       <div class="leg-item"><div class="leg-dot" style="background:rgba(100,130,180,0.45);"></div> Slow — promo?</div>
       <div class="leg-item" style="margin-left:auto;font-size:10px;color:var(--ink-muted);">Large = 1 guest &nbsp;·&nbsp; Small = 2 guests &nbsp;·&nbsp; Enter total suites booked in dark row</div>
+    </div>
+
+    <div id="lotBanner" style="display:none;padding:12px 32px 0;">
+      <div class="lot-banner" id="lotBannerInner">
+        <div>
+          <div class="lot-label" id="lotLabel">Revenue left on table this month</div>
+          <div class="lot-sub" id="lotSub">Based on days where actual rate was entered</div>
+        </div>
+        <div class="lot-value" id="lotValue">—</div>
+      </div>
     </div>
 
     <div class="grid-outer" id="gridOuter">
@@ -225,7 +265,9 @@ let currentYear=new Date().getFullYear();
 let lodgeConfig={};
 let packages=[];
 let occData={};
+let actualRates={}; // { 'YYYY-MM-DD': { pkgIdx: actualRate } }
 const STORAGE_KEY='terrainCalendarV2';
+const ACTUAL_KEY='terrainActualRates';
 
 document.addEventListener('DOMContentLoaded',async()=>{
   try{
@@ -266,6 +308,9 @@ document.addEventListener('DOMContentLoaded',async()=>{
     try{const s=localStorage.getItem(STORAGE_KEY);if(s) occData=JSON.parse(s);}catch{}
   }
 
+  // Load actual rates from localStorage
+  try{const a=localStorage.getItem(ACTUAL_KEY);if(a) actualRates=JSON.parse(a);}catch{}
+
   document.getElementById('sidePropName').textContent=lodgeConfig.name;
   document.getElementById('sidePropMeta').textContent=`${lodgeConfig.type} · ${lodgeConfig.suites} suites`;
   const ini=lodgeConfig.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
@@ -275,7 +320,9 @@ document.addEventListener('DOMContentLoaded',async()=>{
   document.getElementById('weatherTemp').textContent=w[0];
   document.getElementById('weatherInfo').textContent=w[1];
   document.getElementById('calTitle').textContent=`Rate Calendar — ${lodgeConfig.name}`;
+  await loadProperties();
   renderGrid();
+  saveMonthSnapshot();
   setTimeout(()=>{const t=document.querySelector('.today-col');if(t) t.scrollIntoView({inline:'center',behavior:'smooth'});},300);
 });
 
@@ -394,18 +441,32 @@ function renderGrid(){
       const rec=getRec(pkg.base_rate,pct,key);
       const rec2=Math.round(rec*2);
       const sig=getSignal(pct,key);
+      const actual=(actualRates[key]||{})[pi];
+      const hasActual=actual!==undefined&&actual!==null;
+      const gap=hasActual?actual-rec:null;
       const colCls=['rate-cell',isToday?'today-col':'',isPast?'past-col':'',sig.sig].filter(Boolean).join(' ');
-      html+=`<td class="${colCls}" onclick="openInsight('${key}',${pi},${pct},${rec},${spp},${hasData?booked:0})">`;
+      html+=`<td class="${colCls}" onclick="event.target.tagName!=='INPUT'&&openInsight('${key}',${pi},${pct},${rec},${spp},${hasData?booked:0})">`;
       html+=`<div class="rc-inner">`;
       if(pct===100){
         html+=`<div class="rc-single">${s}${rec.toLocaleString()}</div><div class="rc-sold">SOLD</div>`;
       } else {
-        // Always show smart rate — dim slightly if no real data
         const op=hasData?'':'opacity:0.72;';
         html+=`<div class="rc-single" style="${op}">${s}${rec.toLocaleString()}</div>`;
         html+=`<div class="rc-double" style="${op}">${s}${rec2.toLocaleString()}</div>`;
         if(sig.label) html+=`<span class="rc-badge ${sig.cls}">${sig.label}</span>`;
       }
+      // Actual rate input — always visible
+      html+=`<div class="rc-actual-wrap">
+        <div class="rc-actual-label">Actual ✏️</div>
+        <input class="rc-actual-input" type="number" min="0"
+          value="${hasActual?actual:''}"
+          placeholder="—"
+          title="Rate you actually set"
+          onchange="updateActual('${key}',${pi},this.value)"
+          onclick="event.stopPropagation()"
+        />
+        ${gap!==null?`<div class="${gap>0?'rc-gap-pos':gap<0?'rc-gap-neg':'rc-gap-zero'}">${gap>0?'+':''}${s}${Math.abs(gap).toLocaleString()}${gap>0?' ↑':gap<0?' ↓':' ='}</div>`:''}
+      </div>`;
       html+=`</div></td>`;
     });
     html+='</tr>';
@@ -413,6 +474,18 @@ function renderGrid(){
   html+='</tbody>';
   document.getElementById('rateGrid').innerHTML=html;
   updateSummary(dates,spp,s);
+}
+
+function updateActual(key,pi,value){
+  const v=parseInt(value);
+  if(isNaN(v)||value===''){
+    if(actualRates[key]) delete actualRates[key][pi];
+  } else {
+    if(!actualRates[key]) actualRates[key]={};
+    actualRates[key][pi]=v;
+  }
+  localStorage.setItem(ACTUAL_KEY,JSON.stringify(actualRates));
+  renderGrid();
 }
 
 function updateSummary(dates,spp,s){
@@ -436,6 +509,37 @@ function updateSummary(dates,spp,s){
   document.getElementById('sumOccupancy').textContent=occDays>0?Math.round(occSum/occDays)+'%':'—';
   document.getElementById('sumSoldOut').textContent=sold;
   document.getElementById('sumSurge').textContent=surge;
+
+  // ── Left on table calculation ─────────────────────────────
+  let lotTotal=0, lotDays=0;
+  dates.forEach(({key})=>{
+    if(!actualRates[key]) return;
+    packages.forEach((pkg,pi)=>{
+      const actual=(actualRates[key]||{})[pi];
+      if(actual===undefined||actual===null) return;
+      const booked=(occData[key]||{})[pi]||0;
+      const pct2=Math.min(100,Math.round((booked/spp)*100));
+      const rec=getRec(pkg.base_rate,pct2>=0?pct2:-1,key);
+      const gap=(actual-rec)*Math.max(booked,1);
+      lotTotal+=gap;
+      lotDays++;
+    });
+  });
+
+  const lotBanner=document.getElementById('lotBanner');
+  if(lotDays>0){
+    lotBanner.style.display='block';
+    const inner=document.getElementById('lotBannerInner');
+    const isLeft=lotTotal<0;
+    inner.className='lot-banner'+(isLeft?'':' lot-good');
+    document.getElementById('lotLabel').textContent=isLeft
+      ?'Revenue left on table this month'
+      :'Extra revenue captured vs recommendation';
+    document.getElementById('lotSub').textContent=`Across ${lotDays} package-days with actual rates entered`;
+    document.getElementById('lotValue').textContent=`${isLeft?'-':'+'}`+s+Math.abs(Math.round(lotTotal)).toLocaleString();
+  } else {
+    lotBanner.style.display='none';
+  }
 }
 
 function updateOcc(key,value,maxT,spp){
@@ -461,17 +565,18 @@ function changeMonth(dir){
   if(currentMonth>11){currentMonth=0;currentYear++;}
   if(currentMonth<0){currentMonth=11;currentYear--;}
   renderGrid();
+  saveMonthSnapshot();
+  if(showComparison) loadLastYearData();
 }
 
 function saveCalendar(){
   localStorage.setItem(STORAGE_KEY,JSON.stringify(occData));
-  // Save to DB
+  localStorage.setItem(ACTUAL_KEY,JSON.stringify(actualRates));
   fetch('/api/calendar',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({occData})
   }).catch(e=>console.warn('Calendar save to DB failed:',e));
-
   const btn=event.target;
   btn.textContent='✓ Saved';btn.style.background='#3a5c42';
   setTimeout(()=>{btn.textContent='Save Rates';btn.style.background='';},2000);
@@ -504,6 +609,8 @@ function openInsight(key,pi,pct,rec,spp,booked){
     return`<tr><td>${p.icon} ${p.name}</td><td style="text-align:center;">${b>0?b+'/'+spp+' ('+p2+'%)':'—'}</td><td>${s}${r.toLocaleString()}</td></tr>`;
   }).join('');
 
+  const existingActual=(actualRates[key]||{})[pi];
+
   document.getElementById('ipBody').innerHTML=`
     <div class="ip-stat">
       <div class="ip-stat-label">Occupancy</div>
@@ -515,6 +622,25 @@ function openInsight(key,pi,pct,rec,spp,booked){
       <div class="ip-stat-value" style="color:#e8896a;">${s}${rec.toLocaleString()} <span style="font-size:13px;color:rgba(255,255,255,0.3)">/ 1 guest</span></div>
       <div class="ip-stat-sub">${s}${rec2.toLocaleString()} per 2 guests · ${uplift>=0?'+':''}${s}${Math.round(Math.abs(uplift)).toLocaleString()} vs base ${uplift<0?'(discount)':''}</div>
     </div>
+
+    <!-- Rate Override -->
+    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:16px;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:600;color:var(--cream);margin-bottom:10px;">✏️ Set Your Rate</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="overrideInput" type="number" min="0"
+          value="${existingActual||''}"
+          placeholder="${rec}"
+          style="flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:8px 12px;font-size:14px;font-family:'DM Mono',monospace;color:#fff;font-weight:600;"
+        />
+        <button onclick="applyRateOverride('${key}',${pi})"
+          style="background:var(--terra);border:none;border-radius:6px;padding:8px 16px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;font-family:'Syne',sans-serif;white-space:nowrap;">
+          Apply Rate
+        </button>
+        ${existingActual?`<button onclick="clearRateOverride('${key}',${pi})" style="background:none;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:8px 10px;font-size:11px;color:rgba(255,255,255,0.5);cursor:pointer;">✕</button>`:''}
+      </div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:6px;">Sets the rate you'll charge in your booking system. Terrain tracks variance vs recommendation.</div>
+    </div>
+
     <div class="ip-rec">
       <div class="ip-rec-title">${pct>=100?'🔥 Surge — fully sold':pct>=85?'📈 Raise rate now':pct>=60?'✓ Hold pricing':pct>=30?'💡 Value-add promo':pct>=0?'📉 Discount to fill':'📋 Enter bookings'}</div>
       <div class="ip-rec-body">${advice}</div>
@@ -530,7 +656,321 @@ function openInsight(key,pi,pct,rec,spp,booked){
   `;
   document.getElementById('insightPanel').classList.add('open');
 }
+
+function applyRateOverride(key,pi){
+  const val=parseInt(document.getElementById('overrideInput').value);
+  if(isNaN(val)||val<=0) return;
+  if(!actualRates[key]) actualRates[key]={};
+  actualRates[key][pi]=val;
+  localStorage.setItem(ACTUAL_KEY,JSON.stringify(actualRates));
+  closeInsight();
+  renderGrid();
+}
+
+function clearRateOverride(key,pi){
+  if(actualRates[key]) delete actualRates[key][pi];
+  localStorage.setItem(ACTUAL_KEY,JSON.stringify(actualRates));
+  closeInsight();
+  renderGrid();
+}
 function closeInsight(){document.getElementById('insightPanel').classList.remove('open');}
+
+// ── Multi-property switcher ───────────────────────────────
+let allLodges=[];
+let activeLodgeId=null;
+let showComparison=false;
+let lastYearData={};
+
+async function loadProperties(){
+  try{
+    const res=await fetch('/api/lodges').then(r=>r.json());
+    allLodges=res.lodges||[];
+    activeLodgeId=res.activeLodgeId||null;
+    renderPropertySwitcher();
+  }catch(e){console.warn('Could not load lodges',e);}
+}
+
+function renderPropertySwitcher(){
+  const el=document.getElementById('propertySwitcher');
+  if(!el||allLodges.length<=1){if(el) el.style.display='none';return;}
+  el.style.display='flex';
+  el.innerHTML=allLodges.map(l=>{
+    const isActive=activeLodgeId?l.id===activeLodgeId:l===allLodges[0];
+    return`<button onclick="switchProperty(${l.id})"
+      style="padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-family:'Syne',sans-serif;white-space:nowrap;
+      background:${isActive?'rgba(196,97,58,0.15)':'none'};
+      color:${isActive?'var(--terra)':'rgba(255,255,255,0.4)'};
+      border:1px solid ${isActive?'rgba(196,97,58,0.4)':'rgba(255,255,255,0.15)'};">
+      ${l.name}
+    </button>`;
+  }).join('')+`<button onclick="window.location.href='/onboarding'"
+    style="padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-family:'Syne',sans-serif;
+    background:none;color:rgba(255,255,255,0.3);border:1px dashed rgba(255,255,255,0.15);">
+    + Add Property
+  </button>`;
+}
+
+async function switchProperty(lodgeId){
+  await fetch('/api/lodges/switch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lodgeId})});
+  window.location.reload();
+}
+
+// ── Month-over-month comparison ───────────────────────────
+function toggleComparison(){
+  showComparison=document.getElementById('momToggle').checked;
+  const slider=document.getElementById('momSlider');
+  const thumb=document.getElementById('momThumb');
+  if(showComparison){
+    slider.style.background='var(--terra)';
+    thumb.style.left='16px';
+    loadLastYearData();
+  } else {
+    slider.style.background='#ccc';
+    thumb.style.left='2px';
+    document.querySelectorAll('.cs-mom').forEach(el=>el.style.display='none');
+  }
+}
+
+async function loadLastYearData(){
+  const prevYear=currentYear-1;
+  const prevKey=`terrainCalendarV2_${prevYear}_${currentMonth}`;
+  try{
+    const saved=localStorage.getItem(prevKey);
+    if(saved){lastYearData=JSON.parse(saved);updateMoMDisplay();return;}
+  }catch{}
+  updateMoMDisplay();
+}
+
+function saveMonthSnapshot(){
+  const snapKey=`terrainCalendarV2_${currentYear}_${currentMonth}`;
+  localStorage.setItem(snapKey,JSON.stringify(occData));
+}
+
+function updateMoMDisplay(){
+  const s=sym();
+  const spp=spkg();
+  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
+  const mn=MONTHS[currentMonth];
+  let lyRev=0,lyOcc=0,lyDays=0,lySold=0,lySurge=0;
+  for(let d=1;d<=daysInMonth;d++){
+    const key=`${currentYear-1}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    if(!lastYearData[key]||Object.keys(lastYearData[key]).length===0) continue;
+    lyDays++;
+    const tot=packages.reduce((sum,_,i)=>sum+((lastYearData[key]||{})[i]||0),0);
+    const maxT=packages.length*spp;
+    const pct=Math.round((tot/maxT)*100);
+    lyOcc+=pct;
+    if(pct>=100) lySold++;
+    if(pct>=85&&pct<100) lySurge++;
+    packages.forEach((pkg,pi)=>{
+      const b=(lastYearData[key]||{})[pi]||0;
+      const p=Math.min(100,Math.round((b/spp)*100));
+      lyRev+=b*getRec(pkg.base_rate,p>=0?p:-1,key);
+    });
+  }
+  function momBadge(cur,ly){
+    if(!lyDays) return`<span style="color:rgba(255,255,255,0.25);">No data for ${currentYear-1}</span>`;
+    const diff=cur-ly;
+    const pct=ly>0?Math.round((diff/ly)*100):0;
+    const color=diff>=0?'#5a8c63':'#e8896a';
+    return`<span style="color:${color};font-weight:600;">${diff>=0?'↑':'↓'} ${Math.abs(pct)}% vs ${mn} ${currentYear-1}</span>`;
+  }
+  const curRev=parseInt((document.getElementById('sumRevenue').textContent||'').replace(/[^0-9]/g,''))||0;
+  const curOcc=parseInt(document.getElementById('sumOccupancy').textContent)||0;
+  const curSold=parseInt(document.getElementById('sumSoldOut').textContent)||0;
+  const curSurge=parseInt(document.getElementById('sumSurge').textContent)||0;
+  [{id:'momRevenue',cur:curRev,ly:lyRev},{id:'momOccupancy',cur:curOcc,ly:lyDays>0?Math.round(lyOcc/lyDays):0},
+   {id:'momSoldOut',cur:curSold,ly:lySold},{id:'momSurge',cur:curSurge,ly:lySurge}]
+  .forEach(({id,cur,ly})=>{const el=document.getElementById(id);if(el){el.style.display='block';el.innerHTML=momBadge(cur,ly);}});
+}
+
+function exportPDF(){
+  const s=sym();
+  const year=currentYear, month=currentMonth;
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const spp=spkg();
+  const mn=MONTHS[month];
+  const today=new Date();
+  const generatedDate=today.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+  // Compute summary stats
+  let totalRec=0, totalActual=0, totalBooked=0, daysWithData=0;
+  let soldOut=0, surgeDays=0, lotTotal=0, lotDays=0;
+
+  const rows=[];
+  for(let d=1;d<=daysInMonth;d++){
+    const key=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dt=new Date(year,month,d);
+    const dow=DAYS[dt.getDay()];
+    const isPast=dt<today&&dt.toDateString()!==today.toDateString();
+
+    packages.forEach((pkg,pi)=>{
+      const booked=(occData[key]||{})[pi];
+      const hasData=booked!==undefined&&booked!==null;
+      const pct=hasData?Math.min(100,Math.round((booked/spp)*100)):-1;
+      const rec=getRec(pkg.base_rate,pct,key);
+      const actual=(actualRates[key]||{})[pi];
+      const hasActual=actual!==undefined&&actual!==null;
+      const gap=hasActual?actual-rec:null;
+      const sig=getSignal(pct,key);
+
+      if(hasData){
+        daysWithData++;
+        totalRec+=booked*rec;
+        totalBooked+=booked;
+        if(pct>=100) soldOut++;
+        if(pct>=85&&pct<100) surgeDays++;
+      }
+      if(hasActual&&hasData){
+        totalActual+=booked*actual;
+        lotTotal+=gap*Math.max(booked,1);
+        lotDays++;
+      }
+
+      rows.push({d,dow,key,pkg,pi,pct,rec,actual:hasActual?actual:null,gap,sig,booked:hasData?booked:null,isPast});
+    });
+  }
+
+  const avgOcc=daysWithData>0?Math.round((totalBooked/(daysWithData*spp))*100):0;
+  const lotStr=lotDays>0?(lotTotal>=0?`+${s}${Math.round(lotTotal).toLocaleString()}`:`-${s}${Math.round(Math.abs(lotTotal)).toLocaleString()}`):'—';
+  const lotColor=lotTotal>=0?'#3a5c42':'#c4613a';
+
+  // Build package columns header
+  const pkgHeaders=packages.map(p=>`<th style="background:#1c1814;color:rgba(255,255,255,0.8);padding:8px 12px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;min-width:110px;">${p.icon} ${p.name}</th>`).join('');
+
+  // Build date rows
+  const dateRows=[];
+  // Group by date
+  for(let d=1;d<=daysInMonth;d++){
+    const key=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dt=new Date(year,month,d);
+    const dow=DAYS[dt.getDay()];
+    const isPast=dt<today&&dt.toDateString()!==today.toDateString();
+    const isToday=dt.toDateString()===today.toDateString();
+    const isWknd=dt.getDay()===0||dt.getDay()===6;
+    const rowBg=isToday?'#fff8f5':isWknd?'#faf7f2':'#ffffff';
+    const borderTop=isToday?'2px solid #c4613a':'1px solid #ede6d6';
+
+    const pkgCells=packages.map((pkg,pi)=>{
+      const booked=(occData[key]||{})[pi];
+      const hasData=booked!==undefined&&booked!==null;
+      const pct=hasData?Math.min(100,Math.round((booked/spp)*100)):-1;
+      const rec=getRec(pkg.base_rate,pct,key);
+      const actual=(actualRates[key]||{})[pi];
+      const hasActual=actual!==undefined&&actual!==null;
+      const gap=hasActual?actual-rec:null;
+      const sig=getSignal(pct,key);
+
+      const sigColor=pct>=100?'#c4613a':pct>=85?'#b8922a':pct>=60?'#3a5c42':pct>=0?'#4a7fa8':'#aaa';
+      const sigLabel=sig.label||'';
+
+      let cellHtml=`<div style="font-size:13px;font-weight:700;color:#1c1814;font-family:monospace;">${s}${rec.toLocaleString()}</div>`;
+      if(hasData) cellHtml+=`<div style="font-size:10px;color:${sigColor};font-weight:600;margin-top:1px;">${sigLabel} · ${pct}%</div>`;
+      if(hasActual){
+        const gapColor=gap>0?'#3a5c42':gap<0?'#c4613a':'#aaa';
+        cellHtml+=`<div style="font-size:10px;margin-top:3px;color:#666;">Actual: <strong style="color:#1c1814;">${s}${actual.toLocaleString()}</strong> <span style="color:${gapColor};font-weight:700;">${gap>0?'+':''}${s}${gap.toLocaleString()}</span></div>`;
+      }
+      return`<td style="padding:8px 12px;border-right:1px solid #ede6d6;vertical-align:top;opacity:${isPast?0.6:1};">${cellHtml}</td>`;
+    }).join('');
+
+    dateRows.push(`<tr style="background:${rowBg};border-top:${borderTop};">
+      <td style="padding:8px 12px;white-space:nowrap;border-right:1px solid #ede6d6;">
+        <div style="font-weight:700;font-size:12px;color:#1c1814;">${dow} ${d}</div>
+        ${isToday?'<div style="font-size:9px;color:#c4613a;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">Today</div>':''}
+      </td>
+      ${pkgCells}
+    </tr>`);
+  }
+
+  const html=`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>Terrain Rate Report — ${lodgeConfig.name} — ${mn} ${year}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Syne:wght@400;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Syne',sans-serif;background:#fff;color:#1c1814;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @media print{.no-print{display:none!important;}body{margin:0;}@page{margin:15mm;size:A4 landscape;}}
+</style>
+</head>
+<body>
+<!-- Print button -->
+<div class="no-print" style="position:fixed;top:16px;right:16px;z-index:100;display:flex;gap:8px;">
+  <button onclick="window.print()" style="background:#c4613a;color:#fff;border:none;border-radius:6px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;">🖨️ Print / Save PDF</button>
+  <button onclick="window.close()" style="background:none;border:1px solid #ddd;border-radius:6px;padding:10px 20px;font-size:13px;cursor:pointer;font-family:'Syne',sans-serif;">Close</button>
+</div>
+
+<!-- Header -->
+<div style="background:#1c1814;padding:28px 40px;display:flex;justify-content:space-between;align-items:flex-end;">
+  <div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.18em;margin-bottom:6px;">TERRAIN · Revenue Intelligence</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:500;color:#f5f0e8;">${lodgeConfig.name}</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:4px;">${lodgeConfig.type} · ${lodgeConfig.suites} suites · ${lodgeConfig.country}</div>
+  </div>
+  <div style="text-align:right;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:24px;color:#f5f0e8;">${mn} ${year}</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;">Rate Report · Generated ${generatedDate}</div>
+  </div>
+</div>
+
+<!-- Summary strip -->
+<div style="display:grid;grid-template-columns:repeat(5,1fr);border-bottom:2px solid #ede6d6;">
+  <div style="padding:16px 24px;border-right:1px solid #ede6d6;">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:#8a7d72;margin-bottom:4px;">Projected Revenue</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;">${daysWithData>0?s+Math.round(totalRec).toLocaleString():'—'}</div>
+    <div style="font-size:10px;color:#8a7d72;">${daysWithData} days with data</div>
+  </div>
+  <div style="padding:16px 24px;border-right:1px solid #ede6d6;">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:#8a7d72;margin-bottom:4px;">Avg Occupancy</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;">${avgOcc>0?avgOcc+'%':'—'}</div>
+    <div style="font-size:10px;color:#8a7d72;">Based on entered bookings</div>
+  </div>
+  <div style="padding:16px 24px;border-right:1px solid #ede6d6;">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:#8a7d72;margin-bottom:4px;">Sold Out Days</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:#c4613a;">${soldOut}</div>
+    <div style="font-size:10px;color:#8a7d72;">100% occupancy days</div>
+  </div>
+  <div style="padding:16px 24px;border-right:1px solid #ede6d6;">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:#8a7d72;margin-bottom:4px;">Surge Opportunities</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:#b8922a;">${surgeDays}</div>
+    <div style="font-size:10px;color:#8a7d72;">Days at 85%+ occupancy</div>
+  </div>
+  <div style="padding:16px 24px;">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:#8a7d72;margin-bottom:4px;">${lotTotal>=0?'Extra Revenue Captured':'Left on Table'}</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:${lotColor};">${lotStr}</div>
+    <div style="font-size:10px;color:#8a7d72;">${lotDays} days with actual rates</div>
+  </div>
+</div>
+
+<!-- Rate table -->
+<div style="padding:24px 40px 40px;overflow-x:auto;">
+  <table style="border-collapse:collapse;width:100%;font-size:12px;">
+    <thead>
+      <tr>
+        <th style="background:#1c1814;color:rgba(255,255,255,0.5);padding:8px 12px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;text-align:left;font-weight:400;min-width:80px;">Date</th>
+        ${pkgHeaders}
+      </tr>
+    </thead>
+    <tbody>
+      ${dateRows.join('')}
+    </tbody>
+  </table>
+</div>
+
+<!-- Footer -->
+<div style="padding:16px 40px;border-top:1px solid #ede6d6;display:flex;justify-content:space-between;font-size:10px;color:#aaa;">
+  <div>TERRAIN by TechSoftNexa LTD · getonterrain.com</div>
+  <div>Rates shown are Terrain recommendations. Actual rates entered by revenue manager where available.</div>
+</div>
+</body>
+</html>`;
+
+  const win=window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
 async function doLogout(){
   try{await fetch('/api/auth/logout',{method:'POST'});}catch{}
   localStorage.removeItem('terrainConfig');
