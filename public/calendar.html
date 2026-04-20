@@ -50,7 +50,7 @@
     .pkg-name{font-size:13px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .pkg-base{font-size:10px;color:var(--ink-muted);font-family:'DM Mono',monospace;margin-top:2px;}
     table.rate-grid tbody td.pkg-col{padding:14px 16px;}
-    table.rate-grid tbody td.rate-cell{text-align:center;padding:0;vertical-align:top;border-right:1px solid var(--border);cursor:pointer;transition:background 0.1s;min-width:76px;}
+    table.rate-grid tbody td.rate-cell{text-align:center;padding:0;vertical-align:top;border-right:1px solid var(--border);cursor:pointer;transition:background 0.1s;min-width:90px;}
     table.rate-grid tbody td.rate-cell:hover{background:var(--parchment);}
     table.rate-grid tbody td.rate-cell.today-col{background:rgba(196,97,58,0.05);}
     table.rate-grid tbody td.rate-cell.past-col{opacity:0.5;}
@@ -484,7 +484,7 @@ function renderGrid(){
             placeholder="" title="Single guest actual rate"
             onblur="updateActual('${key}',${pi},'s',this.value)"
             onclick="event.stopPropagation()"
-            style="width:42px;"
+            style="width:54px;"
           />
         </div>
         <div style="display:flex;align-items:center;gap:1px;">
@@ -494,7 +494,7 @@ function renderGrid(){
             placeholder="" title="Double guest actual rate"
             onblur="updateActual('${key}',${pi},'d',this.value)"
             onclick="event.stopPropagation()"
-            style="width:42px;"
+            style="width:54px;"
           />
         </div>
         ${gapS!==null?`<div class="${gapS>0?'rc-gap-pos':gapS<0?'rc-gap-neg':'rc-gap-zero'}" style="font-size:8px;">${gapS>0?'+':''}${s}${Math.abs(gapS).toLocaleString()}</div>`:''}
