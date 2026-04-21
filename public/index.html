@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terrain — Experience Revenue Intelligence</title>
+  <meta name="description" content="Terrain helps luxury safari lodges stop leaving money on the table. Dynamic rate intelligence built for the safari package model." />
+  <meta property="og:title" content="Terrain — Experience Revenue Intelligence" />
+  <meta property="og:description" content="The revenue intelligence platform built for luxury safari lodges." />
+  <meta property="og:image" content="/og-image.png" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:    #f5f0e8;
+      --parchment:#ede6d6;
+      --warm-bg:  #faf7f2;
+      --ink:      #1c1814;
+      --ink-soft: #3d3530;
+      --ink-muted:#8a7d72;
+      --ink-faint:#c4b9ad;
+      --border:   #ddd4c4;
+      --terracotta:#c4613a;
+      --terra-lt: #e8896a;
+      --forest:   #3a5c42;
+      --gold:     #b8922a;
+      --sky:      #3a5878;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--warm-bg);
+      color: var(--ink);
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px;
+      height: 64px;
+      background: rgba(250, 247, 242, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex; align-items: center; gap: 32px;
+    }
+
+    .nav-links a {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--ink); }
+
+    .btn-nav {
+      background: var(--terracotta) !important;
+      color: #fff !important;
+      padding: 9px 20px;
+      border-radius: 4px;
+      font-size: 11px !important;
+      letter-spacing: 0.1em;
+    }
+
+    .btn-nav:hover { background: var(--terra-lt) !important; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 48px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: 'TERRAIN';
+      position: absolute;
+      bottom: -40px; left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(120px, 20vw, 260px);
+      font-weight: 700;
+      color: rgba(196, 97, 58, 0.04);
+      letter-spacing: -4px;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+    }
+
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(48px, 7vw, 96px);
+      font-weight: 300;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      max-width: 900px;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.4s;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--terracotta);
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: var(--ink-muted);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.6s;
+    }
+
+    .hero-ctas {
+      display: flex; gap: 16px; align-items: center;
+      flex-wrap: wrap; justify-content: center;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.8s;
+    }
+
+    .btn-primary {
+      background: var(--terracotta);
+      color: #fff;
+      padding: 16px 36px;
+      border-radius: 4px;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-primary:hover { background: var(--terra-lt); transform: translateY(-1px); }
+
+    .btn-ghost {
+      color: var(--ink-muted);
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .btn-ghost:hover { color: var(--ink); border-color: var(--ink); }
+
+    .hero-note {
+      margin-top: 20px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--ink-faint);
+      letter-spacing: 0.05em;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1s;
+    }
+
+    /* ── STAT BAR ── */
+    .stat-bar {
+      background: var(--ink);
+      padding: 28px 48px;
+      display: flex; justify-content: center; gap: 80px;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 42px;
+      font-weight: 600;
+      color: var(--terracotta);
+      line-height: 1;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-top: 6px;
+      display: block;
+    }
+
+    /* ── SECTION SHARED ── */
+    section {
+      padding: 100px 48px;
+    }
+
+    .section-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 4vw, 56px);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin-bottom: 20px;
+    }
+
+    .section-title em { font-style: italic; color: var(--terracotta); }
+
+    .section-body {
+      font-size: 16px;
+      color: var(--ink-muted);
+      line-height: 1.8;
+      max-width: 560px;
+    }
+
+    /* ── PROBLEM ── */
+    .problem {
+      background: var(--parchment);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .problem-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .problem-visual {
+      background: var(--ink);
+      border-radius: 8px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .problem-visual::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 30% 50%, rgba(196,97,58,0.15), transparent 60%);
+    }
+
+    .calc-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 24px;
+    }
+
+    .calc-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .calc-row:last-child { border-bottom: none; }
+
+    .calc-key {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .calc-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .calc-val.highlight { color: var(--terracotta); }
+    .calc-val.green { color: #7ab87c; }
+
+    .calc-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.15);
+      margin: 8px 0;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .how-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: end;
+      margin-bottom: 72px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .step {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      padding: 40px 32px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+
+    .step:hover { border-color: var(--terracotta); }
+
+    .step-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 64px;
+      font-weight: 300;
+      color: var(--border);
+      line-height: 1;
+      margin-bottom: 24px;
+    }
+
+    .step h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+
+    .step p {
+      font-size: 14px;
+      color: var(--ink-muted);
+      line-height: 1.7;
+    }
+
+    /* ── FEATURES ── */
+    .features {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .features-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .features-header {
+      margin-bottom: 64px;
+    }
+
+    .features-header .section-title { color: #fff; }
+    .features-header .section-body { color: rgba(255,255,255,0.45); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .feature-card {
+      background: var(--ink);
+      padding: 40px 32px;
+      transition: background 0.2s;
+    }
+
+    .feature-card:hover { background: #252019; }
+
+    .feature-icon {
+      font-size: 28px;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.7;
+    }
+
+    /* ── ROI ── */
+    .roi {
+      background: var(--terracotta);
+      text-align: center;
+      padding: 80px 48px;
+    }
+
+    .roi h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(42px, 6vw, 80px);
+      font-weight: 400;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .roi p {
+      font-size: 17px;
+      color: rgba(255,255,255,0.75);
+      max-width: 480px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    .roi .btn-white {
+      background: #fff;
+      color: var(--terracotta);
+      padding: 16px 40px;
+      border-radius: 4px;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: inline-block;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .roi .btn-white:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ── FOUNDING ── */
+    .founding {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .founding-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--terracotta);
+      margin-bottom: 32px;
+    }
+
+    .founding .section-title { font-size: clamp(32px, 4vw, 52px); }
+
+    .founding-perks {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 40px 0;
+    }
+
+    .founding-perk {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      padding: 20px 28px;
+      border-radius: 4px;
+      text-align: left;
+      min-width: 200px;
+    }
+
+    .founding-perk-icon { font-size: 22px; margin-bottom: 10px; }
+
+    .founding-perk h4 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .founding-perk p {
+      font-size: 12px;
+      color: var(--ink-muted);
+    }
+
+    .founding-counter {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--ink-muted);
+      letter-spacing: 0.08em;
+      margin-top: 16px;
+    }
+
+    .founding-counter span {
+      color: var(--terracotta);
+      font-weight: 500;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink);
+      padding: 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+    }
+
+    .footer-links {
+      display: flex; gap: 28px; flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.35);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: rgba(255,255,255,0.7); }
+
+    .footer-copy {
+      font-size: 11px;
+      color: rgba(255,255,255,0.2);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 0 24px; }
+      .nav-links a:not(.btn-nav) { display: none; }
+
+      section { padding: 72px 24px; }
+
+      .problem-inner,
+      .how-header { grid-template-columns: 1fr; gap: 40px; }
+
+      .steps,
+      .features-grid { grid-template-columns: 1fr; }
+
+      .stat-bar { gap: 40px; padding: 28px 24px; }
+
+      footer { padding: 40px 24px; flex-direction: column; align-items: flex-start; }
+
+      .hero { padding: 100px 24px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">TERRAIN</a>
+  <div class="nav-links">
+    <a href="/pricing.html">Pricing</a>
+    <a href="/login.html">Sign In</a>
+    <a href="/onboarding.html" class="btn-nav">Start Free Trial</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">Revenue Intelligence for Safari Lodges</p>
+  <h1>Stop leaving<br><em>$40,000 a year</em><br>on the table.</h1>
+  <p class="hero-sub">Terrain gives luxury safari lodges the dynamic pricing intelligence that hotels use — built specifically for the safari package model.</p>
+  <div class="hero-ctas">
+    <a href="/onboarding.html" class="btn-primary">Start 90-Day Free Trial</a>
+    <a href="/pricing.html" class="btn-ghost">See pricing →</a>
+  </div>
+  <p class="hero-note">No credit card required · Setup in under 2 minutes · Cancel anytime</p>
+</section>
+
+<!-- STAT BAR -->
+<div class="stat-bar">
+  <div class="stat-item">
+    <span class="stat-number">11×</span>
+    <span class="stat-label">Average ROI</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-number">90</span>
+    <span class="stat-label">Days Free Trial</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-number">2 min</span>
+    <span class="stat-label">Setup Time</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-number">$0</span>
+    <span class="stat-label">Due Today</span>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem">
+  <div class="problem-inner">
+    <div class="reveal">
+      <p class="section-eyebrow">The Problem</p>
+      <h2 class="section-title">Flat rates are<br><em>costing you</em><br>real money.</h2>
+      <p class="section-body">Most safari lodges charge the same rate on a quiet Tuesday in low season as they do on a peak Saturday in August. Duetto and IDeaS cost $2–5K per month and weren't built for the safari package model. Terrain was.</p>
+    </div>
+    <div class="problem-visual reveal">
+      <p class="calc-label">Revenue Gap Calculator</p>
+      <div class="calc-row">
+        <span class="calc-key">Annual revenue</span>
+        <span class="calc-val">$800,000</span>
+      </div>
+      <div class="calc-row">
+        <span class="calc-key">Smarter pricing (5%)</span>
+        <span class="calc-val highlight">+ $40,000</span>
+      </div>
+      <div class="calc-divider"></div>
+      <div class="calc-row">
+        <span class="calc-key">Terrain annual cost</span>
+        <span class="calc-val" style="color:rgba(255,255,255,0.4)">$3,588</span>
+      </div>
+      <div class="calc-row">
+        <span class="calc-key">Net gain</span>
+        <span class="calc-val green">$36,412</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section>
+  <div class="how">
+    <div class="how-header reveal">
+      <div>
+        <p class="section-eyebrow">How It Works</p>
+        <h2 class="section-title">Live in<br><em>2 minutes.</em></h2>
+      </div>
+      <p class="section-body">No integrations. No IT department. No week-long onboarding. Enter your lodge details once and Terrain starts working immediately.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <h3>Set Up Your Property</h3>
+        <p>Enter your lodge name, number of suites, your packages — Classic Safari, Honeymoon, Fly-In — and your base rates.</p>
+      </div>
+      <div class="step reveal" style="transition-delay: 0.1s">
+        <div class="step-num">02</div>
+        <h3>See Your Rate Calendar</h3>
+        <p>Terrain generates a full rate calendar with occupancy-based recommendations, signal badges, and revenue gap calculations.</p>
+      </div>
+      <div class="step reveal" style="transition-delay: 0.2s">
+        <div class="step-num">03</div>
+        <h3>Capture More Revenue</h3>
+        <p>Adjust rates per package per day. Terrain shows you exactly how much revenue you're leaving on the table — and how to capture it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="features-inner">
+    <div class="features-header reveal">
+      <p class="section-eyebrow">Features</p>
+      <h2 class="section-title">Built for how<br><em>safari lodges</em> actually work.</h2>
+      <p class="section-body">Not a hotel tool. Not a spreadsheet. A purpose-built revenue intelligence platform for the safari package model.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <span class="feature-icon">📅</span>
+        <h3>Rate Calendar</h3>
+        <p>Per-package pricing per day. Not a shared total row. Actual rate inputs with occupancy-based recommendations built in.</p>
+      </div>
+      <div class="feature-card reveal" style="transition-delay:0.1s">
+        <span class="feature-icon">📊</span>
+        <h3>Signal Badges</h3>
+        <p>SOLD. SURGE. HOLD. PROMO. LOW. Know at a glance what each day needs so you never miss a revenue opportunity.</p>
+      </div>
+      <div class="feature-card reveal" style="transition-delay:0.2s">
+        <span class="feature-icon">💰</span>
+        <h3>Revenue Gap Analysis</h3>
+        <p>See exactly how much money you're leaving on the table — down to the day, per package, across your entire season.</p>
+      </div>
+      <div class="feature-card reveal" style="transition-delay:0.3s">
+        <span class="feature-icon">📈</span>
+        <h3>Live Dashboard</h3>
+        <p>Real KPIs from your calendar data: occupancy, sold-out days, surge opportunities, and average daily rate.</p>
+      </div>
+      <div class="feature-card reveal" style="transition-delay:0.4s">
+        <span class="feature-icon">📄</span>
+        <h3>PDF Export</h3>
+        <p>Export your rate calendar for any date range. Share with your reservations team or keep for your records.</p>
+      </div>
+      <div class="feature-card reveal" style="transition-delay:0.5s">
+        <span class="feature-icon">⚡</span>
+        <h3>Instant Setup</h3>
+        <p>No integrations required. Works with your existing reservations system. Up and running in under 2 minutes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROI BAND -->
+<section class="roi">
+  <h2>A lodge doing $800K/year<br>that prices 5% smarter<br>earns $40K extra.</h2>
+  <p>Terrain costs $3,588/year. That's an 11× return — before your second guest checks in.</p>
+  <a href="/onboarding.html" class="btn-white">Start Your Free Trial</a>
+</section>
+
+<!-- FOUNDING LODGE -->
+<section>
+  <div class="founding">
+    <div class="founding-badge reveal">🌿 Founding Lodge Offer</div>
+    <h2 class="section-title reveal">Lock in your rate.<br><em>Forever.</em></h2>
+    <p class="section-body reveal" style="margin: 0 auto 0; text-align:center">Register within your 90-day trial and lock in your plan rate for 12 months.</p>
+    <div class="founding-perks">
+      <div class="founding-perk reveal">
+        <div class="founding-perk-icon">🔒</div>
+        <h4>Rate Lock</h4>
+        <p>Your price never increases for 12 months</p>
+      </div>
+      <div class="founding-perk reveal" style="transition-delay:0.1s">
+        <div class="founding-perk-icon">🚀</div>
+        <h4>Early Access</h4>
+        <p>Every new feature, at no extra charge</p>
+      </div>
+      <div class="founding-perk reveal" style="transition-delay:0.2s">
+        <div class="founding-perk-icon">🎯</div>
+        <h4>Shape the Product</h4>
+        <p>Direct line to the founding team</p>
+      </div>
+    </div>
+    <p class="founding-counter reveal">This offer ends when we reach <span>50 founding lodges.</span></p>
+    <br><br>
+    <a href="/onboarding.html" class="btn-primary reveal" style="display:inline-block; white-space:nowrap;">Claim Founding Lodge Spot</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="/" class="footer-logo">TERRAIN</a>
+  <div class="footer-links">
+    <a href="/pricing.html">Pricing</a>
+    <a href="/login.html">Sign In</a>
+    <a href="/register.html">Register</a>
+    <a href="/terms.html">Terms</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/refund.html">Refund Policy</a>
+  </div>
+  <p class="footer-copy">© 2026 Techsoftnexa LTD · Terrain is a product of Techsoftnexa LTD, registered in Ghana</p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
