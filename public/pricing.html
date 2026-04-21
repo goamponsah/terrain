@@ -104,6 +104,18 @@
       .hero-title{font-size:38px;}
     }
   </style>
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+  <script>
+    Paddle.Environment.set('production');
+    Paddle.Initialize({ token: 'live_5f87031cdb3a0d10433e8676ab6' });
+    function subscribePlan(priceId) {
+      Paddle.Checkout.open({
+        items: [{ priceId: priceId, quantity: 1 }],
+        successUrl: 'https://getonterrain.com/dashboard',
+        customData: { source: 'pricing_page' }
+      });
+    }
+  </script>
 </head>
 <body>
 
@@ -191,7 +203,7 @@
           <span class="feat-text">Email support</span>
         </div>
       </div>
-      <a href="/register" class="plan-cta">Start 90-day free trial</a>
+      <button onclick="subscribePlan('pri_01kpr30n4mara8vb8z4n7bsne0')" class="plan-cta">Start 90-day free trial</button>
     </div>
 
     <!-- Growth (featured) -->
@@ -228,7 +240,7 @@
           <span class="feat-text">Priority support <span class="soon-tag">Soon</span></span>
         </div>
       </div>
-      <a href="/register" class="plan-cta">Start 90-day free trial</a>
+      <button onclick="subscribePlan('pri_01kpr38n93bkf232chqhp2919q')" class="plan-cta">Start 90-day free trial</button>
     </div>
 
     <!-- Portfolio -->
@@ -261,7 +273,7 @@
           <span class="feat-text">Dedicated account manager <span class="soon-tag">Soon</span></span>
         </div>
       </div>
-      <a href="/register" class="plan-cta">Start 90-day free trial</a>
+      <button onclick="subscribePlan('pri_01kpr3ck1stnaeye6599wme271')" class="plan-cta">Start 90-day free trial</button>
     </div>
 
   </div>
@@ -283,7 +295,7 @@
 <div class="pricing-note">
   All plans include a 90-day free trial — no credit card required.<br/>
   Features marked <span style="background:rgba(184,146,42,0.12);color:var(--gold);border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700;">SOON</span> are on the active roadmap and will be available to all subscribers on that plan at no extra charge.<br/>
-  Terrain is a product of <a href="https://getonterrain.com">TechSoftNexa LTD</a>, registered in Ghana.
+  Terrain is a product of <a href="https://getonterrain.com">TechSoftNexa LTD</a>, registered in Ghana &nbsp;·&nbsp; © 2026 TechSoftNexa LTD
   <br/><br/>
   <a href="/terms">Terms</a> &nbsp;·&nbsp; <a href="/privacy">Privacy</a> &nbsp;·&nbsp; <a href="/refund">Refund Policy</a>
 </div>

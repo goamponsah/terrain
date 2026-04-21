@@ -500,6 +500,84 @@ app.get('/terms', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ter
 app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'public', 'privacy.html')));
 app.get('/refund', (req, res) => res.sendFile(path.join(__dirname, 'public', 'refund.html')));
 
+// ── Paddle Webhook ─────────────────────────────────────────────
+const PADDLE_WEBHOOK_SECRET = 'pdl_ntfset_01kpr568jvcc2y2fk6r3vceh9k_l+Oa5J76ZyVhHuOWwtkwRBrsrif79WLY';
+
+app.post('/api/paddle/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+  try {
+    // Verify signature
+    const signature = req.headers['paddle-signature'];
+    if (signature && PADDLE_WEBHOOK_SECRET) {
+      const crypto = require('crypto');
+      const [tsPart, h1Part] = signature.split(';');
+      const ts = tsPart.replace('ts=', '');
+      const h1 = h1Part.replace('h1=', '');
+      const signed = crypto.createHmac('sha256', PADDLE_WEBHOOK_SECRET)
+        .update(ts + ':' + req.body.toString())
+        .digest('hex');
+      if (signed !== h1) {
+        console.warn('Paddle webhook signature mismatch');
+        return res.status(401).json({ error: 'Invalid signature' });
+      }
+    }
+
+    const payload = JSON.parse(req.body.toString());
+    const eventType = payload.event_type || payload.alert_name;
+    const data = payload.data || payload;
+
+    // Map Paddle price IDs to plan names
+    const planMap = {
+      'pri_01kpr30n4mara8vb8z4n7bsne0': 'starter',
+      'pri_01kpr38n93bkf232chqhp2919q': 'growth',
+      'pri_01kpr3ck1stnaeye6599wme271': 'portfolio'
+    };
+
+    if (eventType === 'subscription.activated' || eventType === 'subscription.updated') {
+      const email = data.customer?.email || data.email;
+      const priceId = data.items?.[0]?.price?.id || data.subscription_plan_id;
+      const plan = planMap[priceId] || 'starter';
+      const paddleSubId = data.id || data.subscription_id;
+
+      if (email) {
+        await pool.query(
+          `UPDATE users SET plan = $1, paddle_subscription_id = $2, plan_status = 'active' WHERE email = $3`,
+          [plan, paddleSubId, email]
+        );
+        console.log(`Plan activated: ${email} → ${plan}`);
+      }
+    }
+
+    if (eventType === 'subscription.cancelled' || eventType === 'subscription.canceled') {
+      const email = data.customer?.email || data.email;
+      if (email) {
+        await pool.query(
+          `UPDATE users SET plan = 'trial', plan_status = 'cancelled' WHERE email = $1`,
+          [email]
+        );
+        console.log(`Subscription cancelled: ${email}`);
+      }
+    }
+
+    if (eventType === 'transaction.completed') {
+      const email = data.customer?.email || data.email;
+      const priceId = data.items?.[0]?.price?.id;
+      const plan = planMap[priceId];
+      if (email && plan) {
+        await pool.query(
+          `UPDATE users SET plan = $1, plan_status = 'active' WHERE email = $2`,
+          [plan, email]
+        );
+        console.log(`Payment completed: ${email} → ${plan}`);
+      }
+    }
+
+    res.json({ received: true });
+  } catch (err) {
+    console.error('Paddle webhook error:', err);
+    res.status(400).json({ error: 'Webhook error' });
+  }
+});
+
 // Start
 initDB().then(() => migrateDB()).then(() => {
   app.listen(PORT, () => console.log(`Terrain running on port ${PORT}`));
@@ -529,6 +607,8 @@ async function migrateDB() {
     `);
     // Add active_lodge_id column if not exists
     await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS active_lodge_id INTEGER REFERENCES lodges(id) ON DELETE SET NULL`);
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS paddle_subscription_id VARCHAR(100)`);
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_status VARCHAR(20) DEFAULT 'trial'`);
     console.log('Migration complete');
   } catch (err) {
     console.error('Migration error:', err.message);
