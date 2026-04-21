@@ -92,7 +92,7 @@
 <script>
   // If already logged in, redirect
   fetch('/api/auth/me').then(r => r.json()).then(d => {
-    if (d.user) window.location.href = d.hasLodge ? '/dashboard' : '/onboarding';
+    if (d.user) window.location.href = '/dashboard';
   }).catch(() => {});
 
   document.getElementById('password').addEventListener('keydown', e => {
@@ -119,6 +119,11 @@
       });
       const data = await res.json();
       if (data.success) {
+        // Clear localStorage so previous user's data doesn't show
+        localStorage.removeItem('terrainConfig');
+        localStorage.removeItem('terrainCalendarV2');
+        localStorage.removeItem('terrainActualRates');
+        localStorage.removeItem('terrainManualBooked');
         // Check if they have a lodge
         const me = await fetch('/api/auth/me').then(r => r.json());
         window.location.href = me.hasLodge ? '/dashboard' : '/onboarding';
@@ -140,5 +145,9 @@
     err.style.display = 'block';
   }
 </script>
+
+<div style="text-align:center;padding:20px 24px 32px;font-size:11px;color:#a09890;font-family:'Syne',sans-serif;border-top:1px solid #e8ddd0;margin-top:40px;">
+  © 2026 TechSoftNexa LTD &nbsp;·&nbsp; Terrain is a product of TechSoftNexa LTD, registered in Ghana
+</div>
 </body>
 </html>

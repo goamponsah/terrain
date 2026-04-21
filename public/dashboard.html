@@ -285,38 +285,21 @@
     </div>
     <nav class="nav">
       <div class="nav-label">Revenue</div>
-      <a class="nav-item active" href="/dashboard">
+      <a class="nav-item" href="/dashboard">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         Overview
       </a>
-      <a class="nav-item" href="/packages">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
-        Experience Packages
+      <a class="nav-item" href="/calendar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Rate Calendar
       </a>
-      <a class="nav-item" href="/forecast">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
-        Demand & Weather
-      </a>
-      <a class="nav-item" href="/channels">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
-        Channel Mix
-      </a>
-      <div class="nav-label">Settings</div>
-      <div class="nav-item" onclick="window.location.href='/onboarding'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-        Property Settings
-      </div>
+
     </nav>
     <div class="sidebar-footer">
-      <div class="weather-mini">
-        <div class="wm-temp" id="weatherTemp">—</div>
-        <div class="wm-info" id="weatherInfo">—</div>
-      </div>
       <div class="user-mini">
         <div class="avatar" id="userAvatar">?</div>
         <div style="flex:1;">
           <div class="user-name" id="userName">—</div>
-          <div class="user-role-label">Revenue Manager</div>
         </div>
         <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);border-radius:5px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:'Syne',sans-serif;flex-shrink:0;transition:all 0.15s;" onmouseover="this.style.borderColor='rgba(196,97,58,0.5)';this.style.color='#e8896a'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.4)'">Log out</button>
       </div>
@@ -331,8 +314,6 @@
       </div>
       <div class="topbar-right">
         <div class="date-chip" id="topbarDate">—</div>
-        <button class="btn-ghost" onclick="window.location.href='/onboarding'">Edit Setup</button>
-        <button class="btn-primary" id="pushPricingBtn" onclick="doPushPricing(this)">Push Pricing</button>
       </div>
     </div>
 
@@ -357,11 +338,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           currency: lodgeData.lodge.currency || 'USD',
           country: lodgeData.lodge.country,
           type: lodgeData.lodge.property_type,
-          packages: (lodgeData.packages || []).map(p => p.name || p),
-          channels: (lodgeData.channels || []).map(c => c.name || c)
+          packages: (lodgeData.packages || []).map(p => ({ name: p.name || p, base_rate: p.base_rate })),
+          channels: (lodgeData.channels || []).map(c => c.name || c),
+          userEmail: me.user.email
         };
         buildDashboard(cfg);
         if (me.trial && me.trial.daysRemaining <= 30) showTrialBanner(me.trial.daysRemaining);
+        return;
+      } else {
+        // Logged in but no lodge — go to onboarding
+        window.location.href = '/onboarding';
         return;
       }
     }
@@ -370,16 +356,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const raw = localStorage.getItem('terrainConfig');
     if (!raw) { window.location.href = '/onboarding'; return; }
     const config = JSON.parse(raw);
+    if (!config || !config.name) { window.location.href = '/onboarding'; return; }
     buildDashboard(config);
 
-    // Show save banner for guests
     if (!me.user) showSaveBanner(config.name);
 
   } catch (err) {
-    const raw = localStorage.getItem('terrainConfig');
-    if (!raw) { window.location.href = '/onboarding'; return; }
-    buildDashboard(JSON.parse(raw));
-    showSaveBanner('');
+    console.error('Dashboard load error:', err);
+    try {
+      const raw = localStorage.getItem('terrainConfig');
+      if (raw) {
+        const config = JSON.parse(raw);
+        if (config && config.name) { buildDashboard(config); return; }
+      }
+    } catch(e) {}
+    window.location.href = '/onboarding';
   }
 });
 
@@ -479,353 +470,160 @@ function showSaveBanner(propertyName) {
   document.body.appendChild(banner);
 }
 
+function goTo(path){ window.location.href = '/' + path; }
+
 function buildDashboard(cfg) {
+  try {
+  if (!cfg || !cfg.name) { window.location.href = '/onboarding'; return; }
   const sym = cfg.currency === 'ZAR' ? 'R' : cfg.currency === 'BWP' ? 'P' : cfg.currency === 'EUR' ? '€' : cfg.currency === 'GBP' ? '£' : '$';
   const suites = parseInt(cfg.suites) || 24;
+  const userEmail = cfg.userEmail || '';
 
-  // Defensive defaults
   cfg.packages = cfg.packages || [];
   cfg.channels = cfg.channels || [];
-  cfg.name = cfg.name || 'Your Lodge';
-  cfg.country = cfg.country || 'Kenya';
-  cfg.type = cfg.type || 'Safari Lodge';
 
-  // Sidebar
+  // Sidebar — use email for avatar and name, nothing else
+  const emailName = userEmail.split('@')[0] || cfg.name;
+  const emailInitials = emailName.slice(0,2).toUpperCase();
+  document.getElementById('userAvatar').textContent = emailInitials;
+  document.getElementById('userName').textContent = emailName;
   document.getElementById('sidePropName').textContent = cfg.name;
-  document.getElementById('sidePropMeta').textContent = `${cfg.type} · ${cfg.suites} suites · ${cfg.country}`;
-  document.getElementById('topbarTitle').textContent = `Welcome back — ${cfg.name}`;
+  document.getElementById('sidePropMeta').textContent = (cfg.type || 'Safari Lodge') + ' · ' + suites + ' suites · ' + (cfg.country || '');
+  document.getElementById('topbarTitle').textContent = 'Welcome back — ' + cfg.name;
 
-  // ---- Smart occupancy based on country + current month ----
+  // Date range label
   const now = new Date();
-  const month = now.getMonth() + 1; // 1-12
-  const dateLabel = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const endDate = new Date(now); endDate.setDate(endDate.getDate() + 30);
-  const endLabel = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  document.getElementById('topbarDate').textContent = `${dateLabel} – ${endLabel}`;
+  const endDate = new Date(now); endDate.setDate(now.getDate() + 30);
+  const fmtOpts = { month: 'short', day: 'numeric', year: '2-digit' };
+  document.getElementById('topbarDate').textContent = now.toLocaleDateString('en-GB', fmtOpts) + ' – ' + endDate.toLocaleDateString('en-GB', fmtOpts);
 
-  // Season occupancy by country and month
-  function getSeasonOccupancy(country, month) {
-    const seasons = {
-      'Kenya': {
-        peak: [1,2,7,8,9,10], // Jan-Feb (dry), Jul-Oct (migration)
-        high: [12,3],
-        shoulder: [4,11],
-        low: [5,6]
-      },
-      'Tanzania': {
-        peak: [1,2,7,8,9],
-        high: [10,12],
-        shoulder: [3,11],
-        low: [4,5,6]
-      },
-      'South Africa': {
-        peak: [6,7,8,9],
-        high: [5,10,11],
-        shoulder: [4,12],
-        low: [1,2,3]
-      },
-      'Botswana': {
-        peak: [7,8,9,10],
-        high: [6,11],
-        shoulder: [5,12],
-        low: [1,2,3,4]
-      },
-      'Zimbabwe': {
-        peak: [7,8,9,10],
-        high: [6,11],
-        shoulder: [5,12],
-        low: [1,2,3,4]
+  // Real calendar data
+  // Clear stale localStorage if it belongs to a different lodge
+  const storedConfig = localStorage.getItem('terrainConfig');
+  if (storedConfig) {
+    try {
+      const stored = JSON.parse(storedConfig);
+      if (stored.name && cfg.name && stored.name !== cfg.name) {
+        localStorage.removeItem('terrainCalendarV2');
+        localStorage.removeItem('terrainActualRates');
+        localStorage.removeItem('terrainManualBooked');
+        localStorage.setItem('terrainConfig', JSON.stringify({name:cfg.name}));
       }
-    };
-
-    const occupancyRates = { peak: 0.92, high: 0.82, shoulder: 0.67, low: 0.45 };
-    const seasonLabels = { peak: 'Peak season', high: 'High season', shoulder: 'Shoulder season', low: 'Low season' };
-
-    const s = seasons[country] || seasons['Kenya'];
-    let seasonKey = 'shoulder';
-    for (const [key, months] of Object.entries(s)) {
-      if (months.includes(month)) { seasonKey = key; break; }
-    }
-    return {
-      rate: occupancyRates[seasonKey],
-      label: seasonLabels[seasonKey],
-      pct: Math.round(occupancyRates[seasonKey] * 100)
-    };
+    } catch(e) {}
   }
 
-  const season = getSeasonOccupancy(cfg.country, month);
+  const calRaw = localStorage.getItem('terrainCalendarV2');
+  const calData = calRaw ? JSON.parse(calRaw) : {};
+  const year = now.getFullYear(), month = now.getMonth();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const spp = Math.max(1, Math.floor(suites / Math.max(1, cfg.packages.length)));
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-  // Use actual occupancy if lodge provided it, otherwise use seasonal estimate
-  const actualOcc = cfg.actualOccupancyPct;
-  const occupancy = actualOcc ? actualOcc / 100 : season.rate;
-  const occupancyLabel = actualOcc
-    ? `${actualOcc}% · actual this month`
-    : `${season.pct}% · ${season.label} est.`;
-  const occupancyDisplay = actualOcc ? `${actualOcc}%` : `${season.pct}%`;
-
-  // Use actual nightly rate if provided, otherwise use property type default
-  function getBaseRate(packages) {
-    if (cfg.currentNightlyRate && cfg.currentNightlyRate > 0) return cfg.currentNightlyRate;
-    if (!packages || packages.length === 0) return 450;
-    const typeRates = {
-      'Safari Lodge': 480, 'Tented Camp': 420, 'Private Ranch': 650,
-      'Ski Resort': 550, 'Wellness Retreat': 380, 'Yacht Charter': 1200, 'default': 450
-    };
-    return typeRates[cfg.type] || typeRates['default'];
+  let daysWithData = 0, soldOut = 0, surgeDays = 0, totalBooked = 0;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    if (!calData[key] || Object.keys(calData[key]).length === 0) continue;
+    daysWithData++;
+    const tot = Object.values(calData[key]).reduce((s,v) => s + (parseInt(v)||0), 0);
+    const maxT = Math.max(1, cfg.packages.length) * spp;
+    const pct = Math.round((tot / maxT) * 100);
+    if (pct >= 100) soldOut++;
+    if (pct >= 85 && pct < 100) surgeDays++;
+    totalBooked += tot;
   }
-  const baseRate = getBaseRate(cfg.packages);
-  const totalRev = Math.round(suites * baseRate * 30 * occupancy);
-  const revpas = Math.round(baseRate * occupancy);
-  const uplift = Math.round(totalRev * 0.08);
+  const avgOcc = daysWithData > 0 ? Math.round((totalBooked / (daysWithData * suites)) * 100) : null;
 
-  // Update weather info with season context
-  const weatherMap = {
-    'Kenya': ['24°C', `☀️ ${season.label} · ${season.pct}% est. occupancy`],
-    'Tanzania': ['26°C', `☀️ ${season.label} · ${season.pct}% est. occupancy`],
-    'South Africa': ['18°C', `🌤️ ${season.label} · ${season.pct}% est. occupancy`],
-    'Botswana': ['29°C', `☀️ ${season.label} · ${season.pct}% est. occupancy`],
-    'Zimbabwe': ['25°C', `☀️ ${season.label} · ${season.pct}% est. occupancy`],
-    'default': ['22°C', `🌤️ ${season.label} · ${season.pct}% est. occupancy`]
-  };
-  const w = weatherMap[cfg.country] || weatherMap['default'];
-  document.getElementById('weatherTemp').textContent = w[0];
-  document.getElementById('weatherInfo').textContent = w[1];
+  const noDataMsg = 'No bookings entered yet for ' + MONTHS_SHORT[month] + '. Open the Rate Calendar to get started.';
+  const hasDataMsg = daysWithData + ' days entered for ' + MONTHS_SHORT[month] + '. Open the calendar to review rates and track revenue.';
 
-  // User avatar from property name
-  const initials = cfg.name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
-  document.getElementById('userAvatar').textContent = initials.slice(0,2);
-  document.getElementById('userName').textContent = 'Revenue Manager';
+  document.getElementById('mainContent').innerHTML =
+    '<div class="setup-banner">' +
+      '<div class="sb-left">' +
+        '<div class="sb-icon">🎯</div>' +
+        '<div>' +
+          '<div class="sb-title">' + cfg.name + ' is live on Terrain</div>' +
+          '<div class="sb-desc">' + cfg.packages.length + ' packages · ' + suites + ' suites · ' + MONTHS_SHORT[month] + ' ' + year + '</div>' +
+        '</div>' +
+      '</div>' +
+      
+    '</div>' +
 
-  // Package icons
-  const iconMap = { 'safari': '🦁', 'fly': '✈️', 'honey': '🌙', 'photo': '📷', 'walk': '🚶', 'horse': '🐴', 'wellness': '🧘', 'yoga': '🧘', 'ski': '⛷️', 'dive': '🤿', 'fish': '🎣' };
-  function pkgIcon(name) {
-    const n = String(name || '').toLowerCase();
-    for (const [k, v] of Object.entries(iconMap)) { if (n.includes(k)) return v; }
-    return '🏕️';
+    '<div class="kpi-strip">' +
+      '<div class="kpi-card accent">' +
+        '<div class="kpi-label">Days with Bookings</div>' +
+        '<div class="kpi-value">' + (daysWithData > 0 ? daysWithData : '—') + '</div>' +
+        '<div class="kpi-delta ' + (daysWithData > 0 ? 'up' : '') + '">' + (daysWithData > 0 ? 'of ' + daysInMonth + ' days this month' : 'Enter bookings in Rate Calendar') + '</div>' +
+        '<div class="kpi-orn">📅</div>' +
+      '</div>' +
+      '<div class="kpi-card">' +
+        '<div class="kpi-label">Avg Occupancy</div>' +
+        '<div class="kpi-value">' + (avgOcc !== null ? avgOcc + '%' : '—') + '</div>' +
+        '<div class="kpi-delta">' + (avgOcc !== null ? 'Based on ' + daysWithData + ' days entered' : 'No data yet') + '</div>' +
+        '<div class="kpi-orn">%</div>' +
+      '</div>' +
+      '<div class="kpi-card">' +
+        '<div class="kpi-label">Sold Out Days</div>' +
+        '<div class="kpi-value" style="' + (soldOut > 0 ? 'color:var(--terra);' : '') + '">' + (daysWithData > 0 ? soldOut : '—') + '</div>' +
+        '<div class="kpi-delta">' + (daysWithData > 0 ? '100% occupancy days' : 'No data yet') + '</div>' +
+        '<div class="kpi-orn">🔥</div>' +
+      '</div>' +
+      '<div class="kpi-card">' +
+        '<div class="kpi-label">Surge Opportunities</div>' +
+        '<div class="kpi-value" style="' + (surgeDays > 0 ? 'color:#b8922a;' : '') + '">' + (daysWithData > 0 ? surgeDays : '—') + '</div>' +
+        '<div class="kpi-delta">' + (daysWithData > 0 ? 'Days at 85%+ — raise rates' : 'No data yet') + '</div>' +
+        '<div class="kpi-orn">↑</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="two-col">' +
+      '<div style="display:flex;flex-direction:column;gap:16px;">' +
+        '<div class="card" style="text-align:center;padding:48px 32px;">' +
+          '<div style="font-size:48px;margin-bottom:16px;">📅</div>' +
+          '<div style="font-family:Cormorant Garamond,serif;font-size:24px;font-weight:500;color:var(--ink);margin-bottom:10px;">Rate Calendar</div>' +
+          '<div style="font-size:13px;color:var(--ink-muted);line-height:1.7;margin-bottom:24px;max-width:380px;margin-left:auto;margin-right:auto;">' +
+            (daysWithData === 0 ? noDataMsg : hasDataMsg) +
+          '</div>' +
+          '<button onclick="goTo(&quot;calendar&quot;)" style="background:var(--terra);color:#fff;border:none;border-radius:8px;padding:14px 36px;font-size:14px;font-weight:600;cursor:pointer;font-family:Syne,sans-serif;">' +
+            'Open Rate Calendar →' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:14px;">' +
+        '<div class="card">' +
+          '<div class="card-ey">Property</div>' +
+          '<div class="card-title" style="font-size:18px;">' + cfg.name + '</div>' +
+          '<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">' +
+            '<div style="display:flex;justify-content:space-between;font-size:12px;border-bottom:1px solid var(--border);padding-bottom:8px;"><span style="color:var(--ink-muted);">Type</span><span style="font-weight:500;">' + (cfg.type || 'Safari Lodge') + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:12px;border-bottom:1px solid var(--border);padding-bottom:8px;"><span style="color:var(--ink-muted);">Suites</span><span style="font-weight:500;">' + suites + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:12px;border-bottom:1px solid var(--border);padding-bottom:8px;"><span style="color:var(--ink-muted);">Country</span><span style="font-weight:500;">' + (cfg.country || '—') + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--ink-muted);">Currency</span><span style="font-weight:500;">' + (cfg.currency || 'USD') + '</span></div>' +
+          '</div>' +
+          '<button onclick="goTo(&quot;onboarding&quot;)" style="width:100%;margin-top:16px;background:none;border:1px solid var(--border);border-radius:6px;padding:9px;font-size:12px;cursor:pointer;font-family:Syne,sans-serif;color:var(--ink-soft);">Edit Property Settings</button>' +
+        '</div>' +
+        '<div class="card">' +
+          '<div class="card-ey">Packages</div>' +
+          '<div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">' +
+            (cfg.packages.length > 0
+              ? cfg.packages.map(function(p){ return '<div style="font-size:12px;color:var(--ink-soft);padding:6px 8px;background:var(--parchment);border-radius:5px;">' + String(p.name || p) + '</div>'; }).join('')
+              : '<div style="font-size:12px;color:var(--ink-muted);">No packages configured yet.</div>') +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  } catch(err) {
+    console.error('buildDashboard error:', err);
+    document.getElementById('mainContent').innerHTML =
+      '<div style="padding:40px;text-align:center;color:#c4613a;">' +
+      '<div style="font-size:32px;margin-bottom:16px;">⚠️</div>' +
+      '<div style="font-size:16px;margin-bottom:8px;">Dashboard failed to load</div>' +
+      '<div style="font-size:12px;color:#8a7d72;margin-bottom:24px;">' + err.message + '</div>' +
+      '<button onclick="goTo(&quot;onboarding&quot;)" style="background:var(--terra);color:#fff;border:none;border-radius:6px;padding:10px 24px;cursor:pointer;font-size:13px;">Go to Setup →</button>' +
+      '</div>';
+    document.getElementById('topbarTitle').textContent = 'Dashboard error';
   }
-  function pkgColor(i) {
-    return ['rgba(58,92,66,0.1)','rgba(58,90,120,0.1)','rgba(184,146,42,0.1)','rgba(120,80,60,0.1)','rgba(124,106,247,0.1)'][i % 5];
-  }
-  function pkgRate(i) {
-    const rates = [4200, 9800, 5600, 3400, 4800, 6200, 7400, 2800];
-    return rates[i % rates.length];
-  }
-  function pkgOptimal(i) {
-    const opts = [4800, 9800, 6200, 3200, 5400, 6800, 8200, 3200];
-    return opts[i % opts.length];
-  }
-
-  // Build scarcity for packages
-  const scarcityData = [
-    { lvl: 'crit', pct: 92, booked: Math.round(suites*0.92), badge: '2 left', note: '+surge rec.' },
-    { lvl: 'high', pct: 83, booked: Math.round(suites*0.83), badge: '4 left', note: 'Hold pricing' },
-    { lvl: '',     pct: 54, booked: Math.round(suites*0.54), badge: '11 left', note: 'Consider promo' },
-    { lvl: '',     pct: 33, booked: Math.round(suites*0.33), badge: '16 left', note: 'Reduce rate' },
-  ];
-
-  const pkgNames = (cfg.packages && cfg.packages.length)
-    ? cfg.packages.map(p => String(p.name || p))
-    : ['Classic Safari','Fly-In Week','Honeymoon','Photography'];
-
-  // Build recs dynamically
-  const rec1Rate = pkgRate(0);
-  const rec1Opt  = pkgOptimal(0);
-  const rec2pkg  = pkgNames[2] || pkgNames[0];
-  const rec3pkg  = pkgNames[pkgNames.length-1];
-
-  const channelList = cfg.channels || ['Direct Website','Luxury Travel Agents'];
-  const hasOTA = channelList.some(c => c.toLowerCase().includes('ota') || c.toLowerCase().includes('booking'));
-
-  document.getElementById('mainContent').innerHTML = `
-
-    <!-- Setup banner -->
-    <div class="setup-banner">
-      <div class="sb-left">
-        <div class="sb-icon">🎯</div>
-        <div>
-          <div class="sb-title">${cfg.name} is live on Terrain</div>
-          <div class="sb-desc">${cfg.packages.length} packages · ${cfg.channels.length} channels · ${cfg.suites} suites configured — optimization running</div>
-        </div>
-      </div>
-      <button class="sb-btn" onclick="window.location.href='/onboarding'">Edit Setup</button>
-    </div>
-
-    <!-- KPIs -->
-    <div class="kpi-strip">
-      <div class="kpi-card accent">
-        <div class="kpi-label">Est. Revenue (30d)</div>
-        <div class="kpi-value">${sym}${parseInt(totalRev).toLocaleString()}</div>
-        <div class="kpi-delta up">Based on ${suites} suites · ${sym}${baseRate}/night avg</div>
-        <div class="kpi-orn">${sym}</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">RevPAS — Per Suite</div>
-        <div class="kpi-value">${sym}${revpas.toLocaleString()}</div>
-        <div class="kpi-delta up">${sym}${baseRate} ${cfg.currentNightlyRate ? 'actual' : 'est.'} rate · ${occupancyDisplay} occ.</div>
-        <div class="kpi-orn">R</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Est. Occupancy</div>
-        <div class="kpi-value">${occupancyDisplay}</div>
-        <div class="kpi-delta up">${occupancyLabel}</div>
-        <div class="kpi-orn">%</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Optimization Uplift</div>
-        <div class="kpi-value">${sym}${uplift.toLocaleString()}</div>
-        <div class="kpi-delta up">8% above static pricing est.</div>
-        <div class="kpi-orn">↑</div>
-      </div>
-    </div>
-
-    <!-- Two col -->
-    <div class="two-col">
-      <div style="display:flex;flex-direction:column;gap:16px;">
-
-        <!-- Revenue chart -->
-        <div class="card">
-          <div class="card-ey">30-Day Performance</div>
-          <div class="card-title">Revenue vs Optimized Potential</div>
-          <svg viewBox="0 0 600 140" preserveAspectRatio="none" style="width:100%;height:140px;">
-            <line x1="0" y1="28" x2="600" y2="28" stroke="#ddd4c4" stroke-width="0.8"/>
-            <line x1="0" y1="56" x2="600" y2="56" stroke="#ddd4c4" stroke-width="0.8"/>
-            <line x1="0" y1="84" x2="600" y2="84" stroke="#ddd4c4" stroke-width="0.8"/>
-            <line x1="0" y1="112" x2="600" y2="112" stroke="#ddd4c4" stroke-width="0.8"/>
-            <path d="M0,100 C60,88 120,78 180,68 C240,58 300,50 360,43 C420,36 480,31 600,26 L600,140 L0,140 Z" fill="rgba(196,97,58,0.06)"/>
-            <path d="M0,108 C60,97 120,88 180,79 C240,70 300,62 360,55 C420,49 480,44 600,40 L600,140 L0,140 Z" fill="rgba(58,92,66,0.07)"/>
-            <path d="M0,100 C60,88 120,78 180,68 C240,58 300,50 360,43 C420,36 480,31 600,26" fill="none" stroke="#c4613a" stroke-width="1.5" stroke-dasharray="5,3"/>
-            <path d="M0,108 C60,97 120,88 180,79 C240,70 300,62 360,55 C420,49 480,44 600,40" fill="none" stroke="#3a5c42" stroke-width="2"/>
-            <circle cx="180" cy="79" r="3" fill="#3a5c42"/>
-            <circle cx="360" cy="55" r="3" fill="#3a5c42"/>
-            <circle cx="540" cy="42" r="3" fill="#3a5c42"/>
-          </svg>
-          <div style="display:flex;justify-content:space-between;font-size:9px;color:#8a7d72;font-family:'DM Mono',monospace;margin-top:6px;">
-            <span>Apr 17</span><span>Apr 23</span><span>Apr 29</span><span>May 5</span><span>May 11</span><span>May 17</span>
-          </div>
-          <div style="display:flex;gap:16px;margin-top:10px;">
-            <span style="font-size:11px;color:#8a7d72;display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:18px;height:2px;background:#3a5c42;"></span>Actual</span>
-            <span style="font-size:11px;color:#8a7d72;display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:18px;height:1px;background:#c4613a;border-top:1px dashed #c4613a;"></span>Potential</span>
-          </div>
-        </div>
-
-        <!-- Packages -->
-        <div class="card">
-          <div class="card-ey">Live Packages</div>
-          <div class="card-title">Experience Package Rates</div>
-          <div class="pkg-list">
-            ${pkgNames.map((pkg, i) => {
-              const rate = pkgRate(i);
-              const opt  = pkgOptimal(i);
-              const diff = opt - rate;
-              const optText = diff > 0 ? `Optimal: ${sym}${opt.toLocaleString()} ↑` : diff < 0 ? `Reduce to ${sym}${opt.toLocaleString()} ↓` : `At optimal ✓`;
-              const optColor = diff > 0 ? '#c4613a' : diff < 0 ? '#7ab0d4' : '#3a5c42';
-              const dotColor = diff > 0 ? '#c4613a' : diff < 0 ? '#7ab0d4' : '#3a5c42';
-              return `<div class="pkg-row" onclick="showPkgTip('${pkg}',${rate},${opt},'${sym}')">
-                <div class="pkg-icon" style="background:${pkgColor(i)};">${pkgIcon(pkg)}</div>
-                <div class="pkg-body">
-                  <div class="pkg-name">${pkg}</div>
-                  <div class="pkg-meta">Base rate · ${cfg.type}</div>
-                </div>
-                <div class="pkg-rate">
-                  <div class="pkg-curr">${sym}${rate.toLocaleString()}</div>
-                  <div class="pkg-opt" style="color:${optColor};">${optText}</div>
-                </div>
-                <div class="pkg-dot" style="background:${dotColor};"></div>
-              </div>`;
-            }).join('')}
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Right col -->
-      <div style="display:flex;flex-direction:column;gap:16px;">
-
-        <!-- Scarcity -->
-        <div class="card">
-          <div class="card-ey">Scarcity Engine</div>
-          <div class="card-title">Inventory Signals</div>
-          <div class="sc-list">
-            ${pkgNames.slice(0,4).map((pkg, i) => {
-              const d = scarcityData[i] || scarcityData[3];
-              return `<div class="sc-item ${d.lvl}">
-                <div class="sc-hd">
-                  <div class="sc-name">${pkg}</div>
-                  <div class="sc-badge">${d.badge}</div>
-                </div>
-                <div class="sc-bw"><div class="sc-bf" style="width:${d.pct}%"></div></div>
-                <div class="sc-ft"><span>${d.booked}/${suites} booked</span><span>${d.note}</span></div>
-              </div>`;
-            }).join('')}
-          </div>
-        </div>
-
-        <!-- Channel mix -->
-        <div class="card">
-          <div class="card-ey">Channel Mix</div>
-          <div class="card-title">Booking Sources</div>
-          <div class="ch-bars">
-            ${channelList.slice(0,5).map((ch, i) => {
-              const pcts = [44, 28, 15, 8, 5];
-              const colors = ['#3a5c42','#b8922a','#c4613a','#7ab0d4','#8a7d72'];
-              const pct = pcts[i] || 5;
-              return `<div class="ch-bar-row">
-                <div class="ch-bar-name" style="font-size:10px;">${ch.length > 16 ? ch.slice(0,15)+'…' : ch}</div>
-                <div class="ch-bar-wrap"><div class="ch-bar-fill" style="width:${pct}%;background:${colors[i]};"></div></div>
-                <div class="ch-bar-val">${pct}%</div>
-              </div>`;
-            }).join('')}
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- AI Recommendations -->
-    <div class="card">
-      <div class="card-ey">AI Intelligence</div>
-      <div class="card-title">Revenue Recommendations for ${cfg.name}</div>
-      <div class="rec-list">
-        <div class="rec-item">
-          <div class="rec-n">01</div>
-          <div class="rec-body">
-            <div class="rec-title">Raise ${pkgNames[0]} rate to ${sym}${pkgOptimal(0).toLocaleString()} for Apr 25–28</div>
-            <div class="rec-desc">Only 2 suites remain for the peak weekend block. At ${Math.round(scarcityData[0].pct)}% occupancy, guests booking now are not price-sensitive. Competitor lodges in ${cfg.country} are averaging ${sym}${(pkgOptimal(0)*1.06).toFixed(0)}.</div>
-            <div class="rec-uplift">Estimated uplift: +${sym}${((pkgOptimal(0) - pkgRate(0)) * 2).toLocaleString()} on remaining inventory</div>
-          </div>
-          <button class="rec-btn" onclick="applyRec(this, '${pkgNames[0]} raised to ${sym}${pkgOptimal(0).toLocaleString()}')">Apply</button>
-        </div>
-        <div class="rec-item">
-          <div class="rec-n">02</div>
-          <div class="rec-body">
-            <div class="rec-title">Bundle spa credit into ${rec2pkg} for May 8–11</div>
-            <div class="rec-desc">Current 54% occupancy for those dates. Adding a ${sym}400 spa credit increases perceived value by ~${sym}800 while costing ${sym}180 in marginal cost — guests over-weight inclusions by 2.2×.</div>
-            <div class="rec-uplift">Estimated uplift: +${sym}${(suites * 0.24 * 800).toLocaleString()} in additional bookings</div>
-          </div>
-          <button class="rec-btn" onclick="applyRec(this, 'Spa bundle added to ${rec2pkg}')">Apply</button>
-        </div>
-        ${hasOTA ? `<div class="rec-item">
-          <div class="rec-n">03</div>
-          <div class="rec-body">
-            <div class="rec-title">Close OTA inventory for peak dates — push direct</div>
-            <div class="rec-desc">You have OTA bookings at ~20% commission during your highest demand period. Every OTA booking that could have been direct costs ${sym}${Math.round(pkgRate(0)*0.20).toLocaleString()} in unnecessary commission fees.</div>
-            <div class="rec-uplift">Estimated monthly saving: +${sym}${Math.round(suites * 0.18 * pkgRate(0) * 0.20).toLocaleString()} in recovered commission</div>
-          </div>
-          <button class="rec-btn" onclick="applyRec(this, 'OTA inventory closed for peak dates')">Apply</button>
-        </div>` : `<div class="rec-item">
-          <div class="rec-n">03</div>
-          <div class="rec-body">
-            <div class="rec-title">Reduce ${rec3pkg} by 10% and promote to email list</div>
-            <div class="rec-desc">Low occupancy projected for this package's next available dates. A direct-only offer to your email list costs zero commission and recovers revenue that would otherwise be lost entirely.</div>
-            <div class="rec-uplift">Estimated uplift: +${sym}${(suites * 0.2 * pkgRate(pkgNames.length-1) * 0.9).toLocaleString()} in recovered bookings</div>
-          </div>
-          <button class="rec-btn" onclick="applyRec(this, '${rec3pkg} promoted to email list')">Apply</button>
-        </div>`}
-      </div>
-    </div>
-
-  `;
 }
+
 
 function showPkgTip(name, rate, opt, sym) {
   const existing = document.querySelector('.toast');
@@ -869,5 +667,9 @@ function applyRec(btn, label) {
   setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3500);
 }
 </script>
+
+<div style="text-align:center;padding:20px 24px 32px;font-size:11px;color:rgba(255,255,255,0.25);font-family:'Syne',sans-serif;border-top:1px solid rgba(255,255,255,0.06);margin-top:auto;">
+  © 2026 TechSoftNexa LTD &nbsp;·&nbsp; Terrain is a product of TechSoftNexa LTD, registered in Ghana
+</div>
 </body>
 </html>

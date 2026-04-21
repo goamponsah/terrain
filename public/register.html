@@ -137,6 +137,11 @@
             });
           } catch(e) {}
         }
+        // Clear all localStorage for clean state
+        localStorage.removeItem('terrainConfig');
+        localStorage.removeItem('terrainCalendarV2');
+        localStorage.removeItem('terrainActualRates');
+        localStorage.removeItem('terrainManualBooked');
         window.location.href = '/dashboard';
       } else {
         showError(data.error || 'Registration failed');
@@ -156,5 +161,9 @@
     err.style.display = 'block';
   }
 </script>
+
+<div style="text-align:center;padding:20px 24px 32px;font-size:11px;color:#a09890;font-family:'Syne',sans-serif;border-top:1px solid #e8ddd0;margin-top:40px;">
+  © 2026 TechSoftNexa LTD &nbsp;·&nbsp; Terrain is a product of TechSoftNexa LTD, registered in Ghana
+</div>
 </body>
 </html>

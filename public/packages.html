@@ -7,24 +7,98 @@
   <title>Terrain — Experience Packages</title>
   <link rel="stylesheet" href="styles.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    .season-bands{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
+    .sb-row{display:grid;grid-template-columns:160px 1fr 140px 80px;align-items:center;gap:16px;padding:14px 16px;border-radius:8px;border:1px solid var(--border);background:var(--warm);}
+    .sb-season{font-size:13px;font-weight:500;color:var(--ink);}
+    .sb-bar-wrap{height:8px;background:var(--parchment);border-radius:4px;overflow:hidden;}
+    .sb-bar{height:100%;border-radius:4px;transition:width 0.4s;}
+    .sb-rate{font-family:'DM Mono',monospace;font-size:12px;color:var(--ink-soft);text-align:right;}
+    .sb-badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;text-align:center;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px;}
+    .bundle-builder{background:var(--ink);border-radius:12px;padding:24px;color:var(--cream);}
+    .bb-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin-bottom:4px;}
+    .bb-comp{display:grid;grid-template-columns:28px 1fr 120px 52px;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+    .bb-comp:last-child{border-bottom:none;}
+    .bb-comp-icon{font-size:16px;}
+    .bb-comp-name{font-size:12px;color:rgba(255,255,255,0.6);}
+    .bb-comp input[type=range]{accent-color:var(--terra);width:100%;}
+    .bb-comp-price{font-family:'DM Mono',monospace;font-size:12px;color:var(--cream);text-align:right;}
+    .bb-total{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:16px;background:rgba(255,255,255,0.05);border-radius:8px;}
+    .bb-total-label{font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;}
+    .bb-total-price{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:500;color:var(--cream);}
+    .data-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px;}
+    .data-table th{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;}
+    .data-table td{padding:10px 8px;border-bottom:1px solid var(--border);color:var(--ink-soft);}
+    .data-table tr:last-child td{border-bottom:none;}
+    .td-name{font-weight:500;color:var(--ink);}
+    .positive{color:#3a5c42;font-weight:600;}
+    .negative{color:#c4613a;font-weight:600;}
+    .empty-state{text-align:center;padding:40px 20px;color:var(--ink-muted);}
+    .empty-state .es-icon{font-size:32px;margin-bottom:12px;}
+    .empty-state .es-title{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--ink-soft);margin-bottom:8px;}
+    .empty-state .es-sub{font-size:12px;line-height:1.7;}
+    .empty-state a{color:var(--terra);text-decoration:none;}
+    .attach-bar-row{display:flex;align-items:center;gap:10px;font-size:12px;margin-bottom:8px;}
+    .attach-bar-label{width:130px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .attach-bar-bg{flex:1;height:8px;background:var(--parchment);border-radius:4px;overflow:hidden;}
+    .attach-bar-fill{height:100%;border-radius:4px;}
+    .attach-bar-pct{font-family:'DM Mono',monospace;font-size:11px;width:36px;text-align:right;}
+  </style>
 </head>
 <body>
 <div class="app">
   <aside class="sidebar">
     <div class="sidebar-top">
-      <div class="logo"><div class="logo-name">TERRAIN</div><div class="logo-tagline">Experience Revenue Intelligence</div></div>
-      <div class="property-selector"><div class="prop-label">Active Property</div><div class="prop-name">Ridgeline Safari Lodge</div><div class="prop-type">Luxury Safari · 24 Suites · Laikipia, Kenya</div></div>
+      <div class="logo-name">TERRAIN</div>
+      <div class="logo-sub">Experience Revenue Intelligence</div>
+      <div class="prop-pill" onclick="window.location.href='/onboarding'">
+        <div class="prop-pill-label">Active Property</div>
+        <div class="prop-pill-name" id="sidePropName">Loading…</div>
+        <div class="prop-pill-meta" id="sidePropMeta">—</div>
+      </div>
     </div>
     <nav class="nav">
-      <div class="nav-section-label">Revenue</div>
-      <a href="/dashboard" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview</a>
-      <a href="/packages" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Experience Packages</a>
-      <a href="/forecast" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>Demand & Weather</a>
-      <a href="/channels" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>Channel Mix</a>
+      <div class="nav-label">Revenue</div>
+      <a href="/dashboard" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </a>
+      <a href="/calendar" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Rate Calendar
+      </a>
+      <a href="/packages" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        Experience Packages
+      </a>
+      <a href="/forecast" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+        Demand & Weather
+      </a>
+      <a href="/channels" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
+        Channel Mix
+      </a>
+      <div class="nav-label">Settings</div>
+      <div class="nav-item" onclick="window.location.href='/onboarding'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Property Settings
+      </div>
     </nav>
     <div class="sidebar-footer">
-      <div class="weather-widget"><div><div class="weather-temp">24°C</div><div class="weather-loc">Laikipia Plateau</div></div><div class="weather-info">☀️ Dry season<br/>High demand signal</div></div>
-      <div class="user-row"><div class="avatar">SK</div><div><div class="user-name">Sipho Kamau</div><div class="user-role">Revenue Director</div></div></div>
+      <div class="weather-mini">
+        <div class="wm-temp" id="weatherTemp">—</div>
+        <div class="wm-info" id="weatherInfo">—</div>
+      </div>
+      <div class="user-mini">
+        <div class="avatar" id="userAvatar">?</div>
+        <div style="flex:1;">
+          <div class="user-name" id="userName">—</div>
+          <div class="user-role-label">Revenue Manager</div>
+        </div>
+        <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);border-radius:5px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:'Syne',sans-serif;">Log out</button>
+      </div>
     </div>
   </aside>
 
@@ -35,80 +109,61 @@
         <div class="page-title">Experience Packages</div>
       </div>
       <div class="topbar-right">
-        <button class="btn-secondary">Import Packages</button>
-        <button class="btn-primary">Save & Publish</button>
+        <button class="btn-secondary" onclick="window.location.href='/onboarding'">Edit Packages</button>
+        <button class="btn-secondary" onclick="window.location.href='/calendar'">Go to Calendar</button>
       </div>
     </div>
 
     <div class="content">
 
-      <!-- Season Bands -->
+      <!-- Season Rate Bands — driven by lodge seasons config -->
       <div class="card">
         <div class="card-eyebrow">Seasonal Pricing</div>
         <div class="card-title">Rate Bands by Season</div>
-        <div class="season-bands">
-          <div class="sb-row" style="background:rgba(196,97,58,0.05);border-color:rgba(196,97,58,0.2);">
-            <div class="sb-season">🔥 Peak Season</div>
-            <div class="sb-bar-wrap"><div class="sb-bar" style="width:100%;background:#c4613a;"></div></div>
-            <div class="sb-rate">$4,200–$9,800</div>
-            <div class="sb-badge" style="background:rgba(196,97,58,0.15);color:#c4613a;">Jul–Oct</div>
-          </div>
-          <div class="sb-row" style="background:rgba(184,146,42,0.05);border-color:rgba(184,146,42,0.2);">
-            <div class="sb-season">☀️ High Season</div>
-            <div class="sb-bar-wrap"><div class="sb-bar" style="width:80%;background:#b8922a;"></div></div>
-            <div class="sb-rate">$3,600–$8,400</div>
-            <div class="sb-badge" style="background:rgba(184,146,42,0.15);color:#b8922a;">Apr–Jun</div>
-          </div>
-          <div class="sb-row">
-            <div class="sb-season">🌿 Shoulder</div>
-            <div class="sb-bar-wrap"><div class="sb-bar" style="width:60%;background:#3a5c42;"></div></div>
-            <div class="sb-rate">$2,800–$6,200</div>
-            <div class="sb-badge" style="background:rgba(58,92,66,0.12);color:#3a5c42;">Nov–Dec</div>
-          </div>
-          <div class="sb-row">
-            <div class="sb-season">🌧️ Green Season</div>
-            <div class="sb-bar-wrap"><div class="sb-bar" style="width:38%;background:#7ab0d4;"></div></div>
-            <div class="sb-rate">$1,900–$4,200</div>
-            <div class="sb-badge" style="background:rgba(122,176,212,0.15);color:#3a5878;">Jan–Mar</div>
+        <div class="season-bands" id="seasonBands">
+          <div class="empty-state">
+            <div class="es-icon">🗓️</div>
+            <div class="es-title">No seasons configured</div>
+            <div class="es-sub">Set up your seasons in <a href="/onboarding">Property Settings</a> to see rate bands.</div>
           </div>
         </div>
       </div>
 
-      <!-- Bundle Builder + Package Table -->
+      <!-- Bundle Builder + Package Performance -->
       <div class="two-col">
 
         <!-- Bundle Builder -->
         <div class="bundle-builder">
           <div class="bb-title">Bundle Builder</div>
-          <p style="font-size:12px;color:#8a7d72;margin-bottom:16px;">Adjust component weights to model optimal bundle pricing. Terrain calculates guest perceived value vs. your marginal cost.</p>
-          <div class="bb-components" id="bundleComponents">
+          <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:16px;line-height:1.6;">Adjust component weights to model optimal bundle pricing. Terrain calculates your 3-night bundle total.</p>
+          <div id="bundleComponents">
             <div class="bb-comp">
               <div class="bb-comp-icon">🛏️</div>
               <div class="bb-comp-name">Suite Accommodation (per night)</div>
-              <input type="range" min="300" max="800" value="520" oninput="updateBundle()" id="s_accom"/>
-              <div class="bb-comp-price" id="v_accom">$520</div>
+              <input type="range" min="100" max="2000" value="500" oninput="updateBundle()" id="s_accom"/>
+              <div class="bb-comp-price" id="v_accom">$500</div>
             </div>
             <div class="bb-comp">
               <div class="bb-comp-icon">🦁</div>
               <div class="bb-comp-name">Game Drive (per day)</div>
-              <input type="range" min="80" max="300" value="150" oninput="updateBundle()" id="s_drive"/>
+              <input type="range" min="0" max="400" value="150" oninput="updateBundle()" id="s_drive"/>
               <div class="bb-comp-price" id="v_drive">$150</div>
             </div>
             <div class="bb-comp">
               <div class="bb-comp-icon">🍽️</div>
               <div class="bb-comp-name">Full Board (per day)</div>
-              <input type="range" min="60" max="200" value="120" oninput="updateBundle()" id="s_board"/>
+              <input type="range" min="0" max="300" value="120" oninput="updateBundle()" id="s_board"/>
               <div class="bb-comp-price" id="v_board">$120</div>
             </div>
             <div class="bb-comp">
               <div class="bb-comp-icon">🧖</div>
-              <div class="bb-comp-name">Spa Credit (optional)</div>
-              <input type="range" min="0" max="400" value="200" oninput="updateBundle()" id="s_spa"/>
-              <div class="bb-comp-price" id="v_spa">$200</div>
+              <div class="bb-comp-name">Spa / Wellness Credit</div>
+              <input type="range" min="0" max="500" value="0" oninput="updateBundle()" id="s_spa"/>
+              <div class="bb-comp-price" id="v_spa">$0</div>
             </div>
             <div class="bb-comp">
               <div class="bb-comp-icon">✈️</div>
-              <div class="bb-comp-name">Transfer (optional)</div>
+              <div class="bb-comp-name">Airport Transfer</div>
               <input type="range" min="0" max="600" value="0" oninput="updateBundle()" id="s_transfer"/>
               <div class="bb-comp-price" id="v_transfer">$0</div>
             </div>
@@ -116,94 +171,433 @@
           <div class="bb-total">
             <div>
               <div class="bb-total-label">3-night bundle total</div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;" id="bb_margin">Margin: est. 68%</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;" id="bb_nights">Per guest · 3 nights</div>
             </div>
-            <div class="bb-total-price" id="bb_total">$3,360</div>
+            <div class="bb-total-price" id="bb_total">$0</div>
           </div>
-          <div style="margin-top:14px;padding:12px;background:rgba(58,92,66,0.08);border:1px solid rgba(58,92,66,0.2);border-radius:6px;">
+          <div style="margin-top:14px;padding:12px;background:rgba(58,92,66,0.1);border:1px solid rgba(58,92,66,0.25);border-radius:6px;">
             <div style="font-size:10px;color:#3a5c42;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Terrain Recommendation</div>
-            <div id="bb_rec" style="font-size:12px;color:#3d3530;">Add spa credit to increase perceived value and justify a 12% rate premium.</div>
+            <div id="bb_rec" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">Adjust the sliders to model your ideal package bundle.</div>
           </div>
         </div>
 
-        <!-- Package Performance -->
+        <!-- Package Revenue — from real calendar data -->
         <div class="card">
+          <!-- Month projection banner -->
+          <div id="monthBanner" style="display:none;margin-bottom:20px;padding:16px;background:var(--ink);border-radius:10px;color:var(--cream);">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.35);margin-bottom:8px;" id="bannerMonth">This Month</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+              <div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Confirmed</div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;" id="bannerConfirmed">—</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;" id="bannerConfSub">from real bookings</div>
+              </div>
+              <div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Projected</div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:#e8896a;" id="bannerProjected">—</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;" id="bannerProjSub">remaining days @ 60% occ.</div>
+              </div>
+              <div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Full Month Total</div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:#5a8c63;" id="bannerTotal">—</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;" id="bannerDaysSub">— days remaining</div>
+              </div>
+            </div>
+          </div>
+
           <div class="card-eyebrow">Performance</div>
           <div class="card-title">Package Revenue by Type</div>
-          <table class="data-table">
-            <thead>
-              <tr><th>Package</th><th>Bookings</th><th>Avg Rate</th><th>Revenue</th><th>vs Optimal</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="td-name">🦁 Classic Safari</td>
-                <td>87</td>
-                <td>$4,200</td>
-                <td>$365,400</td>
-                <td class="negative">−$52,200</td>
-              </tr>
-              <tr>
-                <td class="td-name">✈️ Fly-In Week</td>
-                <td>34</td>
-                <td>$9,800</td>
-                <td>$333,200</td>
-                <td class="positive">On target</td>
-              </tr>
-              <tr>
-                <td class="td-name">🌙 Honeymoon</td>
-                <td>29</td>
-                <td>$5,600</td>
-                <td>$162,400</td>
-                <td class="negative">−$17,400</td>
-              </tr>
-              <tr>
-                <td class="td-name">📷 Photography</td>
-                <td>18</td>
-                <td>$3,400</td>
-                <td>$61,200</td>
-                <td class="negative">−$3,600</td>
-              </tr>
-              <tr>
-                <td class="td-name">🧘 Wellness Retreat</td>
-                <td>12</td>
-                <td>$4,800</td>
-                <td>$57,600</td>
-                <td class="positive">+$2,400</td>
-              </tr>
-            </tbody>
-          </table>
+          <div id="pkgRevenueTable">
+            <div class="empty-state">
+              <div class="es-icon">📊</div>
+              <div class="es-title">No calendar data yet</div>
+              <div class="es-sub">Enter your bookings in the <a href="/calendar">Rate Calendar</a> to see real revenue figures per package.</div>
+            </div>
+          </div>
 
-          <div style="margin-top:20px;">
-            <div class="card-eyebrow" style="margin-bottom:12px;">Ancillary Attach Rate by Package</div>
-            <div style="display:flex;flex-direction:column;gap:8px;">
-              <div style="display:flex;align-items:center;gap:10px;font-size:12px;">
-                <span style="width:120px;color:#3d3530;">Fly-In Week</span>
-                <div style="flex:1;height:8px;background:#ede6d6;border-radius:4px;overflow:hidden;"><div style="width:84%;height:100%;background:#c4613a;border-radius:4px;"></div></div>
-                <span style="font-family:'DM Mono',monospace;font-size:11px;">84%</span>
-              </div>
-              <div style="display:flex;align-items:center;gap:10px;font-size:12px;">
-                <span style="width:120px;color:#3d3530;">Honeymoon</span>
-                <div style="flex:1;height:8px;background:#ede6d6;border-radius:4px;overflow:hidden;"><div style="width:76%;height:100%;background:#b8922a;border-radius:4px;"></div></div>
-                <span style="font-family:'DM Mono',monospace;font-size:11px;">76%</span>
-              </div>
-              <div style="display:flex;align-items:center;gap:10px;font-size:12px;">
-                <span style="width:120px;color:#3d3530;">Classic Safari</span>
-                <div style="flex:1;height:8px;background:#ede6d6;border-radius:4px;overflow:hidden;"><div style="width:61%;height:100%;background:#3a5c42;border-radius:4px;"></div></div>
-                <span style="font-family:'DM Mono',monospace;font-size:11px;">61%</span>
-              </div>
-              <div style="display:flex;align-items:center;gap:10px;font-size:12px;">
-                <span style="width:120px;color:#3d3530;">Photography</span>
-                <div style="flex:1;height:8px;background:#ede6d6;border-radius:4px;overflow:hidden;"><div style="width:44%;height:100%;background:#7ab0d4;border-radius:4px;"></div></div>
-                <span style="font-family:'DM Mono',monospace;font-size:11px;">44%</span>
-              </div>
+          <div style="margin-top:24px;">
+            <div class="card-eyebrow" style="margin-bottom:12px;">Occupancy by Package</div>
+            <div id="attachRates">
+              <div style="font-size:12px;color:var(--ink-muted);">Enter bookings in the Rate Calendar to see occupancy by package.</div>
             </div>
           </div>
         </div>
-      </div>
 
+      </div>
     </div>
   </main>
 </div>
+
 <script src="app.js"></script>
+<script>
+// ================================================================
+// TERRAIN — EXPERIENCE PACKAGES
+// All data sourced from: lodge config + Rate Calendar localStorage
+// ================================================================
+
+const SYM_MAP={USD:'$',EUR:'€',GBP:'£',ZAR:'R',BWP:'P'};
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const CAL_KEY='terrainCalendarV2';
+
+let lodgeConfig={};
+let packages=[];
+let seasons=[];
+let calData={};
+
+// Season colors
+const SEASON_COLORS=['#c4613a','#b8922a','#3a5c42','#7ab0d4','#8a6fa0','#4a8fa8'];
+
+document.addEventListener('DOMContentLoaded', async()=>{
+  // Load from API
+  try{
+    const me=await fetch('/api/auth/me').then(r=>r.json());
+    if(me.user){
+      document.getElementById('userName').textContent=me.user.email.split('@')[0];
+      const ld=await fetch('/api/lodge').then(r=>r.json());
+      if(ld.lodge){
+        lodgeConfig={
+          name:ld.lodge.name,suites:ld.lodge.suites||20,
+          currency:ld.lodge.currency||'USD',country:ld.lodge.country||'Kenya',
+          type:ld.lodge.property_type||'Safari Lodge'
+        };
+        if(ld.packages&&ld.packages.length>0)
+          packages=ld.packages.map(p=>({name:p.name,icon:p.icon||'🏕️',base_rate:parseFloat(p.base_rate)||450}));
+        if(ld.seasons&&ld.seasons.length>0)
+          seasons=ld.seasons;
+      }
+    }
+  }catch(e){console.warn(e);}
+
+  // Fallback localStorage
+  if(!lodgeConfig.name){
+    try{
+      const raw=localStorage.getItem('terrainConfig');
+      if(raw){
+        const cfg=JSON.parse(raw);
+        lodgeConfig={name:cfg.name||'Your Lodge',suites:cfg.suites||20,currency:cfg.currency||'USD',country:cfg.country||'Kenya',type:cfg.property_type||'Safari Lodge'};
+        if(cfg.packages&&cfg.packages.length>0)
+          packages=cfg.packages.map(p=>({name:p.name,icon:p.icon||'🏕️',base_rate:parseFloat(p.rate||p.base_rate)||450}));
+        if(cfg.seasons&&cfg.seasons.length>0)
+          seasons=cfg.seasons;
+      }
+    }catch{}
+  }
+  if(!lodgeConfig.name) lodgeConfig={name:'Your Lodge',suites:20,currency:'USD',country:'Kenya',type:'Safari Lodge'};
+
+  // Load calendar data — API first, fallback to localStorage
+  try{
+    const calRes=await fetch('/api/calendar').then(r=>r.json());
+    if(calRes.occData&&Object.keys(calRes.occData).length>0){
+      calData=calRes.occData;
+      localStorage.setItem('terrainCalendarV2',JSON.stringify(calData));
+    } else {
+      const s=localStorage.getItem('terrainCalendarV2');if(s) calData=JSON.parse(s);
+    }
+  }catch{
+    try{const s=localStorage.getItem('terrainCalendarV2');if(s) calData=JSON.parse(s);}catch{}
+  }
+
+  // Load manual booked — API first, fallback to localStorage
+  try{
+    const mbRes=await fetch('/api/manual-booked').then(r=>r.json());
+    if(mbRes.manualBooked&&Object.keys(mbRes.manualBooked).length>0){
+      localStorage.setItem('terrainManualBooked',JSON.stringify(mbRes.manualBooked));
+    }
+  }catch{}
+
+  // Sidebar
+  document.getElementById('sidePropName').textContent=lodgeConfig.name;
+  document.getElementById('sidePropMeta').textContent=`${lodgeConfig.type} · ${lodgeConfig.suites} suites`;
+  const ini=lodgeConfig.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  document.getElementById('userAvatar').textContent=ini.slice(0,2);
+  const wm={'Kenya':['24°C','☀️ Masai Mara · Shoulder'],'Tanzania':['26°C','☀️ Serengeti · Dry'],'South Africa':['18°C','🌤️ Mild'],'Botswana':['29°C','☀️ Okavango · Dry'],'default':['22°C','🌤️ Favorable']};
+  const w=wm[lodgeConfig.country]||wm['default'];
+  document.getElementById('weatherTemp').textContent=w[0];
+  document.getElementById('weatherInfo').textContent=w[1];
+
+  // Set bundle accommodation slider to first package base rate
+  if(packages.length>0){
+    const base=Math.round(packages[0].base_rate);
+    document.getElementById('s_accom').value=Math.min(2000,base);
+  }
+
+  renderSeasons();
+  renderPackageRevenue();
+  updateBundle();
+});
+
+function sym(){return SYM_MAP[lodgeConfig.currency]||'$';}
+
+// ── Season Bands ──────────────────────────────────────────────
+function renderSeasons(){
+  const el=document.getElementById('seasonBands');
+  if(!seasons||seasons.length===0){
+    el.innerHTML=`<div class="empty-state">
+      <div class="es-icon">🗓️</div>
+      <div class="es-title">No seasons configured</div>
+      <div class="es-sub">Set up your seasons in <a href="/onboarding">Property Settings</a> to see rate bands.</div>
+    </div>`;
+    return;
+  }
+
+  // Sort by multiplier descending (peak first)
+  const sorted=[...seasons].sort((a,b)=>b.multiplier-a.multiplier);
+  const maxMult=sorted[0].multiplier||1;
+
+  el.innerHTML=sorted.map((s,i)=>{
+    const color=s.color||SEASON_COLORS[i%SEASON_COLORS.length];
+    const barPct=Math.round((s.multiplier/maxMult)*100);
+    // Rate range: base_rate of first package × multiplier, single to double
+    const baseRate=packages.length>0?packages[0].base_rate:500;
+    const lo=Math.round(baseRate*s.multiplier);
+    const hi=Math.round(baseRate*s.multiplier*2.1);
+    const sym2=sym();
+    // Format months
+    const monthStr=s.months||'';
+    return`<div class="sb-row" style="background:${color}10;border-color:${color}30;">
+      <div class="sb-season">${s.name}</div>
+      <div class="sb-bar-wrap"><div class="sb-bar" style="width:${barPct}%;background:${color};"></div></div>
+      <div class="sb-rate">${sym2}${lo.toLocaleString()}–${sym2}${hi.toLocaleString()}</div>
+      <div class="sb-badge" style="background:${color}20;color:${color};">${monthStr}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Package Revenue from Calendar Data ────────────────────────
+function renderPackageRevenue(){
+  const s=sym();
+  const spp=Math.max(1,Math.floor((lodgeConfig.suites||20)/Math.max(1,packages.length)));
+  const now=new Date();
+  const year=now.getFullYear(), month=now.getMonth();
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const today=now.getDate();
+
+  // Build all days in current month
+  const allDays=[];
+  for(let d=1;d<=daysInMonth;d++){
+    const key=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isPast=d<today;
+    const hasData=calData[key]&&Object.keys(calData[key]).length>0;
+    allDays.push({d,key,isPast,hasData});
+  }
+
+  const confirmedDays=allDays.filter(day=>day.hasData);
+  const projectedDays=allDays.filter(day=>!day.hasData&&!day.isPast);
+  const PROJ_OCC=0.60;
+
+  // Load manual booked overrides
+  let manualBooked={};
+  try{const mb=localStorage.getItem('terrainManualBooked');if(mb) manualBooked=JSON.parse(mb);}catch{}
+
+  // Per-package stats
+  const stats=packages.map((pkg,pi)=>{
+    // Sum calendar confirmed bookings & compute avg smart rate from calendar
+    let calBooked=0, calRev=0, confDays=0;
+    confirmedDays.forEach(({key})=>{
+      const b=(calData[key]||{})[pi];
+      if(b===undefined||b===null) return;
+      const pct=Math.min(100,Math.round((b/spp)*100));
+      calRev+=b*getRec(pkg.base_rate,pct,key);
+      calBooked+=b;
+      confDays++;
+    });
+
+    // Avg smart rate per booked unit from calendar
+    const avgSmartRate=calBooked>0?Math.round(calRev/calBooked):Math.round(getRec(pkg.base_rate,-1,
+      `${year}-${String(month+1).padStart(2,'0')}-${String(today).padStart(2,'0')}`));
+
+    // Use manual booked if set, otherwise calendar-derived
+    const manualSet=manualBooked[pi]!==undefined;
+    const bookedCount=manualSet?parseInt(manualBooked[pi]):calBooked;
+
+    // Validate against max suites
+    const maxSuites=lodgeConfig.suites||20;
+    const isOverMax=bookedCount>maxSuites;
+
+    // Confirmed revenue = actual booked count × avg smart rate
+    const confRev=bookedCount*avgSmartRate;
+    // vs Base = confirmed rev vs what flat base rate earns for same bookings
+    const baseRev=bookedCount*pkg.base_rate;
+    const vsBase=confRev-baseRev;
+
+    // Projected — remaining days at 60% occ × smart default rate
+    let projRev=0;
+    projectedDays.forEach(({key})=>{
+      const assumedBooked=Math.round(spp*PROJ_OCC);
+      projRev+=assumedBooked*getRec(pkg.base_rate,-1,key);
+    });
+
+    return{pkg,pi,bookedCount,confRev,confDays,projRev,vsBase,avgSmartRate,spp,isOverMax,manualSet,calBooked};
+  });
+
+  // ── Month banner — uses manual booked values ──────────────
+  const totalConf=stats.reduce((a,st)=>a+st.confRev,0);
+  const totalProj=stats.reduce((a,st)=>a+st.projRev,0);
+  const grandTotal=totalConf+totalProj;
+  const daysLeft=projectedDays.length;
+  const confBookedDays=confirmedDays.length;
+
+  document.getElementById('monthBanner').style.display='block';
+  const mn=['January','February','March','April','May','June','July','August','September','October','November','December'][month];
+  document.getElementById('bannerMonth').textContent=`${mn} ${year} — Revenue Forecast`;
+  document.getElementById('bannerConfirmed').textContent=`${s}${Math.round(totalConf).toLocaleString()}`;
+  document.getElementById('bannerConfSub').textContent=`${stats.reduce((a,st)=>a+st.bookedCount,0)} total booked units`;
+  document.getElementById('bannerProjected').textContent=`${s}${Math.round(totalProj).toLocaleString()}`;
+  document.getElementById('bannerProjSub').textContent=`${daysLeft} remaining days @ 60% occ.`;
+  document.getElementById('bannerTotal').textContent=`${s}${Math.round(grandTotal).toLocaleString()}`;
+  document.getElementById('bannerDaysSub').textContent=`${daysLeft} days still to fill`;
+
+  // ── Table ─────────────────────────────────────────────────
+  const rows=stats.map(st=>{
+    const vsStr=st.vsBase>0
+      ?`<span class="positive">+${s}${Math.round(st.vsBase).toLocaleString()}</span>`
+      :st.vsBase<0
+      ?`<span class="negative">−${s}${Math.round(Math.abs(st.vsBase)).toLocaleString()}</span>`
+      :`<span style="color:var(--ink-muted);">On target</span>`;
+
+    const confStr=st.confRev>0?`${s}${Math.round(st.confRev).toLocaleString()}`:'—';
+    const projStr=st.projRev>0
+      ?`<span style="color:#8a7d72;font-style:italic;">${s}${Math.round(st.projRev).toLocaleString()}</span>`
+      :'—';
+
+    // Warning if over max suites
+    const warn=st.isOverMax
+      ?`<div style="font-size:9px;color:var(--terra);margin-top:2px;">⚠️ Exceeds ${lodgeConfig.suites} suites</div>`:'';
+    // Note if manually overriding calendar
+    const calNote=st.manualSet&&st.calBooked>0&&st.calBooked!==st.bookedCount
+      ?`<div style="font-size:9px;color:var(--ink-muted);">Cal: ${st.calBooked}</div>`:'';
+
+    return`<tr>
+      <td class="td-name">${st.pkg.icon} ${st.pkg.name}</td>
+      <td>
+        <input type="number" min="0" max="${lodgeConfig.suites||20}"
+          value="${st.bookedCount>0?st.bookedCount:''}"
+          placeholder="0"
+          title="Enter actual bookings from your PMS"
+          style="width:56px;border:1px solid ${st.isOverMax?'var(--terra)':'var(--border)'};border-radius:5px;padding:4px 6px;font-size:12px;font-family:'DM Mono',monospace;color:var(--ink);background:var(--cream);text-align:center;"
+          onchange="saveManualBooked(${st.pi}, this.value)"
+          onfocus="this.style.borderColor='var(--terra)'"
+          onblur="this.style.borderColor='${st.isOverMax?'var(--terra)':'var(--border)'}'"
+        />${warn}${calNote}
+      </td>
+      <td>${s}${st.avgSmartRate.toLocaleString()}</td>
+      <td><strong>${confStr}</strong></td>
+      <td>${projStr}</td>
+      <td>${vsStr}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('pkgRevenueTable').innerHTML=`
+    <div style="font-size:10px;color:var(--ink-muted);margin-bottom:8px;margin-top:4px;">
+      <strong style="color:var(--ink-soft);">Booked ✏️</strong> = type your actual figures from your PMS (max: ${lodgeConfig.suites||20} suites) &nbsp;·&nbsp;
+      <em style="color:#8a7d72;">Projected</em> = remaining days at 60% occ.
+    </div>
+    <table class="data-table">
+      <thead><tr>
+        <th>Package</th><th>Booked ✏️</th><th>Avg Rate</th>
+        <th>Confirmed Rev</th><th>Projected Rev</th><th>vs Base</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+
+  // ── Occupancy bars ────────────────────────────────────────
+  const barColors=['#c4613a','#b8922a','#3a5c42','#7ab0d4','#8a6fa0'];
+  const maxBooked=Math.max(...stats.map(st=>st.bookedCount),1);
+  document.getElementById('attachRates').innerHTML=stats.map((st,i)=>{
+    const pct=Math.round((st.bookedCount/Math.max(maxBooked,1))*100);
+    const occPct=Math.round((st.bookedCount/(lodgeConfig.suites||20))*100);
+    return`<div class="attach-bar-row">
+      <div class="attach-bar-label">${st.pkg.icon} ${st.pkg.name}</div>
+      <div class="attach-bar-bg"><div class="attach-bar-fill" style="width:${Math.min(pct,100)}%;background:${barColors[i%barColors.length]};"></div></div>
+      <div class="attach-bar-pct">${occPct>0?occPct+'%':'—'}</div>
+    </div>`;
+  }).join('');
+}
+
+  // ── Occupancy bars ────────────────────────────────────────
+  const barColors=['#c4613a','#b8922a','#3a5c42','#7ab0d4','#8a6fa0'];
+  const maxBooked=Math.max(...stats.map(st=>st.confBooked),1);
+  document.getElementById('attachRates').innerHTML=stats.map((st,i)=>{
+    const pct=Math.round((st.confBooked/Math.max(maxBooked,1))*100);
+    const occPct=st.confDays>0?Math.round((st.confBooked/(st.confDays*st.spp))*100):0;
+    return`<div class="attach-bar-row">
+      <div class="attach-bar-label">${st.pkg.icon} ${st.pkg.name}</div>
+      <div class="attach-bar-bg"><div class="attach-bar-fill" style="width:${pct}%;background:${barColors[i%barColors.length]};"></div></div>
+      <div class="attach-bar-pct">${occPct>0?occPct+'%':'—'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Calendar rate logic (mirrors calendar.html) ───────────────
+function getBaseMultiplier(dateKeyStr){
+  const dt=new Date(dateKeyStr+'T12:00:00');
+  const dow=dt.getDay(),mon=dt.getMonth();
+  const sm={0:0.88,1:0.88,2:0.92,3:0.85,4:0.85,5:1.10,6:1.30,7:1.30,8:1.15,9:1.20,10:0.90,11:0.95}[mon]||1.0;
+  const dm=[1.15,0.90,0.88,0.88,0.95,1.20,1.20][dow]||1.0;
+  return sm*dm;
+}
+function getRec(base,pct,key){
+  const def=Math.round(base*(key?getBaseMultiplier(key):1));
+  if(pct>=100) return Math.round(def*1.45);
+  if(pct>=90)  return Math.round(def*1.35);
+  if(pct>=80)  return Math.round(def*1.20);
+  if(pct>=70)  return Math.round(def*1.10);
+  if(pct>=55)  return Math.round(def*1.00);
+  if(pct>=40)  return Math.round(def*0.90);
+  if(pct>=0)   return Math.round(def*0.80);
+  return def;
+}
+
+// ── Bundle Builder ────────────────────────────────────────────
+function updateBundle(){
+  const accom=+document.getElementById('s_accom').value;
+  const drive=+document.getElementById('s_drive').value;
+  const board=+document.getElementById('s_board').value;
+  const spa  =+document.getElementById('s_spa').value;
+  const trans=+document.getElementById('s_transfer').value;
+  const s=sym();
+
+  document.getElementById('v_accom').textContent=`${s}${accom}`;
+  document.getElementById('v_drive').textContent=`${s}${drive}`;
+  document.getElementById('v_board').textContent=`${s}${board}`;
+  document.getElementById('v_spa').textContent=`${s}${spa}`;
+  document.getElementById('v_transfer').textContent=`${s}${trans}`;
+
+  // 3-night bundle: (accom×3) + (drive+board)×3 + spa + transfer
+  const total=(accom*3)+(drive*3)+(board*3)+spa+trans;
+  document.getElementById('bb_total').textContent=`${s}${total.toLocaleString()}`;
+
+  // Recommendation logic
+  let rec='Adjust the sliders to model your ideal bundle.';
+  if(spa===0&&total>1500) rec='Adding a spa or wellness credit ($150–$300) increases perceived value and justifies a rate premium of 8–12%.';
+  else if(trans===0&&accom>600) rec='At this rate tier, guests expect transfers to be included. Consider bundling airport pickup to reduce friction at booking.';
+  else if(drive>200) rec='High game drive cost — consider a shared vehicle model to reduce per-guest cost while maintaining the experience.';
+  else if(total>5000) rec='Strong premium bundle. Ensure this is positioned as a limited availability offering to maintain exclusivity pricing.';
+  else rec='Well-balanced bundle. Compare to your peak season rate to ensure sufficient margin on high-demand dates.';
+  document.getElementById('bb_rec').textContent=rec;
+}
+
+function saveManualBooked(pi, value){
+  let mb={};
+  try{const s=localStorage.getItem('terrainManualBooked');if(s) mb=JSON.parse(s);}catch{}
+  const v=parseInt(value);
+  if(isNaN(v)||value==='') delete mb[pi];
+  else mb[pi]=Math.max(0,v);
+  localStorage.setItem('terrainManualBooked',JSON.stringify(mb));
+  // Save to DB
+  fetch('/api/manual-booked',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({manualBooked:mb})
+  }).catch(e=>console.warn('Manual booked save failed:',e));
+  renderPackageRevenue();
+}
+
+async function doLogout(){
+  try{await fetch('/api/auth/logout',{method:'POST'});}catch{}
+  localStorage.removeItem('terrainConfig');
+  window.location.href='/login';
+}
+</script>
 </body>
 </html>

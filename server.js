@@ -488,10 +488,11 @@ app.get('/', (req, res) => {
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
 app.get('/onboarding', (req, res) => res.sendFile(path.join(__dirname, 'public', 'onboarding.html')));
+app.get('/calendar', (req, res) => res.sendFile(path.join(__dirname, 'public', 'calendar.html')));
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
-app.get('/packages', (req, res) => res.sendFile(path.join(__dirname, 'public', 'packages.html')));
-app.get('/forecast', (req, res) => res.sendFile(path.join(__dirname, 'public', 'forecast.html')));
-app.get('/channels', (req, res) => res.sendFile(path.join(__dirname, 'public', 'channels.html')));
+app.get('/packages', (req, res) => res.redirect('/calendar'));
+app.get('/forecast', (req, res) => res.redirect('/calendar'));
+app.get('/channels', (req, res) => res.redirect('/calendar'));
 app.get('/forgot-password', (req, res) => res.sendFile(path.join(__dirname, 'public', 'forgot-password.html')));
 app.get('/reset-password', (req, res) => res.sendFile(path.join(__dirname, 'public', 'reset-password.html')));
 app.get('/pricing', (req, res) => res.sendFile(path.join(__dirname, 'public', 'pricing.html')));
@@ -499,7 +500,309 @@ app.get('/terms', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ter
 app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'public', 'privacy.html')));
 app.get('/refund', (req, res) => res.sendFile(path.join(__dirname, 'public', 'refund.html')));
 
+// ── Paddle Webhook ─────────────────────────────────────────────
+const PADDLE_WEBHOOK_SECRET = 'pdl_ntfset_01kpr568jvcc2y2fk6r3vceh9k_l+Oa5J76ZyVhHuOWwtkwRBrsrif79WLY';
+
+app.post('/api/paddle/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+  try {
+    // Verify signature
+    const signature = req.headers['paddle-signature'];
+    if (signature && PADDLE_WEBHOOK_SECRET) {
+      const crypto = require('crypto');
+      const [tsPart, h1Part] = signature.split(';');
+      const ts = tsPart.replace('ts=', '');
+      const h1 = h1Part.replace('h1=', '');
+      const signed = crypto.createHmac('sha256', PADDLE_WEBHOOK_SECRET)
+        .update(ts + ':' + req.body.toString())
+        .digest('hex');
+      if (signed !== h1) {
+        console.warn('Paddle webhook signature mismatch');
+        return res.status(401).json({ error: 'Invalid signature' });
+      }
+    }
+
+    const payload = JSON.parse(req.body.toString());
+    const eventType = payload.event_type || payload.alert_name;
+    const data = payload.data || payload;
+
+    // Map Paddle price IDs to plan names
+    const planMap = {
+      'pri_01kpr30n4mara8vb8z4n7bsne0': 'starter',
+      'pri_01kpr38n93bkf232chqhp2919q': 'growth',
+      'pri_01kpr3ck1stnaeye6599wme271': 'portfolio'
+    };
+
+    if (eventType === 'subscription.activated' || eventType === 'subscription.updated') {
+      const email = data.customer?.email || data.email;
+      const priceId = data.items?.[0]?.price?.id || data.subscription_plan_id;
+      const plan = planMap[priceId] || 'starter';
+      const paddleSubId = data.id || data.subscription_id;
+
+      if (email) {
+        await pool.query(
+          `UPDATE users SET plan = $1, paddle_subscription_id = $2, plan_status = 'active' WHERE email = $3`,
+          [plan, paddleSubId, email]
+        );
+        console.log(`Plan activated: ${email} → ${plan}`);
+      }
+    }
+
+    if (eventType === 'subscription.cancelled' || eventType === 'subscription.canceled') {
+      const email = data.customer?.email || data.email;
+      if (email) {
+        await pool.query(
+          `UPDATE users SET plan = 'trial', plan_status = 'cancelled' WHERE email = $1`,
+          [email]
+        );
+        console.log(`Subscription cancelled: ${email}`);
+      }
+    }
+
+    if (eventType === 'transaction.completed') {
+      const email = data.customer?.email || data.email;
+      const priceId = data.items?.[0]?.price?.id;
+      const plan = planMap[priceId];
+      if (email && plan) {
+        await pool.query(
+          `UPDATE users SET plan = $1, plan_status = 'active' WHERE email = $2`,
+          [plan, email]
+        );
+        console.log(`Payment completed: ${email} → ${plan}`);
+      }
+    }
+
+    res.json({ received: true });
+  } catch (err) {
+    console.error('Paddle webhook error:', err);
+    res.status(400).json({ error: 'Webhook error' });
+  }
+});
+
 // Start
-initDB().then(() => {
+initDB().then(() => migrateDB()).then(() => {
   app.listen(PORT, () => console.log(`Terrain running on port ${PORT}`));
+});
+
+// NOTE: Run this once to add new tables (safe to call repeatedly due to IF NOT EXISTS)
+async function migrateDB() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS calendar_data (
+        id SERIAL PRIMARY KEY,
+        lodge_id INTEGER REFERENCES lodges(id) ON DELETE CASCADE,
+        date_key VARCHAR(10) NOT NULL,
+        pkg_idx INTEGER NOT NULL,
+        booked_count INTEGER DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(lodge_id, date_key, pkg_idx)
+      );
+      CREATE TABLE IF NOT EXISTS manual_booked (
+        id SERIAL PRIMARY KEY,
+        lodge_id INTEGER REFERENCES lodges(id) ON DELETE CASCADE,
+        pkg_idx INTEGER NOT NULL,
+        booked_count INTEGER DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(lodge_id, pkg_idx)
+      );
+    `);
+    // Add active_lodge_id column if not exists
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS active_lodge_id INTEGER REFERENCES lodges(id) ON DELETE SET NULL`);
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS paddle_subscription_id VARCHAR(100)`);
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_status VARCHAR(20) DEFAULT 'trial'`);
+    console.log('Migration complete');
+  } catch (err) {
+    console.error('Migration error:', err.message);
+  }
+}
+
+// ============================================================
+// CALENDAR DATA ROUTES
+// ============================================================
+
+// Save calendar occupancy data
+app.post('/api/calendar', authRequired, async (req, res) => {
+  const { occData } = req.body; // { 'YYYY-MM-DD': { pkgIdx: bookedCount } }
+  if (!occData) return res.status(400).json({ error: 'No data provided' });
+
+  try {
+    const lodge = await pool.query('SELECT id FROM lodges WHERE user_id = $1 LIMIT 1', [req.user.id]);
+    if (lodge.rows.length === 0) return res.status(404).json({ error: 'No lodge found' });
+    const lodgeId = lodge.rows[0].id;
+
+    // Upsert each date/pkg entry
+    for (const [dateKey, pkgObj] of Object.entries(occData)) {
+      for (const [pkgIdx, bookedCount] of Object.entries(pkgObj)) {
+        await pool.query(`
+          INSERT INTO calendar_data (lodge_id, date_key, pkg_idx, booked_count, updated_at)
+          VALUES ($1, $2, $3, $4, NOW())
+          ON CONFLICT (lodge_id, date_key, pkg_idx)
+          DO UPDATE SET booked_count = $4, updated_at = NOW()
+        `, [lodgeId, dateKey, parseInt(pkgIdx), parseInt(bookedCount) || 0]);
+      }
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Calendar save error:', err);
+    res.status(500).json({ error: 'Failed to save calendar data' });
+  }
+});
+
+// Load calendar occupancy data
+app.get('/api/calendar', authRequired, async (req, res) => {
+  try {
+    const lodge = await pool.query('SELECT id FROM lodges WHERE user_id = $1 LIMIT 1', [req.user.id]);
+    if (lodge.rows.length === 0) return res.json({ occData: {} });
+    const lodgeId = lodge.rows[0].id;
+
+    const result = await pool.query(
+      'SELECT date_key, pkg_idx, booked_count FROM calendar_data WHERE lodge_id = $1',
+      [lodgeId]
+    );
+
+    // Reconstruct { 'YYYY-MM-DD': { pkgIdx: bookedCount } }
+    const occData = {};
+    result.rows.forEach(row => {
+      if (!occData[row.date_key]) occData[row.date_key] = {};
+      occData[row.date_key][row.pkg_idx] = row.booked_count;
+    });
+
+    res.json({ occData });
+  } catch (err) {
+    console.error('Calendar load error:', err);
+    res.status(500).json({ error: 'Failed to load calendar data' });
+  }
+});
+
+// Save manual booked overrides (packages page)
+app.post('/api/manual-booked', authRequired, async (req, res) => {
+  const { manualBooked } = req.body; // { pkgIdx: bookedCount }
+  if (!manualBooked) return res.status(400).json({ error: 'No data provided' });
+
+  try {
+    const lodge = await pool.query('SELECT id FROM lodges WHERE user_id = $1 LIMIT 1', [req.user.id]);
+    if (lodge.rows.length === 0) return res.status(404).json({ error: 'No lodge found' });
+    const lodgeId = lodge.rows[0].id;
+
+    for (const [pkgIdx, bookedCount] of Object.entries(manualBooked)) {
+      await pool.query(`
+        INSERT INTO manual_booked (lodge_id, pkg_idx, booked_count, updated_at)
+        VALUES ($1, $2, $3, NOW())
+        ON CONFLICT (lodge_id, pkg_idx)
+        DO UPDATE SET booked_count = $3, updated_at = NOW()
+      `, [lodgeId, parseInt(pkgIdx), parseInt(bookedCount) || 0]);
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Manual booked save error:', err);
+    res.status(500).json({ error: 'Failed to save manual booked data' });
+  }
+});
+
+// Load manual booked overrides
+app.get('/api/manual-booked', authRequired, async (req, res) => {
+  try {
+    const lodge = await pool.query('SELECT id FROM lodges WHERE user_id = $1 LIMIT 1', [req.user.id]);
+    if (lodge.rows.length === 0) return res.json({ manualBooked: {} });
+    const lodgeId = lodge.rows[0].id;
+
+    const result = await pool.query(
+      'SELECT pkg_idx, booked_count FROM manual_booked WHERE lodge_id = $1',
+      [lodgeId]
+    );
+
+    const manualBooked = {};
+    result.rows.forEach(row => { manualBooked[row.pkg_idx] = row.booked_count; });
+
+    res.json({ manualBooked });
+  } catch (err) {
+    console.error('Manual booked load error:', err);
+    res.status(500).json({ error: 'Failed to load manual booked data' });
+  }
+});
+
+// ============================================================
+// MULTI-PROPERTY SUPPORT
+// ============================================================
+
+// Get all lodges for this user
+app.get('/api/lodges', authRequired, async (req, res) => {
+  try {
+    const lodges = await pool.query(
+      'SELECT id, name, country, region, property_type, suites, currency FROM lodges WHERE user_id = $1 ORDER BY created_at ASC',
+      [req.user.id]
+    );
+    let activeLodgeId = null;
+    try {
+      const user = await pool.query('SELECT active_lodge_id FROM users WHERE id = $1', [req.user.id]);
+      activeLodgeId = user.rows[0]?.active_lodge_id || null;
+    } catch(e) { /* column may not exist yet */ }
+    res.json({ lodges: lodges.rows, activeLodgeId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to load lodges' });
+  }
+});
+
+// Switch active lodge
+app.post('/api/lodges/switch', authRequired, async (req, res) => {
+  const { lodgeId } = req.body;
+  if (!lodgeId) return res.status(400).json({ error: 'lodgeId required' });
+  try {
+    // Verify this lodge belongs to user
+    const check = await pool.query('SELECT id FROM lodges WHERE id = $1 AND user_id = $2', [lodgeId, req.user.id]);
+    if (check.rows.length === 0) return res.status(403).json({ error: 'Not your lodge' });
+    // Add active_lodge_id column if not exists
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS active_lodge_id INTEGER REFERENCES lodges(id) ON DELETE SET NULL`);
+    await pool.query('UPDATE users SET active_lodge_id = $1 WHERE id = $2', [lodgeId, req.user.id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to switch lodge' });
+  }
+});
+
+// Create new property (additional lodge)
+app.post('/api/lodges/new', authRequired, async (req, res) => {
+  const { name, country, region, property_type, suites, currency } = req.body;
+  if (!name) return res.status(400).json({ error: 'Name required' });
+  try {
+    const result = await pool.query(
+      'INSERT INTO lodges (user_id, name, country, region, property_type, suites, currency) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id',
+      [req.user.id, name, country || '', region || '', property_type || 'Safari Lodge', suites || 20, currency || 'USD']
+    );
+    const lodgeId = result.rows[0].id;
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS active_lodge_id INTEGER REFERENCES lodges(id) ON DELETE SET NULL`).catch(()=>{});
+    await pool.query('UPDATE users SET active_lodge_id = $1 WHERE id = $2', [lodgeId, req.user.id]);
+    res.json({ success: true, lodgeId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create lodge' });
+  }
+});
+
+// Get active lodge (respects active_lodge_id)
+app.get('/api/active-lodge', authRequired, async (req, res) => {
+  try {
+    const user = await pool.query('SELECT active_lodge_id FROM users WHERE id = $1', [req.user.id]).catch(() => ({ rows: [{}] }));
+    const activeLodgeId = user.rows[0]?.active_lodge_id;
+
+    let lodge;
+    if (activeLodgeId) {
+      lodge = await pool.query('SELECT * FROM lodges WHERE id = $1 AND user_id = $2', [activeLodgeId, req.user.id]);
+    }
+    if (!lodge || lodge.rows.length === 0) {
+      lodge = await pool.query('SELECT * FROM lodges WHERE user_id = $1 ORDER BY created_at ASC LIMIT 1', [req.user.id]);
+    }
+
+    if (lodge.rows.length === 0) return res.json({ lodge: null });
+    const lodgeId = lodge.rows[0].id;
+    const packages = await pool.query('SELECT * FROM packages WHERE lodge_id = $1 ORDER BY display_order', [lodgeId]);
+    const seasons = await pool.query('SELECT * FROM seasons WHERE lodge_id = $1 ORDER BY display_order', [lodgeId]);
+    res.json({ lodge: lodge.rows[0], packages: packages.rows, seasons: seasons.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to load active lodge' });
+  }
 });

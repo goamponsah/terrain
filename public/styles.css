@@ -55,7 +55,10 @@ body::before {
   display: flex; flex-direction: column;
   padding: 0;
   flex-shrink: 0;
-  position: relative;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  height: 100vh;
+  z-index: 100;
   overflow: hidden;
 }
 
@@ -158,7 +161,7 @@ body::before {
 .user-role { font-size: 10px; color: rgba(255,255,255,0.3); }
 
 /* ---- Main ---- */
-.main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--warm-bg); }
+.main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--warm-bg); margin-left: var(--sidebar-w); }
 
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
