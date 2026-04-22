@@ -322,7 +322,7 @@ async function loadExisting(){
       document.getElementById('f_suites').value=res.lodge.suites||'';
       document.getElementById('f_currency').value=res.lodge.currency||'USD';
       if(res.packages&&res.packages.length>0){
-        packages=res.packages.map(p=>({icon:p.icon||'🏕️',name:p.name||'',rate:p.base_rate||''}));
+        packages=res.packages.map(p=>({icon:p.icon||'🏕️',name:p.name||'',rate:p.base_rate!=null?p.base_rate:''}));
       }
       // Change button label to indicate editing
       document.getElementById('submitBtn').textContent='Update Property Settings →';
