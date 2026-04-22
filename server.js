@@ -802,7 +802,7 @@ app.get('/api/admin/overview', authRequired, async (req, res) => {
         occData[row.date_key][row.pkg_idx] = row.booked_count;
       });
 
-      // Calculate fixed vs recommended revenue
+      // Calculate fixed vs recommended revenue — exact same logic as calendar.html
       const spp = Math.max(1, Math.floor((lodge.suites || 10) / Math.max(1, pkgs.rows.length)));
       let fixedRevenue = 0, recRevenue = 0, daysWithData = 0;
       const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
@@ -810,18 +810,20 @@ app.get('/api/admin/overview', authRequired, async (req, res) => {
       for (let d = 1; d <= daysInMonth; d++) {
         const key = `${monthStr}-${String(d).padStart(2,'0')}`;
         if (!occData[key]) continue;
-        const intKeys = Object.keys(occData[key]).filter(k => /^\d+$/.test(k));
-        if (intKeys.length === 0) continue;
-        daysWithData++;
-        intKeys.forEach(pi => {
-          const pkg = pkgs.rows[parseInt(pi)];
-          if (!pkg) return;
-          const booked = parseInt(occData[key][pi]) || 0;
-          const pct = Math.min(100, Math.round((booked / spp) * 100));
-          const recRate = getRecRate(pkg.base_rate, pct, key);
-          fixedRevenue += pkg.base_rate * booked;
-          recRevenue += recRate * booked;
+        let dayHasData = false;
+        pkgs.rows.forEach((pkg, pi) => {
+          const bS = parseInt(occData[key][pi + '_s']) || 0;
+          const bD = parseInt(occData[key][pi + '_d']) || 0;
+          const totalBooked = bS + bD;
+          if (totalBooked <= 0) return;
+          dayHasData = true;
+          const pct = Math.min(100, Math.round((totalBooked / spp) * 100));
+          const recS = getRecRate(pkg.base_rate, pct, key);
+          const recD = Math.round(recS * 2);
+          fixedRevenue += (pkg.base_rate * bS) + (pkg.base_rate * 2 * bD);
+          recRevenue += (recS * bS) + (recD * bD);
         });
+        if (dayHasData) daysWithData++;
       }
 
       result.push({
