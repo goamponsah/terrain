@@ -231,10 +231,7 @@
           <span style="background:rgba(58,92,66,0.12);border:1px solid rgba(58,92,66,0.25);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;color:#3a5c42;white-space:nowrap;">HOLD</span>
           <span style="font-size:12px;color:var(--ink-soft);">60–84% occupancy. Healthy demand. Keep your current pricing.</span>
         </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <span style="background:rgba(58,88,120,0.12);border:1px solid rgba(58,88,120,0.25);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;color:#3a5878;white-space:nowrap;">MID</span>
-          <span style="font-size:12px;color:var(--ink-soft);">60–84% occupancy. Same as HOLD — pricing is stable.</span>
-        </div>
+
         <div style="display:flex;gap:10px;align-items:flex-start;">
           <span style="background:rgba(100,130,180,0.12);border:1px solid rgba(100,130,180,0.25);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;color:#3a5878;white-space:nowrap;">PROMO?</span>
           <span style="font-size:12px;color:var(--ink-soft);">30–59% occupancy. Demand is soft — consider a promotional rate or value-add offer.</span>
@@ -442,7 +439,7 @@ function getSignal(pct, dateKeyStr){
   if(m>=1.25) return{label:'PEAK',cls:'b-surge',sig:'sig-surge'};
   if(m>=1.08) return{label:'HIGH',cls:'b-hold',sig:'sig-hold'};
   if(m<=0.89) return{label:'LOW',cls:'b-promo',sig:'sig-slow'};
-  return{label:'MID',cls:'b-open',sig:''};
+  return{label:'HOLD',cls:'b-hold',sig:'sig-hold'};
 }
 function spkg(){return Math.max(1,Math.floor((lodgeConfig.suites||20)/packages.length));}
 
