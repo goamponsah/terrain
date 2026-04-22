@@ -550,8 +550,9 @@ function updatePkgBookedSplit(key,pi,type,value,spp){
   const total=s2+d2;
   if(total>0){ if(!occData[key]) occData[key]={}; occData[key][pi]=total; }
   else if(occData[key]) delete occData[key][pi];
-  saveOccData();
-  renderGrid();
+  autoSave();
+  clearTimeout(renderTimer);
+  renderTimer=setTimeout(()=>renderGrid(),600);
 }
 function updatePkgBooked(key,pi,value,spp){
   const v=parseInt(value);
