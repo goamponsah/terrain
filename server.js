@@ -763,8 +763,8 @@ function getRecRate(base, pct, dateKeyStr) {
 app.get('/api/admin/overview', authRequired, async (req, res) => {
   try {
     // Simple hardcoded admin check — only your email
-    // Admin check - requires login
-    if (!req.user) {
+    // Admin check - server side only, email never exposed to client
+    if (!req.user || !req.user.email.toLowerCase().includes('ofosuamponsah')) {
       return res.status(403).json({ error: 'Forbidden' });
     }
 

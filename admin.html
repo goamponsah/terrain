@@ -164,13 +164,15 @@ async function adminLogin() {
     });
     if (res.ok) {
       const ok = await checkAuth();
-      if (ok) checkAuth().then(ok => {
-  if (ok) {
-    loadAdmin();
-    setInterval(() => loadAdmin(), 30000); // auto-refresh every 30s
-  }
-});
+      if (ok) {
+        loadAdmin();
+        setInterval(() => loadAdmin(), 30000);
+      } else {
+        errEl.textContent = 'Access denied. Admin only.';
+        errEl.style.display = 'block';
+      }
     } else {
+      errEl.textContent = 'Invalid email or password.';
       errEl.style.display = 'block';
     }
   } catch(e) {
