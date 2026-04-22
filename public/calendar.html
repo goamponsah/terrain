@@ -611,9 +611,19 @@ function updateSummary(dates,spp,s){
     const uplift=recTotal-fixedTotal;
     document.getElementById('fixedRevValue').textContent=s+Math.round(fixedTotal).toLocaleString();
     document.getElementById('recRevValue').textContent=s+Math.round(recTotal).toLocaleString();
-    document.getElementById('upliftValue').textContent=(uplift>=0?'+':'-')+s+Math.abs(Math.round(uplift)).toLocaleString();
-    document.getElementById('upliftValue').style.color=uplift>=0?'#7ab87c':'#e8896a';
-    document.getElementById('upliftSub').textContent=`Across ${upliftDays} package-days with bookings entered`;
+    if(uplift>0){
+      document.getElementById('upliftValue').textContent='+'+s+Math.abs(Math.round(uplift)).toLocaleString();
+      document.getElementById('upliftValue').style.color='#7ab87c';
+      document.getElementById('upliftSub').textContent='Extra revenue by following Terrain\'s recommendations';
+    } else if(uplift<0){
+      document.getElementById('upliftValue').textContent='Fill rooms first';
+      document.getElementById('upliftValue').style.color='#d4aa44';
+      document.getElementById('upliftSub').textContent='Terrain recommends a lower rate to maximise occupancy';
+    } else {
+      document.getElementById('upliftValue').textContent='On target';
+      document.getElementById('upliftValue').style.color='rgba(255,255,255,0.5)';
+      document.getElementById('upliftSub').textContent='Your fixed rate matches the recommendation';
+    }
   } else {
     upliftBanner.style.display='none';
   }
