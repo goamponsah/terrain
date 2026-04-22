@@ -782,25 +782,32 @@ function openInsight(key,pi,pct,rec,spp,booked){
     </div>
 
     ${(()=>{
-      const actualS=(existingActual.s||0);
       const bookedUnits=booked||0;
-      if(rec>0&&bookedUnits>0&&actualS>0&&actualS<rec){
-        const upliftPerUnit=rec-actualS;
-        const totalUplift=Math.round(upliftPerUnit*bookedUnits);
-        return`<div style="background:rgba(196,97,58,0.12);border:1px solid rgba(196,97,58,0.35);border-radius:8px;padding:14px 16px;margin-bottom:12px;">
-          <div style="font-size:10px;font-weight:700;color:#e8896a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">💰 Revenue Uplift Today</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
-            <div><div style="font-size:9px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Your Rate</div><div style="font-size:15px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;">${s}${actualS.toLocaleString()}</div></div>
-            <div><div style="font-size:9px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Rec. Rate</div><div style="font-size:15px;font-weight:700;color:#e8896a;font-family:'DM Mono',monospace;">${s}${rec.toLocaleString()}</div></div>
-            <div><div style="font-size:9px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Uplift</div><div style="font-size:15px;font-weight:700;color:#7ab87c;font-family:'DM Mono',monospace;">+${s}${totalUplift.toLocaleString()}</div></div>
+      if(rec>0&&bookedUnits>0){
+        const fixedRevenue=Math.round(pkg.base_rate*bookedUnits);
+        const recRevenue=Math.round(rec*bookedUnits);
+        const uplift=recRevenue-fixedRevenue;
+        const upliftSign=uplift>=0?'+':'-';
+        const upliftColor=uplift>0?'#7ab87c':uplift<0?'#e8896a':'rgba(255,255,255,0.5)';
+        return`<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px 16px;margin-bottom:12px;">
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px;">💰 Revenue Comparison · ${bookedUnits} booked units</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+            <div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:10px;text-align:center;">
+              <div style="font-size:9px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">At Fixed Rate</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace;margin-bottom:2px;">${s}${Math.round(pkg.base_rate).toLocaleString()} × ${bookedUnits}</div>
+              <div style="font-size:20px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;">${s}${fixedRevenue.toLocaleString()}</div>
+            </div>
+            <div style="background:rgba(196,97,58,0.12);border:1px solid rgba(196,97,58,0.25);border-radius:6px;padding:10px;text-align:center;">
+              <div style="font-size:9px;color:#e8896a;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">At Recommended Rate</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace;margin-bottom:2px;">${s}${rec.toLocaleString()} × ${bookedUnits}</div>
+              <div style="font-size:20px;font-weight:700;color:#e8896a;font-family:'DM Mono',monospace;">${s}${recRevenue.toLocaleString()}</div>
+            </div>
           </div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:8px;text-align:center;">(${s}${upliftPerUnit.toLocaleString()} × ${bookedUnits} booked units)</div>
-        </div>`;
-      } else if(rec>0&&bookedUnits>0&&actualS<=0){
-        const potentialUplift=Math.round((rec-pkg.base_rate)*bookedUnits);
-        if(potentialUplift>0) return`<div style="background:rgba(184,146,42,0.1);border:1px solid rgba(184,146,42,0.3);border-radius:8px;padding:14px 16px;margin-bottom:12px;">
-          <div style="font-size:10px;font-weight:700;color:#d4aa44;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">💡 Potential Uplift</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.7);">If you charge the recommended ${s}${rec.toLocaleString()} instead of base ${s}${Math.round(pkg.base_rate).toLocaleString()}, you earn <span style="color:#7ab87c;font-weight:700;">+${s}${potentialUplift.toLocaleString()} more today</span> across ${bookedUnits} booked units.</div>
+          <div style="background:rgba(122,184,124,0.1);border:1px solid rgba(122,184,124,0.25);border-radius:6px;padding:10px;text-align:center;">
+            <div style="font-size:9px;color:#7ab87c;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Revenue Uplift</div>
+            <div style="font-size:24px;font-weight:700;font-family:'DM Mono',monospace;color:${upliftColor};">${upliftSign}${s}${Math.abs(uplift).toLocaleString()}</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;">by using Terrain's recommended rate today</div>
+          </div>
         </div>`;
       }
       return'';
