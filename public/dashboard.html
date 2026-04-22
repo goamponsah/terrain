@@ -510,8 +510,18 @@ function buildDashboard(cfg) {
     } catch(e) {}
   }
 
-  const calRaw = localStorage.getItem('terrainCalendarV2');
-  const calData = calRaw ? JSON.parse(calRaw) : {};
+  // Load calendar data from API (source of truth)
+  let calData = {};
+  try {
+    const calRes = await fetch('/api/calendar');
+    const calJson = await calRes.json();
+    calData = calJson.occData || {};
+    // Also update localStorage to keep in sync
+    localStorage.setItem('terrainCalendarV2', JSON.stringify(calData));
+  } catch(e) {
+    const calRaw = localStorage.getItem('terrainCalendarV2');
+    calData = calRaw ? JSON.parse(calRaw) : {};
+  }
   const year = now.getFullYear(), month = now.getMonth();
   const daysInMonth = new Date(year, month+1, 0).getDate();
   const spp = Math.max(1, Math.floor(suites / Math.max(1, cfg.packages.length)));
