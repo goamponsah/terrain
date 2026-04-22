@@ -470,7 +470,7 @@ function showSaveBanner(propertyName) {
 
 function goTo(path){ window.location.href = '/' + path; }
 
-function buildDashboard(cfg) {
+async function buildDashboard(cfg) {
   try {
   if (!cfg || !cfg.name) { window.location.href = '/onboarding'; return; }
   const sym = cfg.currency === 'ZAR' ? 'R' : cfg.currency === 'BWP' ? 'P' : cfg.currency === 'EUR' ? '€' : cfg.currency === 'GBP' ? '£' : '$';
