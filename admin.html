@@ -55,15 +55,49 @@
     .no-data{color:var(--ink-muted);font-style:italic;font-size:12px;}
     .loading{text-align:center;padding:60px;color:var(--ink-muted);}
     .error-msg{background:rgba(196,97,58,0.08);border:1px solid rgba(196,97,58,0.2);border-radius:8px;padding:20px;color:var(--terra);text-align:center;margin:40px 0;}
+  .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--ink);}
+  .login-box{background:var(--warm-bg);border-radius:8px;padding:48px;width:100%;max-width:400px;}
+  .login-box h2{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:400;margin-bottom:6px;}
+  .login-box p{font-size:13px;color:var(--ink-muted);margin-bottom:28px;}
+  .login-field{margin-bottom:16px;}
+  .login-field label{display:block;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:6px;}
+  .login-field input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:4px;font-family:'Syne',sans-serif;font-size:14px;background:var(--cream);color:var(--ink);}
+  .login-field input:focus{outline:none;border-color:var(--terra);}
+  .login-btn{width:100%;padding:12px;background:var(--terra);color:#fff;border:none;border-radius:4px;font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;margin-top:8px;}
+  .login-btn:hover{background:var(--terra-lt);}
+  .login-error{color:var(--terra);font-size:12px;margin-top:8px;display:none;}
+  .logout-btn{background:none;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.5);padding:4px 14px;border-radius:4px;font-size:11px;cursor:pointer;font-family:'Syne',sans-serif;}
+  .logout-btn:hover{border-color:rgba(255,255,255,0.4);color:#fff;}
   </style>
 </head>
 <body>
 <nav>
   <span class="nav-logo">TERRAIN</span>
-  <span class="nav-badge">Admin</span>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <span class="nav-badge">Admin</span>
+    <button class="logout-btn" onclick="loadAdmin()" id="refreshBtn">↻ Refresh</button>
+    <button class="logout-btn" onclick="adminLogout()">Log out</button>
+  </div>
 </nav>
 
-<main>
+<div class="login-wrap" id="loginWrap" style="display:none;">
+  <div class="login-box">
+    <h2>Admin Access</h2>
+    <p>Sign in with your Terrain admin account.</p>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="adminEmail" placeholder="your@email.com" />
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="adminPassword" placeholder="••••••••" />
+    </div>
+    <button class="login-btn" onclick="adminLogin()">Sign In</button>
+    <div class="login-error" id="loginError">Invalid email or password.</div>
+  </div>
+</div>
+
+<main id="mainContent" style="display:none;">
   <h1>Lodge Overview</h1>
   <p class="sub" id="subText">Loading...</p>
 
@@ -99,6 +133,57 @@
 <script>
 const fmt = n => '$' + Math.abs(n).toLocaleString();
 
+async function checkAuth() {
+  try {
+    const res = await fetch('/api/admin/overview', { credentials: 'include' });
+    if (res.status === 403 || res.status === 401) {
+      document.getElementById('loginWrap').style.display = 'flex';
+      document.getElementById('mainContent').style.display = 'none';
+      return false;
+    }
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+    return true;
+  } catch(e) {
+    document.getElementById('loginWrap').style.display = 'flex';
+    return false;
+  }
+}
+
+async function adminLogin() {
+  const email = document.getElementById('adminEmail').value;
+  const password = document.getElementById('adminPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password })
+    });
+    if (res.ok) {
+      const ok = await checkAuth();
+      if (ok) checkAuth().then(ok => {
+  if (ok) {
+    loadAdmin();
+    setInterval(() => loadAdmin(), 30000); // auto-refresh every 30s
+  }
+});
+    } else {
+      errEl.style.display = 'block';
+    }
+  } catch(e) {
+    errEl.style.display = 'block';
+  }
+}
+
+async function adminLogout() {
+  await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+  document.getElementById('loginWrap').style.display = 'flex';
+  document.getElementById('mainContent').style.display = 'none';
+}
+
 async function loadAdmin() {
   try {
     const res = await fetch('/api/admin/overview', { credentials: 'include' });
@@ -119,7 +204,8 @@ async function loadAdmin() {
     document.getElementById('activeLodges').textContent = active;
     document.getElementById('totalFixed').textContent = fmt(totalFixed);
     document.getElementById('totalUplift').textContent = (totalUplift >= 0 ? '+' : '-') + fmt(totalUplift);
-    document.getElementById('subText').textContent = `${lodges.length} lodge${lodges.length !== 1 ? 's' : ''} on Terrain · Updated now`;
+    const now = new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    document.getElementById('subText').textContent = `${lodges.length} lodge${lodges.length !== 1 ? 's' : ''} on Terrain · Last updated ${now}`;
 
     // Table
     if (lodges.length === 0) {

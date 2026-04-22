@@ -736,6 +736,29 @@ app.get('/api/manual-booked', authRequired, async (req, res) => {
 
 // Get all lodges for this user
 
+
+// ── Terrain pricing algorithm (matches calendar.html) ──────────────
+function getBaseMultiplier(dateKeyStr) {
+  const dt = new Date(dateKeyStr + 'T12:00:00');
+  const dow = dt.getDay();
+  const mon = dt.getMonth();
+  const seasonMult = {0:0.88,1:0.88,2:0.92,3:0.85,4:0.85,5:1.10,6:1.30,7:1.30,8:1.15,9:1.20,10:0.90,11:0.95}[mon] || 1.0;
+  const dowMult = [1.15,0.90,0.88,0.88,0.95,1.20,1.20][dow] || 1.0;
+  return seasonMult * dowMult;
+}
+function getRecRate(base, pct, dateKeyStr) {
+  const defMult = dateKeyStr ? getBaseMultiplier(dateKeyStr) : 1.0;
+  const defRate = Math.round(base * defMult);
+  if(pct>=100) return Math.round(defRate*1.45);
+  if(pct>=90)  return Math.round(defRate*1.35);
+  if(pct>=80)  return Math.round(defRate*1.20);
+  if(pct>=70)  return Math.round(defRate*1.10);
+  if(pct>=55)  return Math.round(defRate*1.00);
+  if(pct>=40)  return Math.round(defRate*0.90);
+  if(pct>=0)   return Math.round(defRate*0.80);
+  return defRate;
+}
+
 // ── Admin dashboard API ─────────────────────────────────────────────
 app.get('/api/admin/overview', authRequired, async (req, res) => {
   try {
@@ -795,9 +818,7 @@ app.get('/api/admin/overview', authRequired, async (req, res) => {
           if (!pkg) return;
           const booked = parseInt(occData[key][pi]) || 0;
           const pct = Math.min(100, Math.round((booked / spp) * 100));
-          // Simple rec rate calculation
-          const recMultiplier = pct >= 100 ? 1.4 : pct >= 85 ? 1.25 : pct >= 60 ? 1.1 : pct >= 30 ? 0.9 : 0.75;
-          const recRate = Math.round(pkg.base_rate * recMultiplier);
+          const recRate = getRecRate(pkg.base_rate, pct, key);
           fixedRevenue += pkg.base_rate * booked;
           recRevenue += recRate * booked;
         });
