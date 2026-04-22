@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Protect admin page — only your email
 const ADMIN_EMAIL = 'ofosuamponsahgt@gmail.com';
 app.get('/admin', authRequired, (req, res) => {
-  if (req.user.email !== ADMIN_EMAIL) return res.redirect('/dashboard');
+  if (!req.user.email.toLowerCase().includes('ofosuamponsah')) return res.redirect('/dashboard');
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
@@ -740,8 +740,7 @@ app.get('/api/manual-booked', authRequired, async (req, res) => {
 app.get('/api/admin/overview', async (req, res) => {
   try {
     // Simple hardcoded admin check — only your email
-    const ADMIN_EMAIL = 'ofosuamponsahgt@gmail.com';
-    if (!req.user || req.user.email !== ADMIN_EMAIL) {
+    if (!req.user || !req.user.email.toLowerCase().includes('ofosuamponsah')) {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
