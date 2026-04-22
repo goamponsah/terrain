@@ -1298,19 +1298,7 @@ function exportPDF(){
 
 <div style="text-align:center;padding:16px 24px;font-size:10px;color:rgba(255,255,255,0.15);font-family:'Syne',sans-serif;border-top:1px solid rgba(255,255,255,0.05);">
   © 2026 Techsoftnexa LTD · Terrain is a product of Techsoftnexa LTD, registered in Ghana
-</div>
-<script>
-function toggleSidebar(){
-  document.getElementById('mainSidebar').classList.toggle('open');
-  document.getElementById('mobileOverlay').classList.toggle('open');
-}
-function closeSidebar(){
-  document.getElementById('mainSidebar').classList.remove('open');
-  document.getElementById('mobileOverlay').classList.remove('open');
-}
-</script>
-</body>
-</html>`;
+</div>`;
 
   const win=window.open('','_blank');
   win.document.write(html);
@@ -1327,5 +1315,15 @@ async function doLogout(){
 <div style="text-align:center;padding:16px 24px;font-size:10px;color:rgba(255,255,255,0.15);font-family:'Syne',sans-serif;border-top:1px solid rgba(255,255,255,0.05);">
   © 2026 Techsoftnexa LTD · Terrain is a product of Techsoftnexa LTD, registered in Ghana
 </div>
+<script>
+function toggleSidebar(){
+  document.getElementById('mainSidebar').classList.toggle('open');
+  document.getElementById('mobileOverlay').classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('mainSidebar').classList.remove('open');
+  document.getElementById('mobileOverlay').classList.remove('open');
+}
+</script>
 </body>
 </html>
