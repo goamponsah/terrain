@@ -591,7 +591,7 @@ async function migrateDB() {
         id SERIAL PRIMARY KEY,
         lodge_id INTEGER REFERENCES lodges(id) ON DELETE CASCADE,
         date_key VARCHAR(10) NOT NULL,
-        pkg_idx INTEGER NOT NULL,
+        pkg_idx VARCHAR(10) NOT NULL,
         booked_count INTEGER DEFAULT 0,
         updated_at TIMESTAMP DEFAULT NOW(),
         UNIQUE(lodge_id, date_key, pkg_idx)
@@ -629,15 +629,16 @@ app.post('/api/calendar', authRequired, async (req, res) => {
     if (lodge.rows.length === 0) return res.status(404).json({ error: 'No lodge found' });
     const lodgeId = lodge.rows[0].id;
 
-    // Upsert each date/pkg entry
+    // Upsert each date/pkg entry (supports split keys like '0_s', '0_d' and legacy integer keys)
     for (const [dateKey, pkgObj] of Object.entries(occData)) {
       for (const [pkgIdx, bookedCount] of Object.entries(pkgObj)) {
+        const pkgKey = pkgIdx.toString(); // store as string to support '0_s', '0_d'
         await pool.query(`
           INSERT INTO calendar_data (lodge_id, date_key, pkg_idx, booked_count, updated_at)
           VALUES ($1, $2, $3, $4, NOW())
           ON CONFLICT (lodge_id, date_key, pkg_idx)
           DO UPDATE SET booked_count = $4, updated_at = NOW()
-        `, [lodgeId, dateKey, parseInt(pkgIdx), parseInt(bookedCount) || 0]);
+        `, [lodgeId, dateKey, pkgKey, parseInt(bookedCount) || 0]);
       }
     }
 
@@ -664,7 +665,7 @@ app.get('/api/calendar', authRequired, async (req, res) => {
     const occData = {};
     result.rows.forEach(row => {
       if (!occData[row.date_key]) occData[row.date_key] = {};
-      occData[row.date_key][row.pkg_idx] = row.booked_count;
+      occData[row.date_key][row.pkg_idx] = row.booked_count; // pkg_idx stored as string
     });
 
     res.json({ occData });
