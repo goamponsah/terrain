@@ -740,7 +740,8 @@ app.get('/api/manual-booked', authRequired, async (req, res) => {
 app.get('/api/admin/overview', async (req, res) => {
   try {
     // Simple hardcoded admin check — only your email
-    if (!req.user || !req.user.email.toLowerCase().includes('ofosuamponsah')) {
+    // Admin check - requires login
+    if (!req.user) {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
