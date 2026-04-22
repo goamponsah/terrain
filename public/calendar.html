@@ -216,13 +216,23 @@
       <div class="leg-item" style="margin-left:auto;font-size:10px;color:var(--ink-muted);">Large = 1 guest &nbsp;·&nbsp; Small = 2 guests &nbsp;·&nbsp; Enter booked suites per package</div>
     </div>
 
-    <div id="lotBanner" style="display:none;padding:12px 32px 0;">
-      <div class="lot-banner" id="lotBannerInner">
-        <div>
-          <div class="lot-label" id="lotLabel">Revenue left on table this month</div>
-          <div class="lot-sub" id="lotSub">Based on days where actual rate was entered</div>
+    <div id="upliftBanner" style="display:none;padding:12px 32px 0;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+        <div style="background:var(--cream);padding:14px 20px;">
+          <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px;">At Your Fixed Rate</div>
+          <div id="fixedRevValue" style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:var(--ink);">—</div>
+          <div id="fixedRevSub" style="font-size:10px;color:var(--ink-muted);margin-top:2px;">Based on booked suites this month</div>
         </div>
-        <div class="lot-value" id="lotValue">—</div>
+        <div style="background:var(--parchment);padding:14px 20px;">
+          <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--terracotta);margin-bottom:4px;">At Terrain's Recommended Rate</div>
+          <div id="recRevValue" style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:var(--terracotta);">—</div>
+          <div id="recRevSub" style="font-size:10px;color:var(--ink-muted);margin-top:2px;">Using dynamic pricing signals</div>
+        </div>
+        <div style="background:var(--ink);padding:14px 20px;">
+          <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">Revenue Uplift</div>
+          <div id="upliftValue" style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:#7ab87c;">—</div>
+          <div id="upliftSub" style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;">By following Terrain's recommendations</div>
+        </div>
       </div>
     </div>
 
@@ -581,37 +591,31 @@ function updateSummary(dates,spp,s){
   document.getElementById('sumSoldOut').textContent=sold;
   document.getElementById('sumSurge').textContent=surge;
 
-  // ── Left on table calculation ─────────────────────────────
-  let lotTotal=0, lotDays=0;
+  // ── Uplift banner: fixed vs recommended ─────────────────────────────
+  let fixedTotal=0, recTotal=0, upliftDays=0;
   dates.forEach(({key})=>{
-    if(!actualRates[key]) return;
     packages.forEach((pkg,pi)=>{
-      const actual=(actualRates[key]||{})[pi];
-      if(!actual||(!actual.s&&!actual.d)) return;
       const booked=(occData[key]||{})[pi]||0;
+      if(booked<=0) return;
       const pct2=Math.min(100,Math.round((booked/spp)*100));
       const rec=getRec(pkg.base_rate,pct2>=0?pct2:-1,key);
-      const rec2=Math.round(rec*2);
-      // Use single gap if available, else double gap
-      const gap=actual.s?(actual.s-rec)*Math.max(booked,1):(actual.d?(actual.d-rec2)*Math.max(booked,1):0);
-      lotTotal+=gap;
-      lotDays++;
+      fixedTotal+=pkg.base_rate*booked;
+      recTotal+=rec*booked;
+      upliftDays++;
     });
   });
 
-  const lotBanner=document.getElementById('lotBanner');
-  if(lotDays>0){
-    lotBanner.style.display='block';
-    const inner=document.getElementById('lotBannerInner');
-    const isLeft=lotTotal<0;
-    inner.className='lot-banner'+(isLeft?'':' lot-good');
-    document.getElementById('lotLabel').textContent=isLeft
-      ?'Revenue left on table this month'
-      :'Extra revenue captured vs recommendation';
-    document.getElementById('lotSub').textContent=`Across ${lotDays} package-days with actual rates entered`;
-    document.getElementById('lotValue').textContent=`${isLeft?'-':'+'}`+s+Math.abs(Math.round(lotTotal)).toLocaleString();
+  const upliftBanner=document.getElementById('upliftBanner');
+  if(upliftDays>0){
+    upliftBanner.style.display='block';
+    const uplift=recTotal-fixedTotal;
+    document.getElementById('fixedRevValue').textContent=s+Math.round(fixedTotal).toLocaleString();
+    document.getElementById('recRevValue').textContent=s+Math.round(recTotal).toLocaleString();
+    document.getElementById('upliftValue').textContent=(uplift>=0?'+':'-')+s+Math.abs(Math.round(uplift)).toLocaleString();
+    document.getElementById('upliftValue').style.color=uplift>=0?'#7ab87c':'#e8896a';
+    document.getElementById('upliftSub').textContent=`Across ${upliftDays} package-days with bookings entered`;
   } else {
-    lotBanner.style.display='none';
+    upliftBanner.style.display='none';
   }
 }
 
