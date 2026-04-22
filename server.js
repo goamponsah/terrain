@@ -803,7 +803,7 @@ app.get('/api/admin/overview', authRequired, async (req, res) => {
       });
 
       // Calculate fixed vs recommended revenue
-      const spp = lodge.suites || 10;
+      const spp = Math.max(1, Math.floor((lodge.suites || 10) / Math.max(1, pkgs.rows.length)));
       let fixedRevenue = 0, recRevenue = 0, daysWithData = 0;
       const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
 
