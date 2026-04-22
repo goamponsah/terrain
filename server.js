@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Protect admin page — only your email
 const ADMIN_EMAIL = 'ofosuamponsahgt@gmail.com';
-app.get('/admin', authRequired, (req, res) => {
+app.get('/admin', (req, res) => {
   if (!req.user.email.toLowerCase().includes('ofosuamponsah')) return res.redirect('/dashboard');
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
