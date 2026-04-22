@@ -21,6 +21,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Protect admin page
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
 // ============================================================
 // DATABASE SETUP
 // ============================================================
@@ -728,6 +733,99 @@ app.get('/api/manual-booked', authRequired, async (req, res) => {
 // ============================================================
 
 // Get all lodges for this user
+
+// ── Admin dashboard API ─────────────────────────────────────────────
+app.get('/api/admin/overview', async (req, res) => {
+  try {
+    // Simple hardcoded admin check — only your email
+    const ADMIN_EMAIL = 'ofosuamponsahgt@gmail.com';
+    if (!req.user || req.user.email !== ADMIN_EMAIL) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    // Get all lodges with their packages and calendar data
+    const lodges = await pool.query(`
+      SELECT l.id, l.name, l.country, l.suites, l.created_at,
+             u.email, u.plan, u.plan_status, u.trial_started_at
+      FROM lodges l
+      JOIN users u ON u.id = l.user_id
+      ORDER BY l.created_at DESC
+    `);
+
+    const result = [];
+
+    for (const lodge of lodges.rows) {
+      // Get packages
+      const pkgs = await pool.query(
+        'SELECT * FROM packages WHERE lodge_id = $1 ORDER BY display_order',
+        [lodge.id]
+      );
+
+      // Get calendar data for current month
+      const now = new Date();
+      const monthStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+      const calData = await pool.query(
+        `SELECT date_key, pkg_idx, booked_count FROM calendar_data
+         WHERE lodge_id = $1 AND date_key LIKE $2`,
+        [lodge.id, `${monthStr}%`]
+      );
+
+      // Build occData map
+      const occData = {};
+      calData.rows.forEach(row => {
+        if (!occData[row.date_key]) occData[row.date_key] = {};
+        occData[row.date_key][row.pkg_idx] = row.booked_count;
+      });
+
+      // Calculate fixed vs recommended revenue
+      const spp = lodge.suites || 10;
+      let fixedRevenue = 0, recRevenue = 0, daysWithData = 0;
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const key = `${monthStr}-${String(d).padStart(2,'0')}`;
+        if (!occData[key]) continue;
+        const intKeys = Object.keys(occData[key]).filter(k => /^\d+$/.test(k));
+        if (intKeys.length === 0) continue;
+        daysWithData++;
+        intKeys.forEach(pi => {
+          const pkg = pkgs.rows[parseInt(pi)];
+          if (!pkg) return;
+          const booked = parseInt(occData[key][pi]) || 0;
+          const pct = Math.min(100, Math.round((booked / spp) * 100));
+          // Simple rec rate calculation
+          const recMultiplier = pct >= 100 ? 1.4 : pct >= 85 ? 1.25 : pct >= 60 ? 1.1 : pct >= 30 ? 0.9 : 0.75;
+          const recRate = Math.round(pkg.base_rate * recMultiplier);
+          fixedRevenue += pkg.base_rate * booked;
+          recRevenue += recRate * booked;
+        });
+      }
+
+      result.push({
+        id: lodge.id,
+        name: lodge.name,
+        country: lodge.country,
+        suites: lodge.suites,
+        email: lodge.email,
+        plan: lodge.plan,
+        plan_status: lodge.plan_status,
+        trial_started_at: lodge.trial_started_at,
+        created_at: lodge.created_at,
+        packages: pkgs.rows.length,
+        daysWithData,
+        fixedRevenue: Math.round(fixedRevenue),
+        recRevenue: Math.round(recRevenue),
+        uplift: Math.round(recRevenue - fixedRevenue)
+      });
+    }
+
+    res.json({ lodges: result });
+  } catch (err) {
+    console.error('Admin error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.get('/api/lodges', authRequired, async (req, res) => {
   try {
     const lodges = await pool.query(
