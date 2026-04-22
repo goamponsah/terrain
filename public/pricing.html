@@ -42,9 +42,9 @@
 
     /* Plans */
     .plans-wrap{max-width:1100px;margin:60px auto;padding:0 24px;}
-    .plans-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:start;}
+    .plans-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:stretch;}
 
-    .plan{background:#fff;border:1px solid var(--border);border-radius:16px;padding:32px 28px;position:relative;}
+    .plan{background:#fff;border:1px solid var(--border);border-radius:16px;padding:32px 28px;position:relative;display:flex;flex-direction:column;}
     .plan.featured{background:var(--ink);color:var(--cream);border-color:var(--ink);transform:scale(1.03);box-shadow:0 20px 60px rgba(28,24,20,0.2);}
     .plan-badge{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;padding:4px 10px;border-radius:20px;margin-bottom:16px;}
     .plan:not(.featured) .plan-badge{background:var(--parchment);color:var(--ink-muted);}
@@ -56,11 +56,11 @@
     .plan.featured .plan-period{color:rgba(255,255,255,0.4);}
     .plan-limit{font-size:12px;font-weight:700;color:var(--terra);margin-bottom:16px;}
     .plan.featured .plan-limit{color:var(--terra-lt);}
-    .plan-desc{font-size:13px;color:var(--ink-soft);line-height:1.6;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+    .plan-desc{font-size:13px;color:var(--ink-soft);line-height:1.6;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);min-height:72px;}
     .plan.featured .plan-desc{color:rgba(255,255,255,0.45);border-color:rgba(255,255,255,0.1);}
 
     /* Features */
-    .features{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+    .features{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;flex:1;}
     .feat{display:flex;align-items:flex-start;gap:10px;font-size:13px;}
     .feat-check{width:16px;height:16px;flex-shrink:0;margin-top:1px;}
     .feat-live .feat-check{color:var(--forest);}
@@ -295,7 +295,7 @@
 <div class="pricing-note">
   All plans include a 90-day free trial — no credit card required.<br/>
   Features marked <span style="background:rgba(184,146,42,0.12);color:var(--gold);border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700;">SOON</span> are on the active roadmap and will be available to all subscribers on that plan at no extra charge.<br/>
-  Terrain is a product of <a href="https://getonterrain.com">TechSoftNexa LTD</a>, registered in Ghana &nbsp;·&nbsp; © 2026 TechSoftNexa LTD
+  Terrain is a product of <a href="https://getonterrain.com">Techsoftnexa LTD</a>, registered in Ghana &nbsp;·&nbsp; © 2026 Techsoftnexa LTD
   <br/><br/>
   <a href="/terms">Terms</a> &nbsp;·&nbsp; <a href="/privacy">Privacy</a> &nbsp;·&nbsp; <a href="/refund">Refund Policy</a>
 </div>
