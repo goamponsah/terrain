@@ -50,7 +50,7 @@
     .pkg-name{font-size:13px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .pkg-base{font-size:10px;color:var(--ink-muted);font-family:'DM Mono',monospace;margin-top:2px;}
     table.rate-grid tbody td.pkg-col{padding:14px 16px;}
-    table.rate-grid tbody td.rate-cell{text-align:center;padding:0;vertical-align:top;border-right:1px solid var(--border);cursor:pointer;transition:background 0.1s;min-width:90px;}
+    table.rate-grid tbody td.rate-cell{text-align:center;padding:0;vertical-align:top;border-right:1px solid var(--border);cursor:pointer;transition:background 0.1s;min-width:110px;}
     table.rate-grid tbody td.rate-cell:hover{background:var(--parchment);}
     table.rate-grid tbody td.rate-cell.today-col{background:rgba(196,97,58,0.05);}
     table.rate-grid tbody td.rate-cell.past-col{opacity:0.5;}
@@ -210,11 +210,44 @@
 
     <div class="cal-legend">
       <span style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-right:4px;">Signal:</span>
-      <div class="leg-item"><div class="leg-dot" style="background:rgba(196,97,58,0.55);"></div> Sold Out</div>
-      <div class="leg-item"><div class="leg-dot" style="background:rgba(184,146,42,0.55);"></div> Surge ↑ 85%+</div>
-      <div class="leg-item"><div class="leg-dot" style="background:rgba(58,92,66,0.45);"></div> Hold 60–84%</div>
-      <div class="leg-item"><div class="leg-dot" style="background:rgba(100,130,180,0.45);"></div> Slow — promo?</div>
+      <div class="leg-item" title="100% fully booked — no rooms available"><div class="leg-dot" style="background:rgba(196,97,58,0.55);"></div> Sold Out</div>
+      <div class="leg-item" title="85%+ occupancy — demand is strong, raise your rates now"><div class="leg-dot" style="background:rgba(184,146,42,0.55);"></div> Surge ↑ 85%+</div>
+      <div class="leg-item" title="60–84% occupancy — pricing is working, hold your rates"><div class="leg-dot" style="background:rgba(58,92,66,0.45);"></div> Hold 60–84%</div>
+      <div class="leg-item" title="Under 60% occupancy — consider a promo or lower rate to fill rooms"><div class="leg-dot" style="background:rgba(100,130,180,0.45);"></div> Slow — promo?</div>
+      <button onclick="document.getElementById('signalGuide').style.display=document.getElementById('signalGuide').style.display==='none'?'flex':'none'" style="background:none;border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--ink-muted);cursor:pointer;font-family:'Syne',sans-serif;margin-left:8px;">? Signal Guide</button>
       <div class="leg-item" style="margin-left:auto;font-size:10px;color:var(--ink-muted);">Large = 1 guest &nbsp;·&nbsp; Small = 2 guests &nbsp;·&nbsp; Enter booked suites per package</div>
+    </div>
+    <div id="signalGuide" style="display:none;flex-direction:column;gap:0;border-bottom:1px solid var(--border);background:var(--cream);">
+      <div style="padding:16px 32px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="background:rgba(196,97,58,0.15);border:1px solid rgba(196,97,58,0.3);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;color:#c4613a;white-space:nowrap;">SOLD</span>
+          <span style="font-size:12px;color:var(--ink-soft);">100% fully booked. All rooms taken for this day.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="background:rgba(184,146,42,0.15);border:1px solid rgba(184,146,42,0.3);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;color:#b8922a;white-space:nowrap;">SURGE ↑</span>
+          <span style="font-size:12px;color:var(--ink-soft);">85–99% occupancy. Strong demand — raise your rate now to maximise revenue.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="background:rgba(58,92,66,0.12);border:1px solid rgba(58,92,66,0.25);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;color:#3a5c42;white-space:nowrap;">HOLD</span>
+          <span style="font-size:12px;color:var(--ink-soft);">60–84% occupancy. Healthy demand. Keep your current pricing.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="background:rgba(58,88,120,0.12);border:1px solid rgba(58,88,120,0.25);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;color:#3a5878;white-space:nowrap;">MID</span>
+          <span style="font-size:12px;color:var(--ink-soft);">60–84% occupancy. Same as HOLD — pricing is stable.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="background:rgba(100,130,180,0.12);border:1px solid rgba(100,130,180,0.25);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;color:#3a5878;white-space:nowrap;">PROMO?</span>
+          <span style="font-size:12px;color:var(--ink-soft);">30–59% occupancy. Demand is soft — consider a promotional rate or value-add offer.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="background:rgba(150,150,150,0.12);border:1px solid rgba(150,150,150,0.25);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;color:#666;white-space:nowrap;">LOW</span>
+          <span style="font-size:12px;color:var(--ink-soft);">Under 30% occupancy. Very slow — discount rate to fill rooms.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="background:rgba(150,150,150,0.08);border:1px solid rgba(150,150,150,0.2);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;color:#999;white-space:nowrap;">OPEN</span>
+          <span style="font-size:12px;color:var(--ink-soft);">No bookings entered yet. Enter 1 guest / 2 guests to see your signal.</span>
+        </div>
+      </div>
     </div>
 
     <div id="upliftBanner" style="display:none;padding:12px 32px 0;">
@@ -461,15 +494,11 @@ function renderGrid(){
       html+=`<td class="${colCls}" onclick="event.target.tagName!=='INPUT'&&openInsight('${key}',${pi},${pct},${rec},${spp},${hasData?booked:0})">`;
       html+=`<div class="rc-inner">`;
 
-      // Recommended rates
-      if(pct===100){
-        html+=`<div class="rc-single">${s}${rec.toLocaleString()}</div><div class="rc-sold">SOLD</div>`;
-      } else {
-        const op=hasData?'':'opacity:0.72;';
-        html+=`<div class="rc-single" style="${op}">${s}${rec.toLocaleString()}</div>`;
-        html+=`<div class="rc-double" style="${op}">${s}${rec2.toLocaleString()}</div>`;
-        if(sig.label) html+=`<span class="rc-badge ${sig.cls}">${sig.label}</span>`;
-      }
+      // Recommended rates — always show both lines for consistent layout
+      const op=hasData?'':'opacity:0.72;';
+      html+=`<div class="rc-single" style="${op}">${s}${rec.toLocaleString()}</div>`;
+      html+=`<div class="rc-double" style="${op}">${s}${rec2.toLocaleString()}</div>`;
+      if(sig.label) html+=`<span class="rc-badge ${sig.cls}">${sig.label}</span>`;
 
       // Booked inputs — single + double occupancy
       const bookedS=(occData[key]&&occData[key][pi+'_s']!=null)?occData[key][pi+'_s']:'';
@@ -477,20 +506,20 @@ function renderGrid(){
       html+=`<div style="border-top:1px dashed var(--border);margin-top:4px;padding-top:4px;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:0 4px;">
           <div style="text-align:center;">
-            <div style="font-size:7px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">1 guest</div>
+            <div style="font-size:7px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;white-space:nowrap;">1 guest</div>
             <input type="number" min="0" max="${spp}"
               value="${bookedS}" placeholder="0"
-              style="width:100%;border:1px solid var(--border);border-radius:4px;padding:2px 3px;font-size:11px;font-family:'DM Mono',monospace;color:var(--ink);text-align:center;background:rgba(255,255,255,0.8);"
+              style="width:38px;border:1px solid var(--border);border-radius:4px;padding:2px 3px;font-size:11px;font-family:'DM Mono',monospace;color:var(--ink);text-align:center;background:rgba(255,255,255,0.8);"
               onclick="event.stopPropagation()"
               onfocus="this.style.borderColor='var(--terra)';event.stopPropagation()"
               onblur="updatePkgBookedSplit('${key}',${pi},'s',this.value,${spp});this.style.borderColor='var(--border)'"
             />
           </div>
           <div style="text-align:center;">
-            <div style="font-size:7px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">2 guests</div>
+            <div style="font-size:7px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;white-space:nowrap;">2 guests</div>
             <input type="number" min="0" max="${spp}"
               value="${bookedD}" placeholder="0"
-              style="width:100%;border:1px solid var(--border);border-radius:4px;padding:2px 3px;font-size:11px;font-family:'DM Mono',monospace;color:var(--ink);text-align:center;background:rgba(255,255,255,0.8);"
+              style="width:38px;border:1px solid var(--border);border-radius:4px;padding:2px 3px;font-size:11px;font-family:'DM Mono',monospace;color:var(--ink);text-align:center;background:rgba(255,255,255,0.8);"
               onclick="event.stopPropagation()"
               onfocus="this.style.borderColor='var(--terra)';event.stopPropagation()"
               onblur="updatePkgBookedSplit('${key}',${pi},'d',this.value,${spp});this.style.borderColor='var(--border)'"
