@@ -26,7 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.post('/api/admin/check', (req, res) => {
   const { email } = req.body;
   if (!email) return res.json({ allowed: false });
-  const allowed = email.toLowerCase().includes('ofosuamponsah');
+  const allowed = email.toLowerCase() === 'ofosuamponsahgt@gmail.com';
   res.json({ allowed });
 });
 
@@ -770,7 +770,7 @@ app.get('/api/admin/overview', authRequired, async (req, res) => {
   try {
     // Simple hardcoded admin check — only your email
     // Admin check - server side only, email never exposed to client
-    if (!req.user || !req.user.email.toLowerCase().includes('ofosuamponsah')) {
+    if (!req.user || req.user.email.toLowerCase() !== 'ofosuamponsahgt@gmail.com') {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
