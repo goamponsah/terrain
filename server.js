@@ -414,7 +414,7 @@ app.post('/api/lodge', authRequired, async (req, res) => {
       for (let i = 0; i < packages.length; i++) {
         const p = packages[i];
         await pool.query('INSERT INTO packages (lodge_id, name, icon, base_rate, display_order) VALUES ($1,$2,$3,$4,$5)',
-          [lodgeId, p.name, p.icon || '🏕️', p.rate || 0, i]);
+          [lodgeId, p.name, p.icon || '🏕️', parseFloat(p.base_rate ?? p.rate) || 0, i]);
       }
     }
 
