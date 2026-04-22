@@ -642,16 +642,22 @@ app.post('/api/calendar', authRequired, async (req, res) => {
     if (lodge.rows.length === 0) return res.status(404).json({ error: 'No lodge found' });
     const lodgeId = lodge.rows[0].id;
 
-    // Upsert each date/pkg entry (supports split keys like '0_s', '0_d' and legacy integer keys)
+    // First delete all existing data for this lodge, then re-insert
+    // This ensures cleared values are properly removed
+    await pool.query('DELETE FROM calendar_data WHERE lodge_id = $1', [lodgeId]);
+
+    // Re-insert all current data
     for (const [dateKey, pkgObj] of Object.entries(occData)) {
       for (const [pkgIdx, bookedCount] of Object.entries(pkgObj)) {
-        const pkgKey = pkgIdx.toString(); // store as string to support '0_s', '0_d'
+        const pkgKey = pkgIdx.toString();
+        const count = parseInt(bookedCount) || 0;
+        if (count <= 0) continue; // skip zeros — don't store empty data
         await pool.query(`
           INSERT INTO calendar_data (lodge_id, date_key, pkg_idx, booked_count, updated_at)
           VALUES ($1, $2, $3, $4, NOW())
           ON CONFLICT (lodge_id, date_key, pkg_idx)
           DO UPDATE SET booked_count = $4, updated_at = NOW()
-        `, [lodgeId, dateKey, pkgKey, parseInt(bookedCount) || 0]);
+        `, [lodgeId, dateKey, pkgKey, count]);
       }
     }
 
