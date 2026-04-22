@@ -744,6 +744,7 @@ function openInsight(key,pi,pct,rec,spp,booked){
           <div style="font-size:9px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;">Single Guest</div>
           <input id="overrideS" type="number" min="0"
             value="${existingActual.s||''}" placeholder="${rec}"
+            oninput="calcUplift(${rec},${spp},${booked})"
             style="width:100%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:8px 10px;font-size:14px;font-family:'DM Mono',monospace;color:#fff;font-weight:600;"
           />
           ${existingActual.s?`<div style="font-size:10px;margin-top:3px;color:${existingActual.s>=rec?'#5a8c63':'#e8896a'};">${existingActual.s>=rec?'+':''}${s}${(existingActual.s-rec).toLocaleString()} vs rec</div>`:''}
@@ -757,6 +758,19 @@ function openInsight(key,pi,pct,rec,spp,booked){
           ${existingActual.d?`<div style="font-size:10px;margin-top:3px;color:${existingActual.d>=rec2?'#5a8c63':'#e8896a'};">${existingActual.d>=rec2?'+':''}${s}${(existingActual.d-rec2).toLocaleString()} vs rec</div>`:''}
         </div>
       </div>
+
+      <!-- LIVE UPLIFT DISPLAY -->
+      <div id="upliftBox" style="display:none;border-radius:6px;padding:10px 12px;margin-bottom:10px;background:rgba(90,140,99,0.15);border:1px solid rgba(90,140,99,0.3);">
+        <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#7ab87c;margin-bottom:4px;">Revenue Uplift Today</div>
+        <div id="upliftAmount" style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:#7ab87c;"></div>
+        <div id="upliftDetail" style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px;"></div>
+      </div>
+      <div id="lossBox" style="display:none;border-radius:6px;padding:10px 12px;margin-bottom:10px;background:rgba(196,97,58,0.15);border:1px solid rgba(196,97,58,0.3);">
+        <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#e8896a;margin-bottom:4px;">Revenue Left on Table</div>
+        <div id="lossAmount" style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:#e8896a;"></div>
+        <div id="lossDetail" style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px;"></div>
+      </div>
+
       <div style="display:flex;gap:8px;">
         <button onclick="applyRateOverride('${key}',${pi},${rec},${rec2})"
           style="flex:1;background:var(--terra);border:none;border-radius:6px;padding:9px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;font-family:'Syne',sans-serif;">
@@ -767,6 +781,30 @@ function openInsight(key,pi,pct,rec,spp,booked){
       <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:8px;">Enter the rates you'll set in your booking system. Terrain tracks the gap vs recommendation.</div>
     </div>
 
+    ${(()=>{
+      const actualS=(existingActual.s||0);
+      const bookedUnits=booked||0;
+      if(rec>0&&bookedUnits>0&&actualS>0&&actualS<rec){
+        const upliftPerUnit=rec-actualS;
+        const totalUplift=Math.round(upliftPerUnit*bookedUnits);
+        return`<div style="background:rgba(196,97,58,0.12);border:1px solid rgba(196,97,58,0.35);border-radius:8px;padding:14px 16px;margin-bottom:12px;">
+          <div style="font-size:10px;font-weight:700;color:#e8896a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">💰 Revenue Uplift Today</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
+            <div><div style="font-size:9px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Your Rate</div><div style="font-size:15px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;">${s}${actualS.toLocaleString()}</div></div>
+            <div><div style="font-size:9px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Rec. Rate</div><div style="font-size:15px;font-weight:700;color:#e8896a;font-family:'DM Mono',monospace;">${s}${rec.toLocaleString()}</div></div>
+            <div><div style="font-size:9px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Uplift</div><div style="font-size:15px;font-weight:700;color:#7ab87c;font-family:'DM Mono',monospace;">+${s}${totalUplift.toLocaleString()}</div></div>
+          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:8px;text-align:center;">(${s}${upliftPerUnit.toLocaleString()} × ${bookedUnits} booked units)</div>
+        </div>`;
+      } else if(rec>0&&bookedUnits>0&&actualS<=0){
+        const potentialUplift=Math.round((rec-pkg.base_rate)*bookedUnits);
+        if(potentialUplift>0) return`<div style="background:rgba(184,146,42,0.1);border:1px solid rgba(184,146,42,0.3);border-radius:8px;padding:14px 16px;margin-bottom:12px;">
+          <div style="font-size:10px;font-weight:700;color:#d4aa44;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">💡 Potential Uplift</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.7);">If you charge the recommended ${s}${rec.toLocaleString()} instead of base ${s}${Math.round(pkg.base_rate).toLocaleString()}, you earn <span style="color:#7ab87c;font-weight:700;">+${s}${potentialUplift.toLocaleString()} more today</span> across ${bookedUnits} booked units.</div>
+        </div>`;
+      }
+      return'';
+    })()}
     <div class="ip-rec">
       <div class="ip-rec-title">${pct>=100?'🔥 Surge — fully sold':pct>=85?'📈 Raise rate now':pct>=60?'✓ Hold pricing':pct>=30?'💡 Value-add promo':pct>=0?'📉 Discount to fill':'📋 Enter bookings'}</div>
       <div class="ip-rec-body">${advice}</div>
@@ -781,6 +819,35 @@ function openInsight(key,pi,pct,rec,spp,booked){
     <button class="ip-apply" onclick="closeInsight()">Close</button>
   `;
   document.getElementById('insightPanel').classList.add('open');
+}
+
+function calcUplift(rec, spp, booked) {
+  const inputVal = parseInt(document.getElementById('overrideS').value);
+  const upliftBox = document.getElementById('upliftBox');
+  const lossBox = document.getElementById('lossBox');
+  if (isNaN(inputVal) || inputVal <= 0) {
+    upliftBox.style.display = 'none';
+    lossBox.style.display = 'none';
+    return;
+  }
+  const diff = inputVal - rec;
+  const suites = booked > 0 ? booked : Math.max(1, Math.round(spp * 0.5));
+  const total = Math.abs(diff) * suites;
+  const currency = document.getElementById('currencySymbol') ? document.getElementById('currencySymbol').textContent : '$';
+  if (diff > 0) {
+    upliftBox.style.display = 'block';
+    lossBox.style.display = 'none';
+    document.getElementById('upliftAmount').textContent = '+' + currency + total.toLocaleString();
+    document.getElementById('upliftDetail').textContent = currency + diff.toLocaleString() + ' above recommended × ' + suites + ' suite' + (suites !== 1 ? 's' : '') + ' booked';
+  } else if (diff < 0) {
+    lossBox.style.display = 'block';
+    upliftBox.style.display = 'none';
+    document.getElementById('lossAmount').textContent = '-' + currency + total.toLocaleString();
+    document.getElementById('lossDetail').textContent = currency + Math.abs(diff).toLocaleString() + ' below recommended × ' + suites + ' suite' + (suites !== 1 ? 's' : '') + ' booked';
+  } else {
+    upliftBox.style.display = 'none';
+    lossBox.style.display = 'none';
+  }
 }
 
 function applyRateOverride(key,pi,rec,rec2){
