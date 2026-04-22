@@ -499,30 +499,7 @@ function renderGrid(){
         </div>
       </div>`;
 
-      // Actual rate inputs
-      html+=`<div class="rc-actual-wrap">
-        <div style="display:flex;align-items:center;gap:1px;">
-          <span style="font-size:11px;color:var(--ink-muted);font-family:'DM Mono',monospace;">${s}</span>
-          <input class="rc-actual-input" type="number" min="0"
-            value="${actual&&actual.s?actual.s:''}"
-            placeholder="" title="Single guest actual rate"
-            onblur="updateActual('${key}',${pi},'s',this.value)"
-            onclick="event.stopPropagation()"
-            style="width:54px;"
-          />
-        </div>
-        <div style="display:flex;align-items:center;gap:1px;">
-          <span style="font-size:11px;color:var(--ink-muted);font-family:'DM Mono',monospace;">${s}</span>
-          <input class="rc-actual-input" type="number" min="0"
-            value="${actual&&actual.d?actual.d:''}"
-            placeholder="" title="Double guest actual rate"
-            onblur="updateActual('${key}',${pi},'d',this.value)"
-            onclick="event.stopPropagation()"
-            style="width:54px;"
-          />
-        </div>
-        ${gapS!==null?`<div class="${gapS>0?'rc-gap-pos':gapS<0?'rc-gap-neg':'rc-gap-zero'}" style="font-size:8px;">${gapS>0?'+':''}${s}${Math.abs(gapS).toLocaleString()}</div>`:''}
-      </div>`;
+      // Actual rate inputs removed
 
       html+=`</div></td>`;
     });

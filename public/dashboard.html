@@ -560,32 +560,7 @@ async function buildDashboard(cfg) {
       
     '</div>' +
 
-    '<div class="kpi-strip">' +
-      '<div class="kpi-card accent">' +
-        '<div class="kpi-label">Days with Bookings</div>' +
-        '<div class="kpi-value">' + (daysWithData > 0 ? daysWithData : '—') + '</div>' +
-        '<div class="kpi-delta ' + (daysWithData > 0 ? 'up' : '') + '">' + (daysWithData > 0 ? 'of ' + daysInMonth + ' days this month' : 'Enter bookings in Rate Calendar') + '</div>' +
-        '<div class="kpi-orn">📅</div>' +
-      '</div>' +
-      '<div class="kpi-card">' +
-        '<div class="kpi-label">Avg Occupancy</div>' +
-        '<div class="kpi-value">' + (avgOcc !== null ? avgOcc + '%' : '—') + '</div>' +
-        '<div class="kpi-delta">' + (avgOcc !== null ? 'Based on ' + daysWithData + ' days entered' : 'No data yet') + '</div>' +
-        '<div class="kpi-orn">%</div>' +
-      '</div>' +
-      '<div class="kpi-card">' +
-        '<div class="kpi-label">Sold Out Days</div>' +
-        '<div class="kpi-value" style="' + (soldOut > 0 ? 'color:var(--terra);' : '') + '">' + (daysWithData > 0 ? soldOut : '—') + '</div>' +
-        '<div class="kpi-delta">' + (daysWithData > 0 ? '100% occupancy days' : 'No data yet') + '</div>' +
-        '<div class="kpi-orn">🔥</div>' +
-      '</div>' +
-      '<div class="kpi-card">' +
-        '<div class="kpi-label">Surge Opportunities</div>' +
-        '<div class="kpi-value" style="' + (surgeDays > 0 ? 'color:#b8922a;' : '') + '">' + (daysWithData > 0 ? surgeDays : '—') + '</div>' +
-        '<div class="kpi-delta">' + (daysWithData > 0 ? 'Days at 85%+ — raise rates' : 'No data yet') + '</div>' +
-        '<div class="kpi-orn">↑</div>' +
-      '</div>' +
-    '</div>' +
+
 
     '<div class="two-col">' +
       '<div style="display:flex;flex-direction:column;gap:16px;">' +
