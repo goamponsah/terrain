@@ -156,6 +156,18 @@ async function adminLogin() {
   const errEl = document.getElementById('loginError');
   errEl.style.display = 'none';
   try {
+    // Check if email is allowed before attempting login
+    const checkRes = await fetch('/api/admin/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const checkData = await checkRes.json();
+    if (!checkData.allowed) {
+      errEl.textContent = 'Access denied. Admin only.';
+      errEl.style.display = 'block';
+      return;
+    }
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

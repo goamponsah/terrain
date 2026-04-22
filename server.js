@@ -22,6 +22,14 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Protect admin page — only your email
+// Admin pre-check — returns true/false without revealing admin email
+app.post('/api/admin/check', (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.json({ allowed: false });
+  const allowed = email.toLowerCase().includes('ofosuamponsah');
+  res.json({ allowed });
+});
+
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
