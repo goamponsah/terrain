@@ -101,7 +101,7 @@ const fmt = n => '$' + Math.abs(n).toLocaleString();
 
 async function loadAdmin() {
   try {
-    const res = await fetch('/api/admin/overview');
+    const res = await fetch('/api/admin/overview', { credentials: 'include' });
     if (res.status === 403) {
       document.getElementById('lodgeTable').innerHTML = '<tr><td colspan="9"><div class="error-msg">Access denied. Admin only.</div></td></tr>';
       document.getElementById('subText').textContent = 'You do not have admin access.';

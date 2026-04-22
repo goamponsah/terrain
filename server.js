@@ -737,7 +737,7 @@ app.get('/api/manual-booked', authRequired, async (req, res) => {
 // Get all lodges for this user
 
 // ── Admin dashboard API ─────────────────────────────────────────────
-app.get('/api/admin/overview', async (req, res) => {
+app.get('/api/admin/overview', authRequired, async (req, res) => {
   try {
     // Simple hardcoded admin check — only your email
     // Admin check - requires login
