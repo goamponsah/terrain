@@ -400,6 +400,16 @@ app.post('/api/lodge', authRequired, async (req, res) => {
   const { name, country, region, property_type, suites, currency, packages, seasons, channels, target_revenue, target_occupancy, target_direct, pricing_philosophy } = req.body;
 
   try {
+    // Enforce suite limits based on plan
+    const user = await pool.query('SELECT plan FROM users WHERE id = $1', [req.user.id]);
+    const plan = user.rows[0]?.plan || 'trial';
+    const suiteLimits = { trial: 15, starter: 15, growth: 35, portfolio: 999 };
+    const limit = suiteLimits[plan] || 15;
+    if (suites && parseInt(suites) > limit) {
+      return res.status(403).json({ 
+        error: `Your ${plan} plan supports up to ${limit} suites. Please upgrade to add more.` 
+      });
+    }
     // Upsert lodge
     const existing = await pool.query('SELECT id FROM lodges WHERE user_id = $1', [req.user.id]);
 
