@@ -521,9 +521,12 @@ function buildDashboard(cfg) {
   let daysWithData = 0, soldOut = 0, surgeDays = 0, totalBooked = 0;
   for (let d = 1; d <= daysInMonth; d++) {
     const key = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-    if (!calData[key] || Object.keys(calData[key]).length === 0) continue;
+    if (!calData[key]) continue;
+    // Only count integer pkg keys (totals), ignore split keys like '0_s', '0_d'
+    const intKeys = Object.keys(calData[key]).filter(k => /^\d+$/.test(k));
+    if (intKeys.length === 0) continue;
     daysWithData++;
-    const tot = Object.values(calData[key]).reduce((s,v) => s + (parseInt(v)||0), 0);
+    const tot = intKeys.reduce((s,k) => s + (parseInt(calData[key][k])||0), 0);
     const maxT = Math.max(1, cfg.packages.length) * spp;
     const pct = Math.round((tot / maxT) * 100);
     if (pct >= 100) soldOut++;
