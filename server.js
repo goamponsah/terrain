@@ -21,9 +21,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Protect admin page
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+// Protect admin page — only your email
+const ADMIN_EMAIL = 'ofosuamponsahgt@gmail.com';
+app.get('/admin', authRequired, (req, res) => {
+  if (req.user.email !== ADMIN_EMAIL) return res.redirect('/dashboard');
+  res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
 // ============================================================
