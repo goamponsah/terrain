@@ -297,7 +297,7 @@
     </nav>
     <div class="sidebar-footer">
       <div class="user-mini">
-        <div class="avatar" id="userAvatar">?</div>
+        
         <div style="flex:1;"></div>
         <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);border-radius:5px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:'Syne',sans-serif;flex-shrink:0;transition:all 0.15s;" onmouseover="this.style.borderColor='rgba(196,97,58,0.5)';this.style.color='#e8896a'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.4)'">Log out</button>
       </div>
@@ -484,7 +484,7 @@ function buildDashboard(cfg) {
   const emailName = userEmail.split('@')[0] || cfg.name;
   const emailInitials = emailName.slice(0,2).toUpperCase();
   document.getElementById('userAvatar').textContent = emailInitials;
-  document.getElementById('userName').textContent = emailName;
+  if(document.getElementById('userName')) document.getElementById('userName').textContent = emailName;
   document.getElementById('sidePropName').textContent = cfg.name;
   document.getElementById('sidePropMeta').textContent = (cfg.type || 'Safari Lodge') + ' · ' + suites + ' suites · ' + (cfg.country || '');
   document.getElementById('topbarTitle').textContent = 'Welcome back — ' + cfg.name;

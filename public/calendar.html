@@ -145,7 +145,7 @@
     </nav>
     <div class="sidebar-footer">
       <div class="user-mini">
-        <div class="avatar" id="userAvatar">?</div>
+        
         <div style="flex:1;"></div>
         <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);border-radius:5px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:'Syne',sans-serif;">Log out</button>
       </div>
@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   try{
     const me=await fetch('/api/auth/me').then(r=>r.json());
     if(me.user){
-      document.getElementById('userName').textContent=me.user.email.split('@')[0];
+      if(document.getElementById('userName')) document.getElementById('userName').textContent=me.user.email.split('@')[0];
       const ld=await fetch('/api/lodge').then(r=>r.json());
       if(ld.lodge){
         lodgeConfig={name:ld.lodge.name,suites:ld.lodge.suites||20,currency:ld.lodge.currency||'USD',country:ld.lodge.country||'Kenya',type:ld.lodge.property_type||'Safari Lodge'};
@@ -338,8 +338,8 @@ document.addEventListener('DOMContentLoaded',async()=>{
 
   document.getElementById('sidePropName').textContent=lodgeConfig.name;
   document.getElementById('sidePropMeta').textContent=`${lodgeConfig.type} · ${lodgeConfig.suites} suites`;
-  const emailName=(document.getElementById('userName').textContent||lodgeConfig.name).slice(0,2).toUpperCase();
-  document.getElementById('userAvatar').textContent=emailName;
+  const emailName=((document.getElementById('userName')&&document.getElementById('userName').textContent)||lodgeConfig.name).slice(0,2).toUpperCase();
+  if(document.getElementById('userAvatar')) document.getElementById('userAvatar').textContent=emailName;
   document.getElementById('calTitle').textContent=`Rate Calendar — ${lodgeConfig.name}`;
   populateMonthSelect();
   await loadProperties();
