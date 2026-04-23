@@ -344,7 +344,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           type: lodgeData.lodge.property_type,
           packages: (lodgeData.packages || []).map(p => ({ name: p.name || p, base_rate: p.base_rate })),
           channels: (lodgeData.channels || []).map(c => c.name || c),
-          userEmail: me.user.email
+          userEmail: me.user.email,
+          plan: me.user.plan || 'trial',
+          trial_started_at: me.user.trial_started_at,
+          trial_days: me.user.trial_days || 90
         };
         buildDashboard(cfg);
         if (me.trial && me.trial.daysRemaining <= 30) showTrialBanner(me.trial.daysRemaining);
@@ -493,9 +496,9 @@ async function buildDashboard(cfg) {
   if(document.getElementById('userName')) document.getElementById('userName').textContent = emailName;
 
   // Plan badge
-  const plan = res.user.plan || 'trial';
-  const trialStart = res.user.trial_started_at ? new Date(res.user.trial_started_at) : new Date();
-  const trialDays = res.user.trial_days || 90;
+  const plan = cfg.plan || 'trial';
+  const trialStart = cfg.trial_started_at ? new Date(cfg.trial_started_at) : new Date();
+  const trialDays = cfg.trial_days || 90;
   const daysUsed = Math.floor((new Date() - trialStart) / (1000*60*60*24));
   const daysLeft = Math.max(0, trialDays - daysUsed);
   const planLabels = { trial: 'Free Trial', starter: 'Starter', growth: 'Growth', portfolio: 'Portfolio' };
