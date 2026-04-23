@@ -83,14 +83,49 @@
     .filter-select{padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-family:'Syne',sans-serif;font-size:13px;background:#fff;color:var(--ink);outline:none;cursor:pointer;}
     .refresh-info{font-size:11px;color:var(--ink-muted);white-space:nowrap;}
     .plan-founding{background:rgba(28,24,20,0.9);color:#d4af6a;border:1px solid rgba(212,175,106,0.4);}
+
+    /* Login screen */
+    #loginScreen{display:none;position:fixed;inset:0;background:var(--ink);z-index:1000;align-items:center;justify-content:center;flex-direction:column;}
+    #loginScreen.visible{display:flex;}
+    .login-box{background:var(--warm-bg);border-radius:12px;padding:48px 40px;width:100%;max-width:400px;box-shadow:0 24px 60px rgba(0,0,0,0.4);}
+    .login-logo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;letter-spacing:0.12em;color:var(--ink);text-align:center;margin-bottom:6px;}
+    .login-sub{font-size:12px;color:var(--ink-muted);text-align:center;margin-bottom:32px;letter-spacing:0.06em;text-transform:uppercase;}
+    .login-field{margin-bottom:16px;}
+    .login-field label{display:block;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:6px;}
+    .login-field input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:6px;font-family:'Syne',sans-serif;font-size:14px;background:#fff;color:var(--ink);outline:none;transition:border 0.2s;}
+    .login-field input:focus{border-color:var(--ink);}
+    .login-btn{width:100%;padding:12px;background:var(--ink);color:#fff;border:none;border-radius:6px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.08em;cursor:pointer;margin-top:8px;transition:opacity 0.2s;}
+    .login-btn:hover{opacity:0.85;}
+    .login-btn:disabled{opacity:0.5;cursor:not-allowed;}
+    .login-error{background:rgba(196,97,58,0.08);border:1px solid rgba(196,97,58,0.25);border-radius:6px;padding:10px 14px;color:var(--terra);font-size:12px;margin-top:12px;display:none;}
+    .login-error.visible{display:block;}
   </style>
 </head>
 <body>
+
+<!-- Login Screen -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">TERRAIN</div>
+    <div class="login-sub">Admin Access</div>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email" />
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password" />
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
 <nav>
   <span class="nav-logo">TERRAIN</span>
   <div class="nav-right">
     <span class="nav-badge">Admin</span>
-    <button class="btn btn-refresh" onclick="manualRefresh()">↻ Refresh</button>
+    <button class="btn btn-refresh" onclick="manualRefresh()">&#8635; Refresh</button>
     <button class="btn btn-logout" onclick="logout()">Logout</button>
   </div>
 </nav>
@@ -147,9 +182,70 @@ const fmt = n => '$' + Math.abs(n).toLocaleString();
 let allLodges = [];
 let refreshTimer;
 
+function showLogin() {
+  clearInterval(refreshTimer);
+  document.getElementById('loginScreen').classList.add('visible');
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginError').classList.remove('visible');
+  setTimeout(() => document.getElementById('loginEmail').focus(), 100);
+}
+
+function hideLogin() {
+  document.getElementById('loginScreen').classList.remove('visible');
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const btn = document.getElementById('loginBtn');
+  const errEl = document.getElementById('loginError');
+
+  if (!email || !password) {
+    errEl.textContent = 'Please enter your email and password.';
+    errEl.classList.add('visible');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
+  errEl.classList.remove('visible');
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.error || 'Invalid email or password.';
+      errEl.classList.add('visible');
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+      return;
+    }
+    hideLogin();
+    loadAdmin();
+    startAutoRefresh();
+  } catch(err) {
+    errEl.textContent = 'Connection error. Please try again.';
+    errEl.classList.add('visible');
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+  }
+}
+
+// Allow Enter key to submit login
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginScreen').classList.contains('visible')) {
+    doLogin();
+  }
+});
+
 function logout() {
   fetch('/api/auth/logout', { method: 'POST' }).finally(() => {
-    window.location.href = '/admin';
+    showLogin();
   });
 }
 
@@ -228,6 +324,7 @@ function renderRows(lodges) {
 async function loadAdmin() {
   try {
     const res = await fetch('/api/admin/overview');
+    if (res.status === 401) { showLogin(); return; }
     if (res.status === 403) {
       document.getElementById('lodgeTable').innerHTML = '<tr><td colspan="9"><div class="error-msg">Access denied. Admin only.</div></td></tr>';
       document.getElementById('subText').textContent = 'You do not have admin access.';
@@ -256,8 +353,25 @@ async function loadAdmin() {
   }
 }
 
-loadAdmin();
-startAutoRefresh();
+// Check auth on load
+fetch('/api/admin/overview').then(r => {
+  if (r.status === 401) { showLogin(); return; }
+  r.json().then(data => {
+    allLodges = data.lodges || [];
+    const totalFixed = allLodges.reduce((s,l) => s + l.fixedRevenue, 0);
+    const totalUplift = allLodges.reduce((s,l) => s + l.uplift, 0);
+    const active = allLodges.filter(l => l.plan === 'active' || l.plan === 'trial' || l.plan === 'founding').length;
+    const foundingCount = allLodges.filter(l => (l.plan || '').toLowerCase() === 'founding').length;
+    document.getElementById('totalLodges').textContent = allLodges.length;
+    document.getElementById('activeLodges').textContent = active;
+    document.getElementById('totalFixed').textContent = fmt(totalFixed);
+    document.getElementById('totalUplift').textContent = (totalUplift >= 0 ? '+' : '-') + fmt(totalUplift);
+    document.getElementById('subText').textContent = allLodges.length + ' lodge' + (allLodges.length !== 1 ? 's' : '') + ' on Terrain · ' + foundingCount + ' Founding Lodge' + (foundingCount !== 1 ? 's' : '') + ' · Updated now';
+    updateRefreshInfo();
+    filterTable();
+  });
+  startAutoRefresh();
+}).catch(() => showLogin());
 </script>
 </body>
 </html>
