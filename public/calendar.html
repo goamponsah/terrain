@@ -1191,6 +1191,28 @@ function exportPDF(){
   @media (max-width: 768px) {
     /* App shell: full screen, no side-by-side */
     .app { display: block !important; height: 100vh; overflow: hidden; }
+
+    /* Sidebar nav icons — small and neat */
+    .nav-item svg { width: 18px !important; height: 18px !important; flex-shrink: 0; }
+    .nav-item { padding: 10px 14px !important; font-size: 13px !important; gap: 10px !important; }
+    .nav-label { font-size: 10px !important; padding: 8px 14px 4px !important; }
+
+    /* Revenue summary cards — 2 col, no overflow */
+    .cal-summary { grid-template-columns: 1fr 1fr !important; }
+    .cs-item { padding: 10px 12px !important; }
+    .cs-value { font-size: 18px !important; }
+    .cs-label { font-size: 9px !important; }
+
+    /* Revenue uplift cards — stack vertically */
+    #upliftBanner .lot-banner { 
+      flex-direction: column !important; 
+      align-items: flex-start !important;
+      gap: 4px !important;
+      margin: 0 12px !important;
+      padding: 10px 14px !important;
+    }
+    .lot-value { font-size: 20px !important; }
+
     /* Sidebar: hidden off-screen left, slides in on open */
     .sidebar {
       position: fixed !important;
