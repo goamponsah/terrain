@@ -112,12 +112,34 @@
     .roi-stat-num{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:500;color:var(--terra-lt);margin-bottom:6px;}
     .roi-stat-label{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5;}
 
-    @media(max-width:800px){
-      .plans-grid{grid-template-columns:1fr;}
+    @media(max-width:900px){
+      .plans-grid{grid-template-columns:1fr 1fr !important;}
       .plan.featured{transform:none;}
-      nav{padding:16px 24px;}
-      .roi-card{grid-template-columns:1fr;}
-      .hero-title{font-size:38px;}
+      nav{padding:14px 20px;}
+      .nav-links a:not(.btn-nav){display:none;}
+      .roi-card{grid-template-columns:1fr 1fr;gap:20px;}
+      .roi-card > div:last-child{grid-column:span 2;}
+    }
+    @media(max-width:600px){
+      .plans-grid{grid-template-columns:1fr !important;}
+      .plan.featured{transform:none;}
+      nav{padding:12px 16px;}
+      .nav-links a:not(.btn-nav){display:none;}
+      .btn-nav{padding:8px 14px;font-size:12px;}
+      .roi-card{grid-template-columns:1fr;gap:16px;padding:28px 24px;}
+      .roi-card > div:last-child{grid-column:span 1;}
+      .roi-stat-num{font-size:32px;}
+      .plans-wrap{padding:0 16px;}
+      .plan{padding:24px 20px;}
+      .plan-price{font-size:42px;}
+      .founding-banner{padding:20px 20px;margin:0 0 40px;}
+      .pricing-note{padding:0 16px 40px;}
+    }
+    @media(max-width:480px){
+      [style*="font-size:52px"]{font-size:34px !important;line-height:1.15 !important;}
+      [style*="font-size:16px"]{font-size:14px !important;}
+      [style*="padding:80px 20px 60px"]{padding:48px 16px 36px !important;}
+      .roi-section{padding:0 16px;}
     }
   </style>
   <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
