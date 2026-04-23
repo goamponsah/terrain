@@ -432,11 +432,11 @@ app.post('/api/lodge', authRequired, async (req, res) => {
     // Enforce suite limits based on plan
     const user = await pool.query('SELECT plan FROM users WHERE id = $1', [req.user.id]);
     const plan = user.rows[0]?.plan || 'trial';
-    const suiteLimits = { trial: 15, starter: 15, growth: 35, portfolio: 999 };
+    const suiteLimits = { trial: 999, starter: 15, growth: 35, founding: 999, portfolio: 999 };
     const limit = suiteLimits[plan] || 15;
     if (suites && parseInt(suites) > limit) {
       return res.status(403).json({ 
-        error: `Your ${plan} plan supports up to ${limit} suites. Please upgrade to add more.` 
+        error: `Your trial supports up to ${limit} suites. Enter ${limit} or fewer to continue, or upgrade to Growth for up to 35 suites.` 
       });
     }
     // Upsert lodge
@@ -581,7 +581,8 @@ app.post('/api/paddle/webhook', express.raw({type: 'application/json'}), async (
     const planMap = {
       'pri_01kpr30n4mara8vb8z4n7bsne0': 'starter',
       'pri_01kpr38n93bkf232chqhp2919q': 'growth',
-      'pri_01kpr3ck1stnaeye6599wme271': 'portfolio'
+      'pri_01kpr3ck1stnaeye6599wme271': 'portfolio',
+      'pri_01kpx6z6ptpkmb00hcb95tgecn': 'founding'
     };
 
     if (eventType === 'subscription.activated' || eventType === 'subscription.updated') {
