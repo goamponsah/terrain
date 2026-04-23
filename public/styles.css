@@ -14,7 +14,7 @@
 }
 
 /* App shell */
-.app {
+.app, .layout {
   display: flex;
   height: 100vh;
   overflow: hidden;
@@ -29,6 +29,9 @@
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+  position: sticky;
+  top: 0;
+  height: 100vh;
 }
 
 .sidebar-top {
