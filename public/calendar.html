@@ -1185,47 +1185,82 @@ function exportPDF(){
   body{font-family:'Syne',sans-serif;background:#fff;color:#1c1814;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 
   @media (max-width: 768px) {
+    /* Sidebar: hidden off-screen left, slides in on open */
     .sidebar {
-      position: fixed;
-      left: -260px;
-      transition: left 0.3s ease;
+      position: fixed !important;
+      left: -280px !important;
+      top: 0; bottom: 0;
+      width: 260px !important;
+      transition: left 0.28s ease;
       z-index: 300;
     }
-    .sidebar.open { left: 0; }
-    .main { margin-left: 0 !important; }
+    .sidebar.open { left: 0 !important; }
+
+    /* Main takes full width */
+    .main { margin-left: 0 !important; width: 100% !important; }
+
+    /* Summary cards: 2 columns */
     .cal-summary { grid-template-columns: 1fr 1fr !important; }
-    .cal-header { padding: 12px 16px !important; flex-wrap: wrap; gap: 8px; }
-    .cal-legend { padding: 8px 16px !important; gap: 10px; }
-    .grid-outer { padding: 0 !important; }
+    .cs-item { padding: 10px 14px !important; }
+    .cs-value { font-size: 20px !important; }
+
+    /* Header */
+    .cal-header {
+      padding: 10px 14px 10px 58px !important;
+      flex-wrap: wrap; gap: 6px;
+    }
+    .cal-title { font-size: 17px !important; }
+    .cal-month-label { min-width: unset !important; font-size: 12px !important; }
+    .cal-nav button { padding: 5px 10px !important; font-size: 11px !important; }
+
+    /* Legend */
+    .cal-legend { padding: 6px 14px !important; gap: 8px; font-size: 10px; }
+
+    /* Grid */
+    .grid-outer { padding-bottom: 60px !important; }
+
+    /* Uplift banner */
     #upliftBanner { padding: 10px 12px 0 !important; }
     #upliftBanner > div { grid-template-columns: 1fr !important; }
+    .lot-banner { margin: 0 12px !important; padding: 10px 14px !important; }
+    .lot-value { font-size: 22px !important; }
+
+    /* Hamburger button */
     .mobile-menu-btn {
       display: flex !important;
       align-items: center;
       justify-content: center;
-      width: 36px; height: 36px;
+      width: 38px; height: 38px;
       background: var(--ink);
       border: none;
       border-radius: 6px;
       cursor: pointer;
       color: #fff;
-      font-size: 18px;
+      font-size: 20px;
       flex-shrink: 0;
     }
+
+    /* Overlay behind open sidebar */
     .mobile-overlay {
       display: none;
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.55);
       z-index: 299;
     }
     .mobile-overlay.open { display: block; }
+
+    /* Mobile logout button */
+    #mobileLogoutBtn { display: block !important; }
+
+    /* Rate grid cells smaller on mobile */
+    table.rate-grid { font-size: 11px !important; }
+    table.rate-grid tbody td.rate-cell { min-width: 80px !important; }
+    .rc-inner { padding: 7px 4px 6px !important; gap: 2px !important; }
+    .rc-single { font-size: 11px !important; }
   }
   @media (min-width: 769px) {
     .mobile-menu-btn { display: none !important; }
     #mobileLogoutBtn { display: none !important; }
-  }
-  @media (max-width: 768px) {
-    #mobileLogoutBtn { display: block !important; }
   }
   @media print{.no-print{display:none!important;}body{margin:0;}@page{margin:15mm;size:A4 landscape;}}
 </style>
