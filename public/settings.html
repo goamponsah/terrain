@@ -93,8 +93,10 @@
 </style>
 </head>
 <body>
-<div class="layout">
-  <aside class="sidebar">
+<div class="app">
+  <div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()"></div>
+  <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">☰</button>
+  <aside class="sidebar" id="mainSidebar">
     <div class="sidebar-top">
       <div class="logo-name">TERRAIN</div>
       <div class="logo-sub">Experience Revenue Intelligence</div>
