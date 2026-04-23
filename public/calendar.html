@@ -1203,15 +1203,20 @@ function exportPDF(){
     .cs-value { font-size: 18px !important; }
     .cs-label { font-size: 9px !important; }
 
-    /* Revenue uplift cards — stack vertically */
-    #upliftBanner .lot-banner { 
-      flex-direction: column !important; 
-      align-items: flex-start !important;
-      gap: 4px !important;
-      margin: 0 12px !important;
-      padding: 10px 14px !important;
+    /* Revenue uplift banner — stack to single column */
+    #upliftBanner { padding: 10px 12px 0 !important; }
+    #upliftBanner > div {
+      grid-template-columns: 1fr !important;
+      gap: 0 !important;
     }
-    .lot-value { font-size: 20px !important; }
+    #upliftBanner > div > div { padding: 12px 14px !important; }
+    #upliftBanner > div > div > div:nth-child(2) { font-size: 22px !important; }
+
+    /* Summary — 2x2 grid */
+    .cal-summary { grid-template-columns: 1fr 1fr !important; }
+    .cs-item { padding: 10px 12px !important; }
+    .cs-value { font-size: 18px !important; }
+    .cs-label { font-size: 9px !important; }
 
     /* Sidebar: hidden off-screen left, slides in on open */
     .sidebar {
