@@ -58,7 +58,39 @@
     .btn-danger:hover { background: var(--terra); color: #fff; }
     .page-title { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 400; color: var(--ink); margin-bottom: 4px; }
     .page-sub { font-size: 13px; color: var(--ink-muted); margin-bottom: 32px; }
-  </style>
+  
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .app { display: block !important; height: 100vh; overflow-y: auto; }
+    .sidebar {
+      position: fixed !important;
+      left: -280px !important;
+      top: 0; bottom: 0;
+      width: 260px !important;
+      transition: left 0.28s ease;
+      z-index: 300;
+      overflow-y: auto;
+    }
+    .sidebar.open { left: 0 !important; }
+    .main { margin-left: 0 !important; width: 100% !important; padding-top: 56px; }
+    .mobile-menu-btn {
+      display: flex !important;
+      position: fixed; top: 12px; left: 12px; z-index: 301;
+      width: 38px; height: 38px;
+      background: var(--ink); border: none; border-radius: 6px;
+      cursor: pointer; color: #fff; font-size: 20px;
+      align-items: center; justify-content: center;
+    }
+    .mobile-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55); z-index: 299;
+    }
+    .mobile-overlay.open { display: block; }
+  }
+  @media (min-width: 769px) {
+    .mobile-menu-btn { display: none !important; }
+  }
+</style>
 </head>
 <body>
 <div class="layout">

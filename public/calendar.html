@@ -1184,7 +1184,13 @@ function exportPDF(){
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Syne',sans-serif;background:#fff;color:#1c1814;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 
+  /* App shell layout */
+  .app { display: flex; height: 100vh; overflow: hidden; }
+  .main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
   @media (max-width: 768px) {
+    /* App shell: full screen, no side-by-side */
+    .app { display: block !important; height: 100vh; overflow: hidden; }
     /* Sidebar: hidden off-screen left, slides in on open */
     .sidebar {
       position: fixed !important;
