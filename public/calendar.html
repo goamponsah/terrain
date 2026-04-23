@@ -219,7 +219,7 @@
       <div class="leg-item" title="60–84% occupancy — pricing is working, hold your rates"><div class="leg-dot" style="background:rgba(58,92,66,0.45);"></div> Hold 60–84%</div>
       <div class="leg-item" title="Under 60% occupancy — consider a promo or lower rate to fill rooms"><div class="leg-dot" style="background:rgba(100,130,180,0.45);"></div> Slow — promo?</div>
       <button onclick="document.getElementById('signalGuide').style.display=document.getElementById('signalGuide').style.display==='none'?'flex':'none'" style="background:none;border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--ink-muted);cursor:pointer;font-family:'Syne',sans-serif;margin-left:8px;">? Signal Guide</button>
-      <div class="leg-item" style="margin-left:auto;font-size:10px;color:var(--ink-muted);">Large = 1 guest &nbsp;·&nbsp; Small = 2 guests &nbsp;·&nbsp; Enter booked suites per package</div>
+      <div class="leg-item" style="margin-left:auto;font-size:10px;color:var(--ink-muted);">Enter booked suites per package per day</div>
     </div>
     <div id="signalGuide" style="display:none;flex-direction:column;gap:0;border-bottom:1px solid var(--border);background:var(--cream);">
       <div style="padding:16px 32px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
@@ -501,32 +501,17 @@ function renderGrid(){
       html+=`<div class="rc-double" style="${op}">${s}${rec2.toLocaleString()}</div>`;
       if(sig.label) html+=`<span class="rc-badge ${sig.cls}">${sig.label}</span>`;
 
-      // Booked inputs — single + double occupancy
-      const bookedS=(occData[key]&&occData[key][pi+'_s']!=null)?occData[key][pi+'_s']:'';
-      const bookedD=(occData[key]&&occData[key][pi+'_d']!=null)?occData[key][pi+'_d']:'';
-      html+=`<div style="border-top:1px dashed var(--border);margin-top:4px;padding-top:4px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:0 4px;">
-          <div style="text-align:center;">
-            <div style="font-size:7px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;white-space:nowrap;">1 guest</div>
-            <input type="number" min="0" max="${spp}"
-              value="${bookedS}" placeholder="0"
-              style="width:38px;border:1px solid var(--border);border-radius:4px;padding:2px 3px;font-size:11px;font-family:'DM Mono',monospace;color:var(--ink);text-align:center;background:rgba(255,255,255,0.8);"
-              onclick="event.stopPropagation()"
-              onfocus="this.style.borderColor='var(--terra)';event.stopPropagation()"
-              onblur="updatePkgBookedSplit('${key}',${pi},'s',this.value,${spp});this.style.borderColor='var(--border)'"
-            />
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:7px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;white-space:nowrap;">2 guests</div>
-            <input type="number" min="0" max="${spp}"
-              value="${bookedD}" placeholder="0"
-              style="width:38px;border:1px solid var(--border);border-radius:4px;padding:2px 3px;font-size:11px;font-family:'DM Mono',monospace;color:var(--ink);text-align:center;background:rgba(255,255,255,0.8);"
-              onclick="event.stopPropagation()"
-              onfocus="this.style.borderColor='var(--terra)';event.stopPropagation()"
-              onblur="updatePkgBookedSplit('${key}',${pi},'d',this.value,${spp});this.style.borderColor='var(--border)'"
-            />
-          </div>
-        </div>
+      // Single booked input per package
+      const bookedVal=(occData[key]&&occData[key][pi]!=null)?occData[key][pi]:'';
+      html+=`<div style="border-top:1px dashed var(--border);margin-top:4px;padding-top:4px;text-align:center;">
+        <div style="font-size:7px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">Booked</div>
+        <input type="number" min="0" max="${spp}"
+          value="${bookedVal}" placeholder="0"
+          style="width:48px;border:1px solid var(--border);border-radius:4px;padding:2px 4px;font-size:11px;font-family:'DM Mono',monospace;color:var(--ink);text-align:center;background:rgba(255,255,255,0.8);"
+          onclick="event.stopPropagation()"
+          onfocus="this.style.borderColor='var(--terra)';event.stopPropagation()"
+          onblur="updatePkgBooked('${key}',${pi},this.value,${spp});this.style.borderColor='var(--border)'"
+        />
       </div>`;
 
       // Actual rate inputs removed
@@ -635,15 +620,12 @@ function updateSummary(dates,spp,s){
   let fixedTotal=0, recTotal=0, upliftDays=0;
   dates.forEach(({key})=>{
     packages.forEach((pkg,pi)=>{
-      const bS=(occData[key]&&occData[key][pi+'_s'])||0;
-      const bD=(occData[key]&&occData[key][pi+'_d'])||0;
-      const totalBooked=bS+bD;
-      if(totalBooked<=0) return;
-      const pct2=Math.min(100,Math.round((totalBooked/spp)*100));
+      const booked2=(occData[key]&&occData[key][pi])||0;
+      if(booked2<=0) return;
+      const pct2=Math.min(100,Math.round((booked2/spp)*100));
       const recS=getRec(pkg.base_rate,pct2>=0?pct2:-1,key);
-      const recD=Math.round(recS*2);
-      fixedTotal+=(pkg.base_rate*bS)+(pkg.base_rate*2*bD);
-      recTotal+=(recS*bS)+(recD*bD);
+      fixedTotal+=pkg.base_rate*booked2;
+      recTotal+=recS*booked2;
       upliftDays++;
     });
   });
