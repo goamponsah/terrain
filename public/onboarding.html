@@ -325,6 +325,17 @@ async function loadExisting(){
       document.getElementById('f_type').value=res.lodge.property_type||'Safari Lodge';
       document.getElementById('f_suites').value=res.lodge.suites||'';
       document.getElementById('f_currency').value=res.lodge.currency||'USD';
+      // Show plan limit warning only if current suites exceed limit
+      try{
+        const me=await fetch('/api/auth/me').then(r=>r.json());
+        const plan=me.user?.plan||'trial';
+        const limits={trial:15,starter:15,growth:35,portfolio:999};
+        const limit=limits[plan]||15;
+        if(res.lodge.suites>limit){
+          showError(`Your ${plan} plan supports up to ${limit} suites. To keep ${res.lodge.suites} suites, please upgrade your plan.`);
+        }
+      }catch{}
+
       if(res.packages&&res.packages.length>0){
         packages=res.packages.map(p=>({icon:p.icon||'🏕️',name:p.name||'',rate:p.base_rate!=null?p.base_rate:''}));
       }
