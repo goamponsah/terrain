@@ -292,11 +292,16 @@ async function handleSubmit(){
   try{
     const me=await fetch('/api/auth/me').then(r=>r.json());
     if(me.user){
-      await fetch('/api/lodge',{
+      const saveRes=await fetch('/api/lodge',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify(payload)
       });
+      if(!saveRes.ok){
+        const err=await saveRes.json();
+        showError(err.error||'Failed to save. Please try again.');
+        return;
+      }
     }
   } catch(e){ /* guest mode — that's fine */ }
 

@@ -283,6 +283,9 @@
         <div class="prop-pill-meta" id="sidePropMeta">—</div>
       </div>
     </div>
+    <!-- Plan badge -->
+    <div id="planBadge" style="padding:12px 24px;border-bottom:1px solid rgba(255,255,255,0.07);"></div>
+
     <nav class="nav">
       <div class="nav-label">Revenue</div>
       <a class="nav-item" href="/dashboard">
@@ -293,7 +296,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         Rate Calendar
       </a>
-
+      <a class="nav-item" href="/settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Account & Plan
+      </a>
     </nav>
     <div class="sidebar-footer">
       <div class="user-mini">
@@ -485,6 +491,30 @@ async function buildDashboard(cfg) {
   const emailInitials = emailName.slice(0,2).toUpperCase();
   if(document.getElementById('userAvatar')) document.getElementById('userAvatar').textContent = emailInitials;
   if(document.getElementById('userName')) document.getElementById('userName').textContent = emailName;
+
+  // Plan badge
+  const plan = res.user.plan || 'trial';
+  const trialStart = res.user.trial_started_at ? new Date(res.user.trial_started_at) : new Date();
+  const trialDays = res.user.trial_days || 90;
+  const daysUsed = Math.floor((new Date() - trialStart) / (1000*60*60*24));
+  const daysLeft = Math.max(0, trialDays - daysUsed);
+  const planLabels = { trial: 'Free Trial', starter: 'Starter', growth: 'Growth', portfolio: 'Portfolio' };
+  const planLabel = planLabels[plan] || plan;
+  const isTrial = plan === 'trial';
+  const isUrgent = isTrial && daysLeft <= 7;
+  const badgeEl = document.getElementById('planBadge');
+  if(badgeEl) {
+    badgeEl.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${isTrial?'6px':'0'};">
+        <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${isUrgent?'#e8896a':'rgba(255,255,255,0.5)'};">${planLabel}</span>
+        <a href="/settings" style="font-size:10px;color:var(--terra);text-decoration:none;font-weight:600;">Upgrade →</a>
+      </div>
+      ${isTrial ? `<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:4px;margin-bottom:5px;">
+        <div style="background:${isUrgent?'#e8896a':'rgba(196,97,58,0.6)'};height:4px;border-radius:4px;width:${Math.round((daysLeft/trialDays)*100)}%;"></div>
+      </div>
+      <div style="font-size:10px;color:${isUrgent?'#e8896a':'rgba(255,255,255,0.3)'};">${daysLeft} days remaining</div>` : ''}
+    `;
+  }
   document.getElementById('sidePropName').textContent = cfg.name;
   document.getElementById('sidePropMeta').textContent = (cfg.type || 'Safari Lodge') + ' · ' + suites + ' suites · ' + (cfg.country || '');
   document.getElementById('topbarTitle').textContent = 'Welcome back — ' + cfg.name;
