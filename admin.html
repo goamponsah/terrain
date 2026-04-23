@@ -55,12 +55,28 @@
     .no-data{color:var(--ink-muted);font-style:italic;font-size:12px;}
     .loading{text-align:center;padding:60px;color:var(--ink-muted);}
     .error-msg{background:rgba(196,97,58,0.08);border:1px solid rgba(196,97,58,0.2);border-radius:8px;padding:20px;color:var(--terra);text-align:center;margin:40px 0;}
+    .nav-right{display:flex;align-items:center;gap:12px;}
+    .btn{cursor:pointer;border:none;border-radius:5px;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.06em;padding:7px 14px;}
+    .btn-refresh{background:rgba(255,255,255,0.1);color:#fff;}
+    .btn-refresh:hover{background:rgba(255,255,255,0.18);}
+    .btn-logout{background:rgba(196,97,58,0.2);color:var(--terra-lt);border:1px solid rgba(196,97,58,0.3);}
+    .btn-logout:hover{background:rgba(196,97,58,0.35);}
+    .toolbar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+    .search-input{flex:1;min-width:200px;padding:9px 14px;border:1px solid var(--border);border-radius:6px;font-family:'Syne',sans-serif;font-size:13px;background:#fff;color:var(--ink);outline:none;}
+    .search-input:focus{border-color:var(--ink-muted);}
+    .filter-select{padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-family:'Syne',sans-serif;font-size:13px;background:#fff;color:var(--ink);outline:none;cursor:pointer;}
+    .refresh-info{font-size:11px;color:var(--ink-muted);white-space:nowrap;}
+    .plan-founding{background:rgba(28,24,20,0.9);color:#d4af6a;border:1px solid rgba(212,175,106,0.4);}
   </style>
 </head>
 <body>
 <nav>
   <span class="nav-logo">TERRAIN</span>
-  <span class="nav-badge">Admin</span>
+  <div class="nav-right">
+    <span class="nav-badge">Admin</span>
+    <button class="btn btn-refresh" onclick="manualRefresh()">↻ Refresh</button>
+    <button class="btn btn-logout" onclick="logout()">Logout</button>
+  </div>
 </nav>
 
 <main>
@@ -72,6 +88,20 @@
     <div class="s-card"><div class="s-label">Active / Trial</div><div class="s-value terra" id="activeLodges">—</div></div>
     <div class="s-card dark"><div class="s-label">Total Fixed Revenue</div><div class="s-value" id="totalFixed">—</div></div>
     <div class="s-card dark"><div class="s-label">Total Uplift (This Month)</div><div class="s-value green" id="totalUplift">—</div></div>
+  </div>
+
+  <div class="toolbar">
+    <input class="search-input" id="searchInput" type="text" placeholder="Search lodge name, email or country…" oninput="filterTable()" />
+    <select class="filter-select" id="planFilter" onchange="filterTable()">
+      <option value="">All Plans</option>
+      <option value="trial">Trial</option>
+      <option value="founding">Founding</option>
+      <option value="starter">Starter</option>
+      <option value="growth">Growth</option>
+      <option value="active">Active</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+    <span class="refresh-info" id="refreshInfo">Auto-refreshes every 30s</span>
   </div>
 
   <div class="table-wrap">
@@ -98,6 +128,86 @@
 
 <script>
 const fmt = n => '$' + Math.abs(n).toLocaleString();
+let allLodges = [];
+let refreshTimer;
+
+function logout() {
+  fetch('/api/admin/logout', { method: 'POST' }).finally(() => {
+    window.location.href = '/admin';
+  });
+}
+
+function manualRefresh() {
+  clearInterval(refreshTimer);
+  loadAdmin();
+  startAutoRefresh();
+}
+
+function startAutoRefresh() {
+  refreshTimer = setInterval(() => {
+    loadAdmin();
+    updateRefreshInfo();
+  }, 30000);
+}
+
+function updateRefreshInfo() {
+  const now = new Date();
+  const t = now.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('refreshInfo').textContent = `Last updated ${t} · auto-refreshes every 30s`;
+}
+
+function getPlanClass(plan) {
+  if (!plan) return 'plan-cancelled';
+  const p = plan.toLowerCase();
+  if (p === 'founding') return 'plan-founding';
+  if (p === 'active' || p === 'growth' || p === 'starter' || p === 'portfolio') return 'plan-active';
+  if (p === 'trial') return 'plan-trial';
+  return 'plan-cancelled';
+}
+
+function filterTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const plan = document.getElementById('planFilter').value.toLowerCase();
+  const filtered = allLodges.filter(l => {
+    const matchSearch = !q ||
+      (l.name || '').toLowerCase().includes(q) ||
+      (l.email || '').toLowerCase().includes(q) ||
+      (l.country || '').toLowerCase().includes(q);
+    const matchPlan = !plan || (l.plan || '').toLowerCase() === plan;
+    return matchSearch && matchPlan;
+  });
+  renderRows(filtered);
+}
+
+function renderRows(lodges) {
+  if (lodges.length === 0) {
+    document.getElementById('lodgeTable').innerHTML = '<tr><td colspan="9" class="loading">No lodges match your search.</td></tr>';
+    return;
+  }
+  document.getElementById('lodgeTable').innerHTML = lodges.map(l => {
+    const planClass = getPlanClass(l.plan);
+    const upliftClass = l.uplift > 0 ? 'uplift-pos' : l.uplift < 0 ? 'uplift-neg' : 'uplift-zero';
+    const upliftStr = l.daysWithData > 0 ? (l.uplift >= 0 ? '+' : '-') + fmt(l.uplift) : '<span class="no-data">No data</span>';
+    const fixedStr = l.daysWithData > 0 ? fmt(l.fixedRevenue) : '<span class="no-data">—</span>';
+    const recStr = l.daysWithData > 0 ? fmt(l.recRevenue) : '<span class="no-data">—</span>';
+    const joined = new Date(l.created_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'2-digit'});
+
+    return `<tr>
+      <td>
+        <div class="lodge-name">${l.name}</div>
+        <div class="lodge-email">${l.email}</div>
+      </td>
+      <td>${l.country || '—'}</td>
+      <td><span class="plan-badge ${planClass}">${l.plan}</span></td>
+      <td class="mono">${l.suites || '—'}</td>
+      <td class="mono">${l.daysWithData > 0 ? l.daysWithData + ' days' : '<span class="no-data">None yet</span>'}</td>
+      <td class="mono">${fixedStr}</td>
+      <td class="mono">${recStr}</td>
+      <td class="mono ${l.daysWithData > 0 ? upliftClass : ''}">${upliftStr}</td>
+      <td class="mono">${joined}</td>
+    </tr>`;
+  }).join('');
+}
 
 async function loadAdmin() {
   try {
@@ -108,48 +218,22 @@ async function loadAdmin() {
       return;
     }
     const data = await res.json();
-    const lodges = data.lodges || [];
+    allLodges = data.lodges || [];
 
     // Summary
-    const totalFixed = lodges.reduce((s,l) => s + l.fixedRevenue, 0);
-    const totalUplift = lodges.reduce((s,l) => s + l.uplift, 0);
-    const active = lodges.filter(l => l.plan === 'active' || l.plan === 'trial').length;
+    const totalFixed = allLodges.reduce((s,l) => s + l.fixedRevenue, 0);
+    const totalUplift = allLodges.reduce((s,l) => s + l.uplift, 0);
+    const active = allLodges.filter(l => l.plan === 'active' || l.plan === 'trial' || l.plan === 'founding').length;
+    const foundingCount = allLodges.filter(l => (l.plan || '').toLowerCase() === 'founding').length;
 
-    document.getElementById('totalLodges').textContent = lodges.length;
+    document.getElementById('totalLodges').textContent = allLodges.length;
     document.getElementById('activeLodges').textContent = active;
     document.getElementById('totalFixed').textContent = fmt(totalFixed);
     document.getElementById('totalUplift').textContent = (totalUplift >= 0 ? '+' : '-') + fmt(totalUplift);
-    document.getElementById('subText').textContent = `${lodges.length} lodge${lodges.length !== 1 ? 's' : ''} on Terrain · Updated now`;
+    document.getElementById('subText').textContent = `${allLodges.length} lodge${allLodges.length !== 1 ? 's' : ''} on Terrain · ${foundingCount} Founding Lodge${foundingCount !== 1 ? 's' : ''} · Updated now`;
 
-    // Table
-    if (lodges.length === 0) {
-      document.getElementById('lodgeTable').innerHTML = '<tr><td colspan="9" class="loading">No lodges yet.</td></tr>';
-      return;
-    }
-
-    document.getElementById('lodgeTable').innerHTML = lodges.map(l => {
-      const planClass = l.plan === 'active' ? 'plan-active' : l.plan === 'trial' ? 'plan-trial' : 'plan-cancelled';
-      const upliftClass = l.uplift > 0 ? 'uplift-pos' : l.uplift < 0 ? 'uplift-neg' : 'uplift-zero';
-      const upliftStr = l.daysWithData > 0 ? (l.uplift >= 0 ? '+' : '-') + fmt(l.uplift) : '<span class="no-data">No data</span>';
-      const fixedStr = l.daysWithData > 0 ? fmt(l.fixedRevenue) : '<span class="no-data">—</span>';
-      const recStr = l.daysWithData > 0 ? fmt(l.recRevenue) : '<span class="no-data">—</span>';
-      const joined = new Date(l.created_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'2-digit'});
-
-      return `<tr>
-        <td>
-          <div class="lodge-name">${l.name}</div>
-          <div class="lodge-email">${l.email}</div>
-        </td>
-        <td>${l.country || '—'}</td>
-        <td><span class="plan-badge ${planClass}">${l.plan}</span></td>
-        <td class="mono">${l.suites || '—'}</td>
-        <td class="mono">${l.daysWithData > 0 ? l.daysWithData + ' days' : '<span class="no-data">None yet</span>'}</td>
-        <td class="mono">${fixedStr}</td>
-        <td class="mono">${recStr}</td>
-        <td class="mono ${l.daysWithData > 0 ? upliftClass : ''}">${upliftStr}</td>
-        <td class="mono">${joined}</td>
-      </tr>`;
-    }).join('');
+    updateRefreshInfo();
+    filterTable();
 
   } catch(err) {
     document.getElementById('lodgeTable').innerHTML = `<tr><td colspan="9"><div class="error-msg">Error loading data: ${err.message}</div></td></tr>`;
@@ -157,6 +241,7 @@ async function loadAdmin() {
 }
 
 loadAdmin();
+startAutoRefresh();
 </script>
 </body>
 </html>
