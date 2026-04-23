@@ -34,6 +34,28 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
+// Change password endpoint
+app.post('/api/auth/change-password', authRequired, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Missing fields' });
+    if (newPassword.length < 8) return res.status(400).json({ error: 'Password too short' });
+
+    const user = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+    const u = user.rows[0];
+    const bcrypt = require('bcrypt');
+    const valid = await bcrypt.compare(currentPassword, u.password_hash);
+    if (!valid) return res.status(401).json({ error: 'Current password is incorrect' });
+
+    const hash = await bcrypt.hash(newPassword, 10);
+    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, req.user.id]);
+    res.json({ success: true });
+  } catch(err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.get('/settings', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'settings.html'));
 });
@@ -384,11 +406,15 @@ app.get('/api/auth/me', authRequired, async (req, res) => {
     const daysRemaining = Math.max(0, u.trial_days - daysUsed);
     const trialExpired = daysRemaining === 0 && u.plan === 'trial';
 
+    const lodgeId = lodge.rows[0]?.id;
+    const packages = lodgeId ? await pool.query('SELECT * FROM packages WHERE lodge_id = $1 ORDER BY display_order', [lodgeId]) : { rows: [] };
+
     res.json({
-      user: { id: u.id, email: u.email, plan: u.plan },
+      user: { id: u.id, email: u.email, plan: u.plan, created_at: u.created_at, trial_started_at: u.trial_started_at, trial_days: u.trial_days },
       trial: { started: u.trial_started_at, daysRemaining, trialExpired },
       hasLodge: lodge.rows.length > 0,
-      lodge: lodge.rows[0] || null
+      lodge: lodge.rows[0] || null,
+      packages: packages.rows
     });
   } catch {
     res.json({ user: req.user, hasLodge: false, lodge: null });
