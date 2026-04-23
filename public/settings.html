@@ -120,6 +120,29 @@
         </div>
       </div>
 
+      <!-- Inline change password form -->
+      <div id="changePwdSection" style="display:none;background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:24px;overflow:hidden;">
+        <div class="settings-section-header">
+          <div class="settings-section-title">Change Password</div>
+        </div>
+        <div style="padding:24px;">
+          <div style="margin-bottom:14px;">
+            <label style="display:block;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:6px;">Current Password</label>
+            <input type="password" id="currentPwd" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:4px;font-family:'Syne',sans-serif;font-size:14px;background:var(--cream);" />
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="display:block;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:6px;">New Password</label>
+            <input type="password" id="newPwd" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:4px;font-family:'Syne',sans-serif;font-size:14px;background:var(--cream);" />
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:block;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:6px;">Confirm New Password</label>
+            <input type="password" id="confirmPwd" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:4px;font-family:'Syne',sans-serif;font-size:14px;background:var(--cream);" />
+          </div>
+          <div id="pwdMsg" style="font-size:12px;margin-bottom:12px;display:none;"></div>
+          <button class="btn-upgrade" style="padding:10px 24px;font-size:12px;" onclick="changePassword()">Update Password</button>
+        </div>
+      </div>
+
       <!-- Account -->
       <div class="settings-section">
         <div class="settings-section-header">
@@ -135,7 +158,7 @@
         </div>
         <div class="settings-row">
           <span class="settings-label">Password</span>
-          <a href="/reset-password" class="btn-manage" style="font-size:11px;">Change password</a>
+          <button class="btn-manage" style="font-size:11px;" onclick="document.getElementById('changePwdSection').style.display=document.getElementById('changePwdSection').style.display==='none'?'block':'none'">Change password</button>
         </div>
       </div>
 
@@ -171,6 +194,7 @@ async function init() {
     const data = await res.json();
     const user = data.user;
     const lodge = data.lodge;
+    const packages = data.packages || [];
 
     if (!user) { window.location.href = '/login'; return; }
 
@@ -178,9 +202,16 @@ async function init() {
     document.getElementById('accountEmail').textContent = user.email;
     document.getElementById('accountEmailRow').textContent = user.email;
 
-    // Member since
-    const joined = new Date(user.created_at || user.trial_started_at);
-    document.getElementById('memberSince').textContent = joined.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    // Member since — try multiple date fields
+    const joinedRaw = user.trial_started_at || user.created_at;
+    let joined = null;
+    if (joinedRaw) {
+      joined = new Date(joinedRaw);
+      if (isNaN(joined.getTime())) joined = null;
+    }
+    document.getElementById('memberSince').textContent = joined
+      ? joined.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+      : 'April 2026';
 
     // Plan
     const plan = user.plan || 'trial';
@@ -249,7 +280,8 @@ async function init() {
       document.getElementById('propName').textContent = lodge.name || '—';
       document.getElementById('propCountry').textContent = lodge.country || '—';
       document.getElementById('propSuites').textContent = lodge.suites ? lodge.suites + ' suites' : '—';
-      document.getElementById('propPackages').textContent = lodge.packages ? lodge.packages.length + ' packages' : '—';
+      const pkgCount = data.packages ? data.packages.length : (lodge.packages ? lodge.packages.length : 0);
+      document.getElementById('propPackages').textContent = pkgCount > 0 ? pkgCount + ' packages' : '—';
       document.getElementById('propCurrency').textContent = lodge.currency || 'USD ($)';
     }
 
@@ -263,7 +295,64 @@ async function doLogout() {
   window.location.href = '/login';
 }
 
+async function changePassword() {
+  const current = document.getElementById('currentPwd').value;
+  const newPwd = document.getElementById('newPwd').value;
+  const confirm = document.getElementById('confirmPwd').value;
+  const msg = document.getElementById('pwdMsg');
+  msg.style.display = 'none';
+
+  if (!current || !newPwd || !confirm) {
+    msg.style.color = 'var(--terra)';
+    msg.textContent = 'Please fill in all fields.';
+    msg.style.display = 'block';
+    return;
+  }
+  if (newPwd !== confirm) {
+    msg.style.color = 'var(--terra)';
+    msg.textContent = 'New passwords do not match.';
+    msg.style.display = 'block';
+    return;
+  }
+  if (newPwd.length < 8) {
+    msg.style.color = 'var(--terra)';
+    msg.textContent = 'Password must be at least 8 characters.';
+    msg.style.display = 'block';
+    return;
+  }
+  try {
+    const res = await fetch('/api/auth/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ currentPassword: current, newPassword: newPwd })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      msg.style.color = 'var(--green)';
+      msg.textContent = 'Password updated successfully.';
+      msg.style.display = 'block';
+      document.getElementById('currentPwd').value = '';
+      document.getElementById('newPwd').value = '';
+      document.getElementById('confirmPwd').value = '';
+    } else {
+      msg.style.color = 'var(--terra)';
+      msg.textContent = data.error || 'Failed to update password.';
+      msg.style.display = 'block';
+    }
+  } catch(e) {
+    msg.style.color = 'var(--terra)';
+    msg.textContent = 'Something went wrong. Try again.';
+    msg.style.display = 'block';
+  }
+}
+
 init();
 </script>
+<style>
+  .layout { min-height: 100vh; }
+  .main { position: relative; }
+  .settings-main { padding-bottom: 60px; }
+</style>
 </body>
 </html>
