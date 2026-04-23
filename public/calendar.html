@@ -377,7 +377,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   document.getElementById('calTitle').textContent=`Rate Calendar — ${lodgeConfig.name}`;
   populateMonthSelect();
   await loadProperties();
-  renderGrid();
+  await renderGrid();
   saveMonthSnapshot();
   setTimeout(()=>{const t=document.querySelector('.today-col');if(t) t.scrollIntoView({inline:'center',behavior:'smooth'});},300);
 });
@@ -385,50 +385,31 @@ document.addEventListener('DOMContentLoaded',async()=>{
 function sym(){return SYM_MAP[lodgeConfig.currency]||'$';}
 function dateKey(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
 // Returns a multiplier based on day-of-week + month (season), independent of occupancy
-function getBaseMultiplier(dateKeyStr){
-  const dt=new Date(dateKeyStr+'T12:00:00');
-  const dow=dt.getDay(); // 0=Sun,6=Sat
-  const mon=dt.getMonth(); // 0=Jan
+// Rates fetched from server — algorithm is proprietary
+const recRateCache = {};
 
-  // Seasonal multiplier
-  const seasonMult={
-    0:0.88, // Jan — low
-    1:0.88, // Feb
-    2:0.92, // Mar
-    3:0.85, // Apr — low (long rains Kenya)
-    4:0.85, // May
-    5:1.10, // Jun — dry season starts
-    6:1.30, // Jul — peak (wildebeest migration)
-    7:1.30, // Aug — peak
-    8:1.15, // Sep
-    9:1.20, // Oct — short rains, still busy
-    10:0.90,// Nov
-    11:0.95 // Dec — festive
-  }[mon]||1.0;
-
-  // Day-of-week multiplier
-  const dowMult=[1.15,0.90,0.88,0.88,0.95,1.20,1.20][dow]||1.0;
-  // Sun=1.15(checkout day premium), Mon-Wed=low, Thu=slight rise, Fri/Sat=weekend peak
-
-  return seasonMult * dowMult;
+async function fetchRates(requests) {
+  const key = JSON.stringify(requests);
+  if (recRateCache[key]) return recRateCache[key];
+  try {
+    const res = await fetch('/api/rates/recommend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ requests })
+    });
+    const data = await res.json();
+    recRateCache[key] = data.results;
+    return data.results;
+  } catch(e) {
+    return requests.map(() => ({ rec: 0, rec2: 0 }));
+  }
 }
 
-// Smart default rate — uses day/season even with no occupancy data
-function getDefaultRate(base, dateKeyStr){
-  return Math.round(base * getBaseMultiplier(dateKeyStr));
-}
-
-function getRec(base, pct, dateKeyStr){
-  const defMult = dateKeyStr ? getBaseMultiplier(dateKeyStr) : 1.0;
-  const defRate = Math.round(base * defMult);
-  if(pct>=100) return Math.round(defRate*1.45);
-  if(pct>=90)  return Math.round(defRate*1.35);
-  if(pct>=80)  return Math.round(defRate*1.20);
-  if(pct>=70)  return Math.round(defRate*1.10);
-  if(pct>=55)  return Math.round(defRate*1.00);
-  if(pct>=40)  return Math.round(defRate*0.90);
-  if(pct>=0)   return Math.round(defRate*0.80);
-  return defRate; // no occupancy data — return smart default
+function getRec(base, pct, dateKeyStr) {
+  // Returns cached rate or 0 — use fetchRates() to populate cache
+  const key = JSON.stringify([{ base, pct, dateKey: dateKeyStr }]);
+  return recRateCache[key]?.[0]?.rec || Math.round(base * 1.0);
 }
 
 function getSignal(pct, dateKeyStr){
@@ -437,17 +418,12 @@ function getSignal(pct, dateKeyStr){
   if(pct>=60)  return{label:'HOLD',cls:'b-hold',sig:'sig-hold'};
   if(pct>=30)  return{label:'PROMO?',cls:'b-promo',sig:'sig-slow'};
   if(pct>=0)   return{label:'OPEN',cls:'b-open',sig:''};
-  // No data — signal based on day/season
-  if(!dateKeyStr) return{label:'',cls:'',sig:''};
-  const m=getBaseMultiplier(dateKeyStr);
-  if(m>=1.25) return{label:'PEAK',cls:'b-surge',sig:'sig-surge'};
-  if(m>=1.08) return{label:'HIGH',cls:'b-hold',sig:'sig-hold'};
-  if(m<=0.89) return{label:'LOW',cls:'b-promo',sig:'sig-slow'};
-  return{label:'HOLD',cls:'b-hold',sig:'sig-hold'};
+  // No data
+  return{label:'OPEN',cls:'b-open',sig:''};
 }
 function spkg(){return Math.max(1,Math.floor((lodgeConfig.suites||20)/packages.length));}
 
-function renderGrid(){
+async function renderGrid(){
   const s=sym(),year=currentYear,month=currentMonth;
   const daysInMonth=new Date(year,month+1,0).getDate();
   const today=new Date();
@@ -461,6 +437,27 @@ function renderGrid(){
       isToday:dt.toDateString()===today.toDateString(),
       isPast:dt<today&&dt.toDateString()!==today.toDateString(),
       isWknd:dt.getDay()===0||dt.getDay()===6});
+  }
+
+  // Pre-fetch all recommended rates from server in one batch (keeps algorithm server-side)
+  const rateRequests = [];
+  dates.forEach(({key}) => {
+    packages.forEach((pkg, pi) => {
+      const booked = (occData[key]||{})[pi] || 0;
+      const pct = booked > 0 ? Math.min(100, Math.round((booked/spp)*100)) : -1;
+      rateRequests.push({ base: pkg.base_rate, pct, dateKey: key, _key: key, _pi: pi });
+    });
+  });
+  const rateResults = await fetchRates(rateRequests);
+  const rateMap = {};
+  rateRequests.forEach((req, i) => {
+    rateMap[req._key + '_' + req._pi] = rateResults[i] || { rec: Math.round(req.base), rec2: Math.round(req.base * 2) };
+  });
+
+  // Override getRec to use server results
+  function getRec(base, pct, dateKeyStr, pi2) {
+    if(pi2 !== undefined) return rateMap[dateKeyStr + '_' + pi2]?.rec || Math.round(base);
+    return Math.round(base);
   }
 
   let html='<thead>';
@@ -484,8 +481,8 @@ function renderGrid(){
       const booked=(occData[key]||{})[pi];
       const hasData=booked!==undefined&&booked!==null&&booked>0;
       const pct=hasData?Math.min(100,Math.round((booked/spp)*100)):-1;
-      const rec=getRec(pkg.base_rate,pct,key);
-      const rec2=Math.round(rec*2);
+      const rec=getRec(pkg.base_rate,pct,key,pi);
+      const rec2=rateMap[key+'_'+pi]?.rec2||Math.round(rec*2);
       const sig=getSignal(pct,key);
       const actual=(actualRates[key]||{})[pi];
       const hasActual=actual&&(actual.s||actual.d);
@@ -692,7 +689,7 @@ function populateMonthSelect(){
 function jumpToMonth(val){
   const [y,m]=val.split('-').map(Number);
   currentYear=y; currentMonth=m;
-  renderGrid();
+  await renderGrid();
   saveMonthSnapshot();
   if(showComparison) loadLastYearData();
 }
@@ -716,7 +713,7 @@ function changeMonth(dir){
   if(currentMonth>11){currentMonth=0;currentYear++;}
   if(currentMonth<0){currentMonth=11;currentYear--;}
   updateMonthSelect();
-  renderGrid();
+  await renderGrid();
   saveMonthSnapshot();
   if(showComparison) loadLastYearData();
 }
@@ -744,7 +741,7 @@ function openInsight(key,pi,pct,rec,spp,booked){
   document.getElementById('ipTitle').textContent=`${pkg.icon} ${pkg.name}`;
 
   const rec2=Math.round(rec*2);
-  const smartDefault=getDefaultRate(pkg.base_rate,key);
+  const smartDefault=Math.round(pkg.base_rate);
   const uplift=rec-smartDefault;
   const advice=pct>=100?`Fully sold. Push rate to ${s}${rec.toLocaleString()} for any upgrades or late additions — guests at this stage are not price sensitive.`
     :pct>=85?`At ${pct}% you have real pricing power. Raising to ${s}${rec.toLocaleString()} captures late demand without risk.`
@@ -910,14 +907,14 @@ function applyRateOverride(key,pi,rec,rec2){
   if(!isNaN(vd)&&vd>0&&(isNaN(vs)||vs<=0)) actualRates[key][pi].s=Math.round(vd/2);
   localStorage.setItem(ACTUAL_KEY,JSON.stringify(actualRates));
   closeInsight();
-  renderGrid();
+  await renderGrid();
 }
 
 function clearRateOverride(key,pi){
   if(actualRates[key]) delete actualRates[key][pi];
   localStorage.setItem(ACTUAL_KEY,JSON.stringify(actualRates));
   closeInsight();
-  renderGrid();
+  await renderGrid();
 }
 function closeInsight(){document.getElementById('insightPanel').classList.remove('open');}
 
