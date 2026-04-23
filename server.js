@@ -43,7 +43,6 @@ app.post('/api/auth/change-password', authRequired, async (req, res) => {
 
     const user = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
     const u = user.rows[0];
-    const bcrypt = require('bcrypt');
     const valid = await bcrypt.compare(currentPassword, u.password_hash);
     if (!valid) return res.status(401).json({ error: 'Current password is incorrect' });
 
