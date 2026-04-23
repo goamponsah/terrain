@@ -864,16 +864,13 @@ app.get('/api/admin/overview', authRequired, async (req, res) => {
         if (!occData[key]) continue;
         let dayHasData = false;
         pkgs.rows.forEach((pkg, pi) => {
-          const bS = parseInt(occData[key][pi + '_s']) || 0;
-          const bD = parseInt(occData[key][pi + '_d']) || 0;
-          const totalBooked = bS + bD;
-          if (totalBooked <= 0) return;
+          const booked = parseInt(occData[key][pi]) || 0;
+          if (booked <= 0) return;
           dayHasData = true;
-          const pct = Math.min(100, Math.round((totalBooked / spp) * 100));
-          const recS = getRecRate(pkg.base_rate, pct, key);
-          const recD = Math.round(recS * 2);
-          fixedRevenue += (pkg.base_rate * bS) + (pkg.base_rate * 2 * bD);
-          recRevenue += (recS * bS) + (recD * bD);
+          const pct = Math.min(100, Math.round((booked / spp) * 100));
+          const recRate = getRecRate(pkg.base_rate, pct, key);
+          fixedRevenue += pkg.base_rate * booked;
+          recRevenue += recRate * booked;
         });
         if (dayHasData) daysWithData++;
       }
