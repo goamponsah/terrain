@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-GX2SX8L8TN"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-GX2SX8L8TN");
+</script>
+<!-- Microsoft Clarity -->
+<script type="text/javascript">
+  (function(c,l,a,r,i,t,y){
+    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window, document, "clarity", "script", "wgar6fluox");
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terrain — Account & Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .settings-main { max-width: 720px; margin: 0 auto; padding: 40px 32px; }
+    .settings-section { background: #fff; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 24px; overflow: hidden; }
+    .settings-section-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .settings-section-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; color: var(--ink); }
+    .settings-row { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-label { font-size: 13px; color: var(--ink-muted); }
+    .settings-value { font-size: 14px; font-weight: 600; color: var(--ink); font-family: 'DM Mono', monospace; }
+    .plan-card { padding: 24px; }
+    .plan-name { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+    .plan-price { font-size: 13px; color: var(--ink-muted); margin-bottom: 20px; }
+    .trial-bar-wrap { margin-bottom: 20px; }
+    .trial-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-muted); margin-bottom: 6px; }
+    .trial-bar { background: var(--border); border-radius: 4px; height: 6px; }
+    .trial-bar-fill { height: 6px; border-radius: 4px; background: var(--terra); transition: width 0.3s; }
+    .trial-urgent { background: #e8896a; }
+    .plan-limits { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .plan-limit-item { background: var(--cream); border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; }
+    .plan-limit-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 4px; }
+    .plan-limit-value { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 500; color: var(--ink); }
+    .plan-limit-used { font-size: 11px; color: var(--ink-muted); margin-top: 2px; }
+    .btn-upgrade { display: inline-block; background: var(--terra); color: #fff; padding: 12px 28px; border-radius: 4px; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-decoration: none; text-transform: uppercase; transition: background 0.2s; }
+    .btn-upgrade:hover { background: #d4724a; }
+    .btn-manage { display: inline-block; background: none; color: var(--ink-muted); border: 1px solid var(--border); padding: 10px 20px; border-radius: 4px; font-family: 'Syne', sans-serif; font-size: 12px; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+    .btn-manage:hover { border-color: var(--ink-muted); color: var(--ink); }
+    .plan-features { list-style: none; margin-bottom: 20px; }
+    .plan-features li { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-soft); padding: 5px 0; }
+    .plan-features li::before { content: '✓'; color: var(--terra); font-weight: 700; font-size: 12px; }
+    .danger-zone { border-color: rgba(196,97,58,0.3); }
+    .danger-zone .settings-section-header { background: rgba(196,97,58,0.04); }
+    .btn-danger { background: none; border: 1px solid rgba(196,97,58,0.4); color: var(--terra); padding: 8px 16px; border-radius: 4px; font-size: 12px; cursor: pointer; font-family: 'Syne', sans-serif; transition: all 0.2s; }
+    .btn-danger:hover { background: var(--terra); color: #fff; }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 400; color: var(--ink); margin-bottom: 4px; }
+    .page-sub { font-size: 13px; color: var(--ink-muted); margin-bottom: 32px; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="logo-name">TERRAIN</div>
+      <div class="logo-sub">Experience Revenue Intelligence</div>
+      <div class="prop-pill">
+        <div class="prop-pill-label">Active Property</div>
+        <div class="prop-pill-name" id="sidePropName">Loading…</div>
+        <div class="prop-pill-meta" id="sidePropMeta">—</div>
+      </div>
+    </div>
+    <div id="planBadge" style="padding:12px 24px;border-bottom:1px solid rgba(255,255,255,0.07);"></div>
+    <nav class="nav">
+      <div class="nav-label">Revenue</div>
+      <a class="nav-item" href="/dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </a>
+      <a class="nav-item" href="/calendar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Rate Calendar
+      </a>
+      <a class="nav-item active" href="/settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Account & Plan
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-mini">
+        <div style="flex:1;"></div>
+        <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);border-radius:5px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:'Syne',sans-serif;">Log out</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="settings-main">
+      <p class="page-title">Account & Plan</p>
+      <p class="page-sub" id="accountEmail">Loading…</p>
+
+      <!-- Plan card -->
+      <div class="settings-section">
+        <div class="plan-card" id="planCard">
+          <div style="color:var(--ink-muted);font-size:13px;">Loading plan details…</div>
+        </div>
+      </div>
+
+      <!-- Property details -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-title">Property</div>
+          <a href="/onboarding" class="btn-manage">Edit Settings</a>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Lodge name</span>
+          <span class="settings-value" id="propName">—</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Country</span>
+          <span class="settings-value" id="propCountry">—</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Total suites</span>
+          <span class="settings-value" id="propSuites">—</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Packages</span>
+          <span class="settings-value" id="propPackages">—</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Currency</span>
+          <span class="settings-value" id="propCurrency">—</span>
+        </div>
+      </div>
+
+      <!-- Inline change password form -->
+      <div id="changePwdSection" style="display:none;background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:24px;overflow:hidden;">
+        <div class="settings-section-header">
+          <div class="settings-section-title">Change Password</div>
+        </div>
+        <div style="padding:24px;">
+          <div style="margin-bottom:14px;">
+            <label style="display:block;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:6px;">Current Password</label>
+            <input type="password" id="currentPwd" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:4px;font-family:'Syne',sans-serif;font-size:14px;background:var(--cream);" />
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="display:block;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:6px;">New Password</label>
+            <input type="password" id="newPwd" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:4px;font-family:'Syne',sans-serif;font-size:14px;background:var(--cream);" />
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:block;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:6px;">Confirm New Password</label>
+            <input type="password" id="confirmPwd" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:4px;font-family:'Syne',sans-serif;font-size:14px;background:var(--cream);" />
+          </div>
+          <div id="pwdMsg" style="font-size:12px;margin-bottom:12px;display:none;"></div>
+          <button class="btn-upgrade" style="padding:10px 24px;font-size:12px;" onclick="changePassword()">Update Password</button>
+        </div>
+      </div>
+
+      <!-- Account -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-title">Account</div>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Email address</span>
+          <span class="settings-value" id="accountEmailRow">—</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Member since</span>
+          <span class="settings-value" id="memberSince">—</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Password</span>
+          <button class="btn-manage" style="font-size:11px;" onclick="document.getElementById('changePwdSection').style.display=document.getElementById('changePwdSection').style.display==='none'?'block':'none'">Change password</button>
+        </div>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="settings-section danger-zone">
+        <div class="settings-section-header">
+          <div class="settings-section-title" style="color:var(--terra);">Danger Zone</div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;">Cancel subscription</div>
+            <div style="font-size:12px;color:var(--ink-muted);">You will retain access until the end of your billing period.</div>
+          </div>
+          <button class="btn-danger" onclick="alert('Please contact info@techsoftnexa.com to cancel your subscription.')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const PLAN_DETAILS = {
+  trial:     { label: 'Free Trial', price: 'Free for 90 days', suiteLimit: 15, color: '#b8922a' },
+  starter:   { label: 'Starter', price: '$299/month', suiteLimit: 15, color: '#3a5c42' },
+  growth:    { label: 'Growth', price: '$599/month', suiteLimit: 35, color: '#3a5878' },
+  portfolio: { label: 'Portfolio', price: '$999/month', suiteLimit: 999, color: '#c4613a' }
+};
+
+async function init() {
+  try {
+    const res = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!res.ok) { window.location.href = '/login'; return; }
+    const data = await res.json();
+    const user = data.user;
+    const lodge = data.lodge;
+    const packages = data.packages || [];
+
+    if (!user) { window.location.href = '/login'; return; }
+
+    // Email
+    document.getElementById('accountEmail').textContent = user.email;
+    document.getElementById('accountEmailRow').textContent = user.email;
+
+    // Member since — try multiple date fields
+    const joinedRaw = user.trial_started_at || user.created_at;
+    let joined = null;
+    if (joinedRaw) {
+      joined = new Date(joinedRaw);
+      if (isNaN(joined.getTime())) joined = null;
+    }
+    document.getElementById('memberSince').textContent = joined
+      ? joined.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+      : 'April 2026';
+
+    // Plan
+    const plan = user.plan || 'trial';
+    const pd = PLAN_DETAILS[plan] || PLAN_DETAILS.trial;
+    const trialStart = user.trial_started_at ? new Date(user.trial_started_at) : new Date();
+    const trialDays = user.trial_days || 90;
+    const daysUsed = Math.floor((new Date() - trialStart) / (1000*60*60*24));
+    const daysLeft = Math.max(0, trialDays - daysUsed);
+    const isTrial = plan === 'trial';
+    const isUrgent = isTrial && daysLeft <= 7;
+    const suiteLimit = pd.suiteLimit;
+    const suitesUsed = lodge?.suites || 0;
+
+    document.getElementById('planCard').innerHTML = `
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+        <div>
+          <div class="plan-name">${pd.label}</div>
+          <div class="plan-price">${pd.price}</div>
+        </div>
+        <span style="background:${pd.color}22;border:1px solid ${pd.color}44;color:${pd.color};border-radius:4px;padding:3px 10px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">${pd.label}</span>
+      </div>
+      ${isTrial ? `
+      <div class="trial-bar-wrap">
+        <div class="trial-bar-label">
+          <span>Trial period</span>
+          <span style="color:${isUrgent?'#e8896a':'inherit'};font-weight:${isUrgent?700:400};">${daysLeft} days remaining</span>
+        </div>
+        <div class="trial-bar">
+          <div class="trial-bar-fill ${isUrgent?'trial-urgent':''}" style="width:${Math.round((daysLeft/trialDays)*100)}%;"></div>
+        </div>
+      </div>` : ''}
+      <div class="plan-limits">
+        <div class="plan-limit-item">
+          <div class="plan-limit-label">Suites</div>
+          <div class="plan-limit-value">${suitesUsed} <span style="font-size:16px;color:var(--ink-muted);">/ ${suiteLimit === 999 ? '∞' : suiteLimit}</span></div>
+          <div class="plan-limit-used">${suiteLimit === 999 ? 'Unlimited' : `${suiteLimit - suitesUsed} remaining`}</div>
+        </div>
+        <div class="plan-limit-item">
+          <div class="plan-limit-label">Properties</div>
+          <div class="plan-limit-value">1 <span style="font-size:16px;color:var(--ink-muted);">/ ${plan === 'portfolio' ? '5' : '1'}</span></div>
+          <div class="plan-limit-used">${plan === 'portfolio' ? '4 remaining' : 'Upgrade for multi-property'}</div>
+        </div>
+      </div>
+      ${isTrial || plan === 'starter' ? `<a href="/pricing.html" class="btn-upgrade">Upgrade Plan</a>` : `<a href="mailto:hello@getonterrain.com" class="btn-manage">Manage Billing</a>`}
+    `;
+
+    // Sidebar plan badge
+    const badgeEl = document.getElementById('planBadge');
+    if(badgeEl) {
+      badgeEl.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${isTrial?'6px':'0'};">
+          <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${isUrgent?'#e8896a':'rgba(255,255,255,0.5)'};">${pd.label}</span>
+          ${isTrial||plan==='starter'?`<a href="/pricing.html" style="font-size:10px;color:var(--terra);text-decoration:none;font-weight:600;">Upgrade →</a>`:''}
+        </div>
+        ${isTrial ? `<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:4px;margin-bottom:5px;">
+          <div style="background:${isUrgent?'#e8896a':'rgba(196,97,58,0.6)'};height:4px;border-radius:4px;width:${Math.round((daysLeft/trialDays)*100)}%;"></div>
+        </div>
+        <div style="font-size:10px;color:${isUrgent?'#e8896a':'rgba(255,255,255,0.3)'};">${daysLeft} days remaining</div>` : ''}
+      `;
+    }
+
+    // Property info
+    if (lodge) {
+      document.getElementById('sidePropName').textContent = lodge.name || '—';
+      document.getElementById('sidePropMeta').textContent = (lodge.type || 'Safari Lodge') + ' · ' + (lodge.suites || '—') + ' suites';
+      document.getElementById('propName').textContent = lodge.name || '—';
+      document.getElementById('propCountry').textContent = lodge.country || '—';
+      document.getElementById('propSuites').textContent = lodge.suites ? lodge.suites + ' suites' : '—';
+      const pkgCount = data.packages ? data.packages.length : (lodge.packages ? lodge.packages.length : 0);
+      document.getElementById('propPackages').textContent = pkgCount > 0 ? pkgCount + ' packages' : '—';
+      document.getElementById('propCurrency').textContent = lodge.currency || 'USD ($)';
+    }
+
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+async function doLogout() {
+  try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
+  window.location.href = '/login';
+}
+
+async function changePassword() {
+  const current = document.getElementById('currentPwd').value;
+  const newPwd = document.getElementById('newPwd').value;
+  const confirm = document.getElementById('confirmPwd').value;
+  const msg = document.getElementById('pwdMsg');
+  msg.style.display = 'none';
+
+  if (!current || !newPwd || !confirm) {
+    msg.style.color = 'var(--terra)';
+    msg.textContent = 'Please fill in all fields.';
+    msg.style.display = 'block';
+    return;
+  }
+  if (newPwd !== confirm) {
+    msg.style.color = 'var(--terra)';
+    msg.textContent = 'New passwords do not match.';
+    msg.style.display = 'block';
+    return;
+  }
+  if (newPwd.length < 8) {
+    msg.style.color = 'var(--terra)';
+    msg.textContent = 'Password must be at least 8 characters.';
+    msg.style.display = 'block';
+    return;
+  }
+  try {
+    const res = await fetch('/api/auth/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ currentPassword: current, newPassword: newPwd })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      msg.style.color = 'var(--green)';
+      msg.textContent = 'Password updated successfully.';
+      msg.style.display = 'block';
+      document.getElementById('currentPwd').value = '';
+      document.getElementById('newPwd').value = '';
+      document.getElementById('confirmPwd').value = '';
+    } else {
+      msg.style.color = 'var(--terra)';
+      msg.textContent = data.error || 'Failed to update password.';
+      msg.style.display = 'block';
+    }
+  } catch(e) {
+    msg.style.color = 'var(--terra)';
+    msg.textContent = 'Something went wrong. Try again.';
+    msg.style.display = 'block';
+  }
+}
+
+init();
+</script>
+<style>
+  .layout { min-height: 100vh; }
+  .main { position: relative; }
+  .settings-main { padding-bottom: 60px; }
+</style>
+</body>
+</html>
