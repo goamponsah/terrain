@@ -22,6 +22,26 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Protect admin page — only your email
+// ── Rate recommendation API (proprietary — server-side only) ──────────
+app.post('/api/rates/recommend', authRequired, async (req, res) => {
+  try {
+    // Only allow requests from our own domain
+    const origin = req.headers.origin || req.headers.referer || '';
+    if (!origin.includes('getonterrain.com') && process.env.NODE_ENV === 'production') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const { requests } = req.body;
+    if (!Array.isArray(requests)) return res.status(400).json({ error: 'Invalid' });
+    const results = requests.map(({ base, pct, dateKey }) => {
+      const rec = getRecRate(base, pct !== undefined ? pct : -1, dateKey);
+      return { rec, rec2: Math.round(rec * 2) };
+    });
+    res.json({ results });
+  } catch(err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Admin pre-check — returns true/false without revealing admin email
 app.post('/api/admin/check', (req, res) => {
   const { email } = req.body;
