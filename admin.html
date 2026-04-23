@@ -84,6 +84,33 @@
     .refresh-info{font-size:11px;color:var(--ink-muted);white-space:nowrap;}
     .plan-founding{background:rgba(28,24,20,0.9);color:#d4af6a;border:1px solid rgba(212,175,106,0.4);}
 
+    /* Mobile responsive */
+    @media(max-width:768px){
+      nav{padding:0 16px;height:52px;}
+      .nav-badge{display:none;}
+      .btn{padding:6px 10px;font-size:11px;}
+      main{padding:24px 16px;}
+      h1{font-size:28px;}
+      .sub{font-size:12px;margin-bottom:20px;}
+      .summary{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px;}
+      .s-card{padding:14px 16px;}
+      .s-value{font-size:28px;}
+      .toolbar{flex-direction:column;align-items:stretch;gap:8px;}
+      .search-input{min-width:unset;width:100%;}
+      .filter-select{width:100%;}
+      .refresh-info{text-align:center;}
+      .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+      table{min-width:700px;}
+      tbody td{padding:10px 12px;font-size:12px;}
+      thead th{padding:10px 12px;font-size:9px;}
+      .lodge-name{font-size:13px;}
+      .login-box{padding:32px 24px;margin:16px;}
+    }
+    @media(max-width:400px){
+      .summary{grid-template-columns:repeat(2,1fr);}
+      .s-value{font-size:24px;}
+    }
+
     /* Login screen */
     #loginScreen{display:none;position:fixed;inset:0;background:var(--ink);z-index:1000;align-items:center;justify-content:center;flex-direction:column;}
     #loginScreen.visible{display:flex;}
