@@ -269,45 +269,44 @@ async function handleSubmit(){
     pricing_philosophy:'', target_revenue:0, target_occupancy:70, target_direct:50
   };
 
-  // Clear previous calendar data — this is a new/updated property
-  const existingConfig = localStorage.getItem('terrainConfig');
-  if (existingConfig) {
-    try {
-      const prev = JSON.parse(existingConfig);
-      if (prev.name !== name) {
-        localStorage.removeItem('terrainCalendarV2');
-        localStorage.removeItem('terrainActualRates');
-        localStorage.removeItem('terrainManualBooked');
-      }
-    } catch(e) {}
+  // Check if logged in — require login to save
+  try {
+    const me = await fetch('/api/auth/me').then(r => r.json());
+    if (!me.user) {
+      // Not logged in — redirect to register
+      window.location.href = '/register';
+      return;
+    }
+
+    // Save directly to API
+    const saveRes = await fetch('/api/lodge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!saveRes.ok) {
+      const err = await saveRes.json();
+      showError(err.error || 'Failed to save. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'See My Rate Calendar →';
+      return;
+    }
+
+    // Clear any stale localStorage
+    localStorage.removeItem('terrainConfig');
+    localStorage.removeItem('terrainCalendarV2');
+    localStorage.removeItem('terrainActualRates');
+    localStorage.removeItem('terrainManualBooked');
+
+  } catch(e) {
+    showError('Connection error. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'See My Rate Calendar →';
+    return;
   }
 
-  // Always save to localStorage first — works for both guests and logged-in users
-  localStorage.setItem('terrainConfig',JSON.stringify({
-    name, country, type, suites, currency,
-    packages: validPkgs.map(p=>({name:p.name,icon:p.icon,rate:parseFloat(p.rate)??0}))
-  }));
-
-  // Try to save to DB if logged in — but don't block on it
-  try{
-    const me=await fetch('/api/auth/me').then(r=>r.json());
-    if(me.user){
-      const saveRes=await fetch('/api/lodge',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(payload)
-      });
-      if(!saveRes.ok){
-        const err=await saveRes.json();
-        showError(err.error||'Failed to save. Please try again.');
-        return;
-      }
-    }
-  } catch(e){ /* guest mode — that's fine */ }
-
-  // Always go to dashboard
-  const isEditing=document.getElementById('submitBtn').textContent.includes('Update');
-  window.location.href=isEditing?'/dashboard':'/dashboard';
+  window.location.href = '/dashboard';
 }
 
 function showError(msg){

@@ -359,25 +359,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
 
-    // Guest — load from localStorage
-    const raw = localStorage.getItem('terrainConfig');
-    if (!raw) { window.location.href = '/onboarding'; return; }
-    const config = JSON.parse(raw);
-    if (!config || !config.name) { window.location.href = '/onboarding'; return; }
-    buildDashboard(config);
-
-    if (!me.user) showSaveBanner(config.name);
+    // Not logged in — redirect to login
+    window.location.href = '/login';
 
   } catch (err) {
     console.error('Dashboard load error:', err);
-    try {
-      const raw = localStorage.getItem('terrainConfig');
-      if (raw) {
-        const config = JSON.parse(raw);
-        if (config && config.name) { buildDashboard(config); return; }
-      }
-    } catch(e) {}
-    window.location.href = '/onboarding';
+    window.location.href = '/login';
   }
 });
 
@@ -471,7 +458,8 @@ function showSaveBanner(propertyName) {
     </div>
     <div style="display:flex;gap:10px;">
       <button onclick="this.closest('div[style]').remove()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);border-radius:6px;padding:8px 16px;font-size:12px;cursor:pointer;font-family:Syne,sans-serif;">Later</button>
-      <button onclick="window.location.href='/register'" style="background:#c4613a;border:none;color:#fff;border-radius:6px;padding:8px 20px;font-size:12px;font-weight:600;cursor:pointer;font-family:Syne,sans-serif;">Save My Dashboard — Free →</button>
+      <button onclick="window.location.href='/register'" style="background:#c4613a;border:none;color:#fff;border-radius:6px;padding:8px 20px;font-size:12px;font-weight:600;cursor:pointer;font-family:Syne,sans-serif;">Create Free Account →</button>
+      <button onclick="window.location.href='/login'" style="background:none;border:1px solid rgba(255,255,255,0.25);color:#fff;border-radius:6px;padding:8px 16px;font-size:12px;cursor:pointer;font-family:Syne,sans-serif;">Sign In</button>
     </div>
   `;
   document.body.appendChild(banner);

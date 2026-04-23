@@ -126,6 +126,21 @@
         localStorage.removeItem('terrainManualBooked');
         // Check if they have a lodge
         const me = await fetch('/api/auth/me').then(r => r.json());
+        // If user has localStorage config and no lodge yet, save it
+        if (!me.hasLodge) {
+          const raw = localStorage.getItem('terrainConfig');
+          if (raw) {
+            try {
+              await fetch('/api/lodge', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(JSON.parse(raw))
+              });
+              localStorage.removeItem('terrainConfig');
+              localStorage.removeItem('terrainCalendarV2');
+            } catch(e) {}
+          }
+        }
         window.location.href = me.hasLodge ? '/dashboard' : '/onboarding';
       } else {
         showError(data.error || 'Login failed');

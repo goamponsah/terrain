@@ -142,7 +142,7 @@
         localStorage.removeItem('terrainCalendarV2');
         localStorage.removeItem('terrainActualRates');
         localStorage.removeItem('terrainManualBooked');
-        window.location.href = '/dashboard';
+        window.location.href = '/onboarding';
       } else {
         showError(data.error || 'Registration failed');
         btn.disabled = false;
@@ -162,7 +162,7 @@
   }
 </script>
 
-<div style="text-align:center;padding:20px 24px 32px;font-size:11px;color:#a09890;font-family:'Syne',sans-serif;">
+<div style="position:fixed;bottom:0;left:0;right:0;text-align:center;padding:12px 24px;font-size:11px;color:#a09890;font-family:'Syne',sans-serif;">
   © 2026 Techsoftnexa LTD · Terrain is a product of Techsoftnexa LTD, registered in Ghana
 </div>
 </body>
