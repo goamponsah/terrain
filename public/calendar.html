@@ -267,6 +267,64 @@
       </div>
     </div>
 
+    <!-- How to Use guide -->
+    <div style="padding:6px 32px 0;display:flex;align-items:center;gap:8px;">
+      <button onclick="(function(){var g=document.getElementById('howToUse');var btn=document.getElementById('howToUseBtn');var open=g.style.display==='flex';g.style.display=open?'none':'flex';btn.textContent=open?'▸ How to use this page':'▾ How to use this page';})()" id="howToUseBtn" style="background:none;border:1px solid var(--border);border-radius:4px;padding:2px 10px;font-size:10px;color:var(--ink-muted);cursor:pointer;font-family:'Syne',sans-serif;letter-spacing:0.04em;">▸ How to use this page</button>
+    </div>
+    <div id="howToUse" style="display:none;flex-direction:column;gap:0;border-bottom:1px solid var(--border);background:#fff;">
+      <div style="padding:20px 32px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;">
+
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;letter-spacing:0.04em;">ENTER YOUR BOOKINGS</div>
+            <div style="font-size:12px;color:var(--ink-soft);line-height:1.6;">Each day has an input box per package. Type in how many suites are booked for that day. You only need to enter days that have bookings — leave empty days blank.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;letter-spacing:0.04em;">READ THE SIGNAL</div>
+            <div style="font-size:12px;color:var(--ink-soft);line-height:1.6;">As you enter bookings, each cell shows a coloured signal — Surge, Hold, Slow, or Sold Out. This tells you whether to raise your rate, hold it, or run a promotion for that specific day.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;letter-spacing:0.04em;">SEE THE RECOMMENDED RATE</div>
+            <div style="font-size:12px;color:var(--ink-soft);line-height:1.6;">Each cell shows two numbers — your fixed rate and Terrain's recommended rate for that day based on occupancy. The recommendation adjusts within your season, not just between seasons.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;letter-spacing:0.04em;">TRACK YOUR UPLIFT</div>
+            <div style="font-size:12px;color:var(--ink-soft);line-height:1.6;">The Revenue Uplift card above the calendar shows the difference between what you'd earn at your fixed rate versus Terrain's recommended rate. This is the money you're either capturing or leaving on the table each month.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">5</div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;letter-spacing:0.04em;">SAVE & EXPORT</div>
+            <div style="font-size:12px;color:var(--ink-soft);line-height:1.6;">Hit Save Rates to store your entries. At the end of the month, use Export Report to download a PDF rate report — useful for sharing with your owner, revenue manager, or board.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="width:28px;height:28px;border-radius:50%;background:rgba(184,146,42,0.15);border:1px solid rgba(184,146,42,0.3);color:#b8922a;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✦</div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;letter-spacing:0.04em;">BEST PRACTICE</div>
+            <div style="font-size:12px;color:var(--ink-soft);line-height:1.6;">Check and update the calendar at the start of each week. Five minutes of data entry gives you a full month of rate intelligence — and shows you exactly where to push rates and where to fill rooms.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <div id="upliftBanner" style="display:none;padding:12px 32px 0;">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;">
         <div style="background:var(--cream);padding:14px 20px;">
