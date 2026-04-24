@@ -63,7 +63,12 @@
 
     /* Packages */
     .pkg-list{display:flex;flex-direction:column;gap:10px;}
-    .pkg-row{display:grid;grid-template-columns:36px 1fr 120px 32px;gap:8px;align-items:center;}
+    .pkg-row{display:grid;grid-template-columns:36px 1fr 120px 80px 32px;gap:8px;align-items:center;}
+    .pkg-header{display:grid;grid-template-columns:36px 1fr 120px 80px 32px;gap:8px;padding:0 2px;margin-bottom:2px;}
+    .pkg-header span{font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);}
+    .pkg-suites{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:9px 8px;font-size:13px;color:var(--cream);font-family:'DM Mono',monospace;outline:none;width:100%;transition:border-color 0.15s;text-align:center;}
+    .pkg-suites:focus{border-color:var(--terra);}
+    .pkg-suites::placeholder{color:rgba(255,255,255,0.2);font-size:11px;}
     .pkg-icon-btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;width:36px;height:36px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
     .pkg-icon-btn:hover{background:rgba(255,255,255,0.12);}
     .pkg-input{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:9px 12px;font-size:13px;color:var(--cream);font-family:'Syne',sans-serif;outline:none;width:100%;transition:border-color 0.15s;}
@@ -204,22 +209,27 @@ function getCurrencySymbol(){
 function renderPackages(){
   const sym=getCurrencySymbol();
   const list=document.getElementById('pkgList');
-  list.innerHTML=packages.map((p,i)=>`
+  list.innerHTML=`
+    <div class="pkg-header">
+      <span></span>
+      <span>Package name</span>
+      <span>Rate / night</span>
+      <span>Suites</span>
+      <span></span>
+    </div>
+  `+packages.map((p,i)=>`
     <div class="pkg-row" id="pkg-${i}">
       <button class="pkg-icon-btn" onclick="openIconPicker(${i},event)" title="Change icon">${p.icon}</button>
-      <input class="pkg-input" type="text" placeholder="Package name (e.g. Classic Safari)"
+      <input class="pkg-input" type="text" placeholder="e.g. Classic Safari"
         value="${p.name}" onchange="packages[${i}].name=this.value" />
       <div class="pkg-rate-wrap">
         <span class="cur">${sym}</span>
         <input class="pkg-rate" type="number" min="0" placeholder="0"
           value="${p.rate}" onchange="packages[${i}].rate=this.value" />
       </div>
-      <div class="pkg-rate-wrap" style="max-width:90px;" title="Suites available for this package">
-        <span class="cur" style="font-size:11px;">🛏</span>
-        <input class="pkg-rate" type="number" min="1" max="500" placeholder="Suites"
-          value="${p.suites||''}" onchange="packages[${i}].suites=this.value"
-          style="font-size:12px;" />
-      </div>
+      <input class="pkg-suites" type="number" min="1" max="500" placeholder="e.g. 10"
+        value="${p.suites||''}" onchange="packages[${i}].suites=this.value"
+        title="Number of suites available for this package" />
       ${packages.length>1?`<button class="pkg-del" onclick="removePackage(${i})" title="Remove">✕</button>`:'<div></div>'}
     </div>
   `).join('');
