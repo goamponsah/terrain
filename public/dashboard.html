@@ -46,8 +46,10 @@
     .sidebar {
       width: var(--sidebar-w); background: var(--ink);
       display: flex; flex-direction: column;
-      padding: 0; flex-shrink: 0; overflow: hidden; position: relative;
+      padding: 0; flex-shrink: 0; overflow: hidden;
+      position: fixed; top: 0; left: 0; height: 100vh; z-index: 100;
     }
+    .main { margin-left: var(--sidebar-w); }
     .sidebar::after {
       content: 'T'; position: absolute; bottom: -30px; right: -10px;
       font-family: 'Cormorant Garamond', serif; font-size: 200px; font-weight: 700;
