@@ -1430,9 +1430,16 @@ function exportPDF(){
   © 2026 Techsoftnexa LTD · Terrain is a product of Techsoftnexa LTD, registered in Ghana
 </div>`;
 
-  const win=window.open('','_blank');
-  win.document.write(html);
-  win.document.close();
+  // Use blob download — avoids popup blocker
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'terrain-rate-report.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 async function doLogout(){
