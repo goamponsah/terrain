@@ -214,6 +214,12 @@ function renderPackages(){
         <input class="pkg-rate" type="number" min="0" placeholder="0"
           value="${p.rate}" onchange="packages[${i}].rate=this.value" />
       </div>
+      <div class="pkg-rate-wrap" style="max-width:90px;" title="Suites available for this package">
+        <span class="cur" style="font-size:11px;">🛏</span>
+        <input class="pkg-rate" type="number" min="1" max="500" placeholder="Suites"
+          value="${p.suites||''}" onchange="packages[${i}].suites=this.value"
+          style="font-size:12px;" />
+      </div>
       ${packages.length>1?`<button class="pkg-del" onclick="removePackage(${i})" title="Remove">✕</button>`:'<div></div>'}
     </div>
   `).join('');
@@ -344,7 +350,7 @@ async function loadExisting(){
 
 
       if(res.packages&&res.packages.length>0){
-        packages=res.packages.map(p=>({icon:p.icon||'🏕️',name:p.name||'',rate:p.base_rate!=null?p.base_rate:''}));
+        packages=res.packages.map(p=>({icon:p.icon||'🏕️',name:p.name||'',rate:p.base_rate!=null?p.base_rate:'',suites:p.suites||''}));
       }
       // Change button label to indicate editing
       document.getElementById('submitBtn').textContent='Update Property Settings →';

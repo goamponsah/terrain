@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
       if(ld.lodge){
         lodgeConfig={name:ld.lodge.name,suites:ld.lodge.suites||20,currency:ld.lodge.currency||'USD',country:ld.lodge.country||'Kenya',type:ld.lodge.property_type||'Safari Lodge'};
         if(ld.packages&&ld.packages.length>0){
-          packages=ld.packages.map(p=>({name:p.name,icon:p.icon||'🏕️',base_rate:parseFloat(p.base_rate)||450}));
+          packages=ld.packages.map(p=>({name:p.name,icon:p.icon||'🏕️',base_rate:parseFloat(p.base_rate)||450,suites:p.suites||null}));
         }
       }
     }
@@ -520,12 +520,16 @@ function getSignal(pct, dateKeyStr){
   return{label:'HOLD',cls:'b-hold',sig:'sig-hold'};
 }
 function spkg(){return Math.max(1,Math.floor((lodgeConfig.suites||20)/packages.length));}
+function pkgSuites(pkg){
+  // Use per-package suite count if set, otherwise fall back to equal split
+  return pkg.suites ? parseInt(pkg.suites) : spkg();
+}
 
 function renderGrid(){
   const s=sym(),year=currentYear,month=currentMonth;
   const daysInMonth=new Date(year,month+1,0).getDate();
   const today=new Date();
-  const spp=spkg();
+  const spp=spkg(); // fallback equal split
   document.getElementById('monthSelect') && updateMonthSelect();
 
   const dates=[];
@@ -553,11 +557,12 @@ function renderGrid(){
   // Package rows — booking input per package per day
   packages.forEach((pkg,pi)=>{
     html+='<tr>';
-    html+=`<td class="pkg-col"><div class="pkg-name">${pkg.icon} ${pkg.name}</div><div class="pkg-base">Base: ${s}${Math.round(pkg.base_rate).toLocaleString()} / night</div></td>`;
+    html+=`<td class="pkg-col"><div class="pkg-name">${pkg.icon} ${pkg.name}</div><div class="pkg-base">Base: ${s}${Math.round(pkg.base_rate).toLocaleString()} / night · ${pkgSuites(pkg)} suite${pkgSuites(pkg)!==1?'s':''}</div></td>`;
     dates.forEach(({key,isToday,isPast})=>{
       const booked=(occData[key]||{})[pi];
       const hasData=booked!==undefined&&booked!==null&&booked>0;
-      const pct=hasData?Math.min(100,Math.round((booked/spp)*100)):-1;
+      const pkgMax=pkgSuites(pkg);
+      const pct=hasData?Math.min(100,Math.round((booked/pkgMax)*100)):-1;
       const rec=getRec(pkg.base_rate,pct,key);
       const rec2=Math.round(rec*2);
       const sig=getSignal(pct,key);
@@ -566,7 +571,7 @@ function renderGrid(){
       const gapS=hasActual&&actual.s?actual.s-rec:null;
 
       const colCls=['rate-cell',isToday?'today-col':'',isPast?'past-col':'',sig.sig].filter(Boolean).join(' ');
-      html+=`<td class="${colCls}" onclick="event.target.tagName!=='INPUT'&&openInsight('${key}',${pi},${pct},${rec},${spp},${hasData?booked:0})">`;
+      html+=`<td class="${colCls}" onclick="event.target.tagName!=='INPUT'&&openInsight('${key}',${pi},${pct},${rec},${pkgMax},${hasData?booked:0})">`;
       html+=`<div class="rc-inner">`;
 
       // Recommended rates — always show both lines for consistent layout
@@ -579,7 +584,7 @@ function renderGrid(){
       const bookedVal=(occData[key]&&occData[key][pi]!=null)?occData[key][pi]:'';
       html+=`<div style="border-top:1px dashed var(--border);margin-top:4px;padding-top:4px;text-align:center;">
         <div style="font-size:7px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">Booked</div>
-        <input type="number" min="0" max="${spp}"
+        <input type="number" min="0" max="${pkgSuites(pkg)}"
           value="${bookedVal}" placeholder="0"
           style="width:48px;border:1px solid var(--border);border-radius:4px;padding:2px 4px;font-size:11px;font-family:'DM Mono',monospace;color:var(--ink);text-align:center;background:rgba(255,255,255,0.8);"
           onclick="event.stopPropagation()"
@@ -596,7 +601,7 @@ function renderGrid(){
   });
   html+='</tbody>';
   document.getElementById('rateGrid').innerHTML=html;
-  updateSummary(dates,spp,s);
+  updateSummary(dates,spp,s);  // spp used as fallback in summary
 }
 
 function updatePkgBookedSplit(key,pi,type,value,spp){
@@ -672,7 +677,7 @@ function updateSummary(dates,spp,s){
   let rev=0,occDays=0,occSum=0,sold=0,surge=0;
   dates.forEach(({key})=>{
     const tot=packages.reduce((sum,_,i)=>sum+((occData[key]||{})[i]||0),0);
-    const maxT=packages.length*spp;
+    const maxT=packages.reduce((sum,pkg)=>sum+pkgSuites(pkg),0);
     if(!occData[key]||Object.keys(occData[key]).length===0) return;
     const pct=Math.round((tot/maxT)*100);
     occDays++; occSum+=pct;
@@ -680,7 +685,8 @@ function updateSummary(dates,spp,s){
     if(pct>=85&&pct<100) surge++;
     packages.forEach((pkg,pi)=>{
       const b=(occData[key]||{})[pi]||0;
-      const p=Math.min(100,Math.round((b/spp)*100));
+      const pkgMax=pkgSuites(pkg);
+      const p=Math.min(100,Math.round((b/pkgMax)*100));
       rev+=b*getRec(pkg.base_rate,p>=0?p:-1,key);
     });
   });
@@ -696,7 +702,8 @@ function updateSummary(dates,spp,s){
     packages.forEach((pkg,pi)=>{
       const booked2=(occData[key]&&occData[key][pi])||0;
       if(booked2<=0) return;
-      const pct2=Math.min(100,Math.round((booked2/spp)*100));
+      const pkgMax=pkgSuites(pkg);
+      const pct2=Math.min(100,Math.round((booked2/pkgMax)*100));
       const recS=getRec(pkg.base_rate,pct2>=0?pct2:-1,key);
       fixedTotal+=pkg.base_rate*booked2;
       recTotal+=recS*booked2;
