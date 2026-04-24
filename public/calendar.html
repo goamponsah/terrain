@@ -1127,8 +1127,10 @@ function exportPDF(){
   const toDate=toVal?new Date(toVal):new Date(currentYear,currentMonth+1,0);
 
   const spp=spkg();
+  const s=sym();
   const today=new Date();
   const generatedDate=today.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  const mn=MONTHS[fromDate.getMonth()];
 
   // Build date list from fromDate to toDate
   const dateList=[];
@@ -1187,9 +1189,11 @@ function exportPDF(){
   // Build package columns header
   const pkgHeaders=packages.map(p=>`<th style="background:#1c1814;color:rgba(255,255,255,0.8);padding:8px 12px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;min-width:110px;">${p.icon} ${p.name}</th>`).join('');
 
-  // Build date rows
+  // Build date rows — iterate over the selected date range
   const dateRows=[];
-  // Group by date
+  const year=fromDate.getFullYear();
+  const month=fromDate.getMonth();
+  const daysInMonth=new Date(year,month+1,0).getDate();
   for(let d=1;d<=daysInMonth;d++){
     const key=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dt=new Date(year,month,d);
