@@ -42,7 +42,7 @@
     .cal-legend{display:flex;gap:20px;padding:10px 32px;border-bottom:1px solid var(--border);font-size:11px;color:var(--ink-muted);flex-wrap:wrap;align-items:center;}
     .leg-item{display:flex;align-items:center;gap:6px;}
     .leg-dot{width:10px;height:10px;border-radius:2px;}
-    .grid-outer{overflow-x:auto;padding-bottom:80px;}
+    .grid-outer{overflow-x:auto;overflow-y:auto;flex:1;min-height:0;}
     table.rate-grid{border-collapse:collapse;min-width:100%;font-size:12px;}
     table.rate-grid th.pkg-col,table.rate-grid td.pkg-col{
       position:sticky;left:0;z-index:5;background:var(--warm);
@@ -173,7 +173,7 @@
     </div>
   </aside>
 
-  <main class="main" style="overflow-y:auto;display:flex;flex-direction:column;">
+  <main class="main" style="overflow:hidden;display:flex;flex-direction:column;height:100vh;">
     <div class="cal-header">
       <div>
         <div class="page-eyebrow">Pricing Engine</div>
