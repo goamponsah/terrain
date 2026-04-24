@@ -1145,6 +1145,7 @@ function exportPDF(){
   // Compute summary stats
   let totalRec=0, totalActual=0, totalBooked=0, daysWithData=0;
   let soldOut=0, surgeDays=0, lotTotal=0, lotDays=0;
+  const daysWithDataSet=new Set(); // track unique days
 
   const rows=[];
   dateList.forEach(dt=>{
@@ -1165,7 +1166,7 @@ function exportPDF(){
       const sig=getSignal(pct,key);
 
       if(hasData){
-        daysWithData++;
+        daysWithDataSet.add(key); // count unique days only
         totalRec+=booked*rec;
         totalBooked+=booked;
         if(pct>=100) soldOut++;
@@ -1182,6 +1183,7 @@ function exportPDF(){
     });
   });
 
+  daysWithData=daysWithDataSet.size;
   const avgOcc=daysWithData>0?Math.round((totalBooked/(daysWithData*spp))*100):0;
   // Revenue uplift = recommended rate revenue minus fixed rate revenue
   let fixedRevTotal=0;
