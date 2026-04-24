@@ -107,6 +107,7 @@ async function initDB() {
         name VARCHAR(255) NOT NULL,
         icon VARCHAR(10),
         base_rate NUMERIC(10,2),
+        suites INTEGER DEFAULT NULL,
         display_order INTEGER DEFAULT 0
       );
 
@@ -127,6 +128,8 @@ async function initDB() {
         commission_pct NUMERIC(5,2) DEFAULT 0
       );
     `);
+    // Add suites column to packages if it doesn't exist (for existing databases)
+    await pool.query(`ALTER TABLE packages ADD COLUMN IF NOT EXISTS suites INTEGER DEFAULT NULL`);
     console.log('Database initialized');
   } catch (err) {
     console.error('DB init error:', err.message);
@@ -465,8 +468,8 @@ app.post('/api/lodge', authRequired, async (req, res) => {
     if (packages && packages.length > 0) {
       for (let i = 0; i < packages.length; i++) {
         const p = packages[i];
-        await pool.query('INSERT INTO packages (lodge_id, name, icon, base_rate, display_order) VALUES ($1,$2,$3,$4,$5)',
-          [lodgeId, p.name, p.icon || '🏕️', parseFloat(p.base_rate ?? p.rate) || 0, i]);
+        await pool.query('INSERT INTO packages (lodge_id, name, icon, base_rate, suites, display_order) VALUES ($1,$2,$3,$4,$5,$6)',
+          [lodgeId, p.name, p.icon || '🏕️', parseFloat(p.base_rate ?? p.rate) || 0, p.suites ? parseInt(p.suites) : null, i]);
       }
     }
 
