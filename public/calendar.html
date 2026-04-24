@@ -1246,7 +1246,7 @@ function exportPDF(){
       } else {
         cellHtml+=`<div style="font-size:10px;color:#ccc;margin-top:2px;">No data</div>`;
       }
-      return\`<td style="padding:8px 12px;border-right:1px solid #ede6d6;vertical-align:top;opacity:${isPast?0.55:1};">\${cellHtml}</td>\`;
+      return `<td style="padding:8px 12px;border-right:1px solid #ede6d6;vertical-align:top;opacity:${isPast?0.55:1};">${cellHtml}</td>`;
     }).join('');
 
     dateRows.push(`<tr style="background:${rowBg};border-top:${borderTop};">
