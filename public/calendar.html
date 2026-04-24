@@ -1183,8 +1183,20 @@ function exportPDF(){
   });
 
   const avgOcc=daysWithData>0?Math.round((totalBooked/(daysWithData*spp))*100):0;
-  const lotStr=lotDays>0?(lotTotal>=0?`+${s}${Math.round(lotTotal).toLocaleString()}`:`-${s}${Math.round(Math.abs(lotTotal)).toLocaleString()}`):'—';
-  const lotColor=lotTotal>=0?'#3a5c42':'#c4613a';
+  // Revenue uplift = recommended rate revenue minus fixed rate revenue
+  let fixedRevTotal=0;
+  dateList.forEach(dt=>{
+    const year2=dt.getFullYear(),month2=dt.getMonth(),d2=dt.getDate();
+    const key2=`${year2}-${String(month2+1).padStart(2,'0')}-${String(d2).padStart(2,'0')}`;
+    packages.forEach((pkg,pi)=>{
+      const booked=(occData[key2]||{})[pi];
+      if(booked===undefined||booked===null) return;
+      fixedRevTotal+=booked*pkg.base_rate;
+    });
+  });
+  const recUplift=Math.round(totalRec-fixedRevTotal);
+  const lotStr=daysWithData>0?(recUplift>=0?`+${s}${Math.abs(recUplift).toLocaleString()}`:`-${s}${Math.abs(recUplift).toLocaleString()}`):'—';
+  const lotColor=recUplift>=0?'#3a5c42':'#c4613a';
 
   // Build package columns header
   const pkgHeaders=packages.map(p=>`<th style="background:#1c1814;color:rgba(255,255,255,0.8);padding:8px 12px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;min-width:110px;">${p.icon} ${p.name}</th>`).join('');
@@ -1216,15 +1228,25 @@ function exportPDF(){
 
       const sigColor=pct>=100?'#c4613a':pct>=85?'#b8922a':pct>=60?'#3a5c42':pct>=0?'#4a7fa8':'#aaa';
       const sigLabel=sig.label||'';
+      const upliftAmt=hasData?Math.round((rec-pkg.base_rate)*booked):0;
+      const upliftColor=upliftAmt>0?'#3a5c42':upliftAmt<0?'#c4613a':'#aaa';
 
-      let cellHtml=`<div style="font-size:13px;font-weight:700;color:#1c1814;font-family:monospace;">${s}${rec.toLocaleString()}</div>`;
-      if(hasData) cellHtml+=`<div style="font-size:10px;color:${sigColor};font-weight:600;margin-top:1px;">${sigLabel} · ${pct}%</div>`;
-      if(hasActual){
-        if(actual.s){const g=actual.s-rec;const gc=g>0?'#3a5c42':g<0?'#c4613a':'#aaa';cellHtml+=`<div style="font-size:10px;margin-top:2px;color:#666;">1x: <strong style="color:#1c1814;">${s}${actual.s.toLocaleString()}</strong> <span style="color:${gc};font-weight:700;">${g>0?'+':''}${s}${g.toLocaleString()}</span></div>`;}
-        if(actual.d){const g=actual.d-rec2;const gc=g>0?'#3a5c42':g<0?'#c4613a':'#aaa';cellHtml+=`<div style="font-size:10px;margin-top:1px;color:#666;">2x: <strong style="color:#1c1814;">${s}${actual.d.toLocaleString()}</strong> <span style="color:${gc};font-weight:700;">${g>0?'+':''}${s}${g.toLocaleString()}</span></div>`;}
-
+      let cellHtml='';
+      // Base rate
+      cellHtml+=`<div style="font-size:9px;color:#aaa;margin-bottom:2px;">Base: ${s}${pkg.base_rate.toLocaleString()}</div>`;
+      // Recommended rate
+      cellHtml+=`<div style="font-size:14px;font-weight:700;color:#1c1814;font-family:monospace;">${s}${rec.toLocaleString()}</div>`;
+      // Signal + occupancy
+      if(hasData){
+        cellHtml+=`<div style="font-size:10px;color:${sigColor};font-weight:600;margin-top:2px;">${sigLabel} · ${pct}% occ</div>`;
+        // Booked count
+        cellHtml+=`<div style="font-size:10px;color:#8a7d72;margin-top:1px;">${booked} booked</div>`;
+        // Uplift from base
+        if(upliftAmt!==0) cellHtml+=`<div style="font-size:10px;font-weight:600;color:${upliftColor};margin-top:1px;">${upliftAmt>0?'+':''}${s}${Math.abs(upliftAmt).toLocaleString()} uplift</div>`;
+      } else {
+        cellHtml+=`<div style="font-size:10px;color:#ccc;margin-top:2px;">No data</div>`;
       }
-      return`<td style="padding:8px 12px;border-right:1px solid #ede6d6;vertical-align:top;opacity:${isPast?0.6:1};">${cellHtml}</td>`;
+      return\`<td style="padding:8px 12px;border-right:1px solid #ede6d6;vertical-align:top;opacity:${isPast?0.55:1};">\${cellHtml}</td>\`;
     }).join('');
 
     dateRows.push(`<tr style="background:${rowBg};border-top:${borderTop};">
@@ -1364,7 +1386,7 @@ function exportPDF(){
 <!-- Print button -->
 <div class="no-print" style="position:fixed;top:16px;right:16px;z-index:100;display:flex;gap:8px;">
   <button onclick="window.print()" style="background:#c4613a;color:#fff;border:none;border-radius:6px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;">🖨️ Print / Save PDF</button>
-  <button onclick="window.close()" style="background:none;border:1px solid #ddd;border-radius:6px;padding:10px 20px;font-size:13px;cursor:pointer;font-family:'Syne',sans-serif;">Close</button>
+  <button onclick="window.close()" style="background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:10px 20px;font-size:13px;cursor:pointer;font-family:'Syne',sans-serif;">✕ Close</button>
 </div>
 
 <!-- Header -->
@@ -1403,9 +1425,9 @@ function exportPDF(){
     <div style="font-size:10px;color:#8a7d72;">Days at 85%+ occupancy</div>
   </div>
   <div style="padding:16px 24px;">
-    <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:#8a7d72;margin-bottom:4px;">${lotTotal>=0?'Extra Revenue Captured':'Left on Table'}</div>
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:#8a7d72;margin-bottom:4px;">Revenue Uplift</div>
     <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:${lotColor};">${lotStr}</div>
-    <div style="font-size:10px;color:#8a7d72;">${lotDays} days with actual rates</div>
+    <div style="font-size:10px;color:#8a7d72;">Recommended vs your fixed rate</div>
   </div>
 </div>
 
