@@ -55,9 +55,15 @@ body::before {
   display: flex; flex-direction: column;
   padding: 0;
   flex-shrink: 0;
-  position: relative;
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
   overflow: hidden;
+  z-index: 100;
 }
+
+/* Offset main content so it doesn't sit behind the fixed sidebar */
+.main { margin-left: var(--sidebar-w); }
 
 .sidebar::after {
   content: 'TERRAIN';
@@ -509,7 +515,8 @@ body::before {
   font-family: 'Syne', sans-serif;
 }
 
-/* Select inputs */
+/* Mobile menu button — hidden on desktop */
+.mobile-menu-btn { display: none !important; }
 select.field-select {
   background: var(--warm-bg); border: 1px solid var(--border2);
   color: var(--ink-soft); border-radius: 6px;
