@@ -305,7 +305,7 @@ async function init() {
           <div class="plan-limit-used">${plan === 'portfolio' ? '4 remaining' : 'Upgrade for multi-property'}</div>
         </div>
       </div>
-      ${isTrial || plan === 'starter' ? `<a href="/pricing.html" class="btn-upgrade">Upgrade Plan</a>` : `<a href="mailto:hello@getonterrain.com" class="btn-manage">Manage Billing</a>`}
+      ${isTrial || plan === 'starter' ? `<a href="/pricing" class="btn-upgrade">Upgrade Plan</a>` : `<a href="mailto:hello@getonterrain.com" class="btn-manage">Manage Billing</a>`}
     `;
 
     // Sidebar plan badge
@@ -314,7 +314,7 @@ async function init() {
       badgeEl.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${isTrial?'6px':'0'};">
           <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${isUrgent?'#e8896a':'rgba(255,255,255,0.5)'};">${pd.label}</span>
-          ${isTrial||plan==='starter'?`<a href="/pricing.html" style="font-size:10px;color:var(--terra);text-decoration:none;font-weight:600;">Upgrade →</a>`:''}
+          ${isTrial||plan==='starter'?`<a href="/pricing" style="font-size:10px;color:var(--terra);text-decoration:none;font-weight:600;">Upgrade →</a>`:''}
         </div>
         ${isTrial ? `<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:4px;margin-bottom:5px;">
           <div style="background:${isUrgent?'#e8896a':'rgba(196,97,58,0.6)'};height:4px;border-radius:4px;width:${Math.round((daysLeft/trialDays)*100)}%;"></div>
