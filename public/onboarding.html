@@ -284,6 +284,7 @@ async function handleSubmit(){
   // Sync package values from DOM
   document.querySelectorAll('.pkg-input').forEach((el,i)=>{if(packages[i]) packages[i].name=el.value.trim();});
   document.querySelectorAll('.pkg-rate').forEach((el,i)=>{if(packages[i]) packages[i].rate=el.value;});
+  document.querySelectorAll('.pkg-suites').forEach((el,i)=>{if(packages[i]) packages[i].suites=el.value;});
 
   if(!name){showError('Please enter your property name.');return;}
   if(!country){showError('Please select your country.');return;}
@@ -296,7 +297,7 @@ async function handleSubmit(){
 
   const payload={
     name, country, type, suites, currency,
-    packages: validPkgs.map((p,i)=>({name:p.name, icon:p.icon, base_rate:parseFloat(p.rate)??0, display_order:i})),
+    packages: validPkgs.map((p,i)=>({name:p.name, icon:p.icon, base_rate:parseFloat(p.rate)??0, suites:p.suites?parseInt(p.suites):null, display_order:i})),
     seasons:[], channels:[], region:'',
     pricing_philosophy:'', target_revenue:0, target_occupancy:70, target_direct:50
   };
